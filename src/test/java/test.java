@@ -1,5 +1,5 @@
-import com.example.ConsoleApp;
-import com.example.asciiArt.AsciiImage;
+import com.york.ConsoleApp;
+import com.york.model.asciiArt.AsciiImage;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
