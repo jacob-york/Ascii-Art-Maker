@@ -1,4 +1,4 @@
-package com.york.model.asciiArt;
+package com.york.model;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,25 +7,31 @@ import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 
 public class ImageLoader {
-	
-	public static final String[] ACCEPTED_FORMATS = {"jpg", "jpeg", "png"};
+
+	public enum Result {
+		SUCCESS,
+		FILE_NOT_FOUND,
+		FILE_NOT_ACCEPTED,
+		NULL_PATH,
+	}
+	private static final String[] ACCEPTED_FORMATS = {"jpg", "jpeg", "png"};
 	private String path;
 	private BufferedImage image;
-	
-	// constructor
+
 	public ImageLoader() {
 		this.path = null;
 		this.image = null;
 	}
+
 	public ImageLoader(BufferedImage image) {
 		this.path = null;
 		this.image = image;
 	}
-	
-	// getters
+
 	public BufferedImage getImage() {
 		return image;
 	}
+
 	public int[][] getShadingRaster() {
 		
 		if (this.image == null) return new int[][] {{255}};
@@ -42,49 +48,53 @@ public class ImageLoader {
 		}
 		return shadingRaster;
 	}
+
 	public String getName() {
 		if (path == null)
 			return "[ANON]";
 		else
 			return path.substring(path.lastIndexOf('\\') + 1); 
 	}
+
 	public String getFileExtension() {
 		if (path == null) return null;
 		
 		int fileExtensionStart = path.lastIndexOf('.') + 1;
 		return path.substring(fileExtensionStart);
 	}
+
 	public static String[] getAcceptedFormats() {
 		return ACCEPTED_FORMATS.clone();
 	}
-	
-	// setters
-	public int setImage(BufferedImage newImage) {
+
+	public void setImage(BufferedImage newImage) {
 		image = newImage;
 		path = null;
-		return 0;
 	}
-	public int loadFromFile(String path) {
+	public Result loadFromFile(String path) {
 		
 		try {
 			BufferedImage newImage = ImageIO.read(new File(path));
 			if (!isAcceptedFormat(path)) {
-				return 2;  // file was found, but the format is not accepted.
+				return Result.FILE_NOT_ACCEPTED;
 			}
 			
 			this.image = newImage;
 			this.path = path;
 			
-			return 0;  // valid.
+			return Result.SUCCESS;
 		}
 		catch (IOException e) {
-			return 1;  // file not found.
+			return Result.FILE_NOT_FOUND;
 		}
 		
 		
 	}
-	
-	// algorithm for desaturating a color. Returns an int value (0-255) to represent pixel's shade of grey.
+
+	/**
+	 * algorithm for desaturating a color.
+	 * @return an int value from 0 to 255 that represents a pixel's shade of grey.
+	 */
 	private static int desaturate(int color) {
 	
 		int a = (color & 0xff000000) >> 24;
@@ -98,9 +108,10 @@ public class ImageLoader {
 		else {
 			if (r > g) {
 				if (r > b) {
-					// r is bigger than both, so it's the primary color
+					// r is bigger than both, so it's the primary color.
 					while (r > g && r > b) {
-						// desaturate the pixel by lowering primaries and raising secondaries until the secondaries pass the primaries
+						// desaturate the pixel by lowering primaries and
+						// raising secondaries until the secondaries pass the primaries.
 						r --;
 						g ++;
 						b ++;
@@ -164,29 +175,26 @@ public class ImageLoader {
 					return r;  // arriving here means the pixel is already grey, so just return any color value
 				}
 			}
-			
-			return (r + g + b) / 3;  // after your process, average the three
+
+			// afterwards, average the three
+			return (r + g + b) / 3;
 		}
 	}
-	
 	public static boolean isAcceptedFormat(String path) {
 		for (String format : ACCEPTED_FORMATS) {
 			if (path.toLowerCase().endsWith("." + format)) return true;
 		}
 		return false;
 	}
-	
-	public static int testPath(String path) {
-		if (path == null) return 3;  // null pointer.
-		if (!new File(path).exists()) return 1;  // file not found.
-		if (!isAcceptedFormat(path)) return 2;  // file was found, but the format is not accepted.
-		return 0;  // valid.
+	public static Result testPath(String path) {
+		if (path == null) return Result.NULL_PATH;
+		if (!new File(path).exists()) return Result.FILE_NOT_FOUND;
+		if (!isAcceptedFormat(path)) return Result.FILE_NOT_ACCEPTED;
+		return Result.SUCCESS;
 	}
-	
 	public boolean hasImage() {
 		return image != null;
 	}
-	
 	public void clear() {
 		image = null;
 	}

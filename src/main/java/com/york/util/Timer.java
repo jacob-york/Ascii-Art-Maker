@@ -1,7 +1,10 @@
+/**
+ * A simple Stopwatch class
+ * */
+
 package com.york.util;
 
 public class Timer {
-	  // A simple "stopwatch" class
 	
 	private long startTime, endTime;
 	  

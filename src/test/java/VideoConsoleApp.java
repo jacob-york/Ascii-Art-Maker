@@ -1,18 +1,17 @@
-package com.york;
-
-import com.york.model.asciiArt.AsciiVideo;
-import com.york.util.Timer;
+/**
+ * Renders Ascii Videos into console
+ * TODO: Disabled until issue with external library "openCV" is resolved.
+ */
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Scanner;
 
-public class VideoRenderConsoleApp {
+public class VideoConsoleApp {
     
 	// TODO: press <Enter> to pause video and bring up menu to exit or resume
 	
 	public static void main(String[] args) {
-
+/*
 		Scanner scanner = new Scanner(System.in);
 		char ans = 'y';
 		while (ans == 'y') {
@@ -25,11 +24,11 @@ public class VideoRenderConsoleApp {
 			try {
 				asciiVideo.interpretToConsole();
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}	
-			ans = ConsoleApp.yesOrNo("Would you like to go again? (y/n):\n>", scanner);
+			ans = ImageConsoleApp.yesOrNo("Would you like to go again? (y/n):\n>", scanner);
 		}
+*/
 	}
 	
 	public static String getPath(Scanner scanner) {
@@ -49,31 +48,5 @@ public class VideoRenderConsoleApp {
 		}
 		return returnVal;
 	}
-	
-    public static void compileToConsole(AsciiVideo asciiVideo, Scanner scanner) throws InterruptedException {
-    	
-    	Timer timer = new Timer();
-    	
-		System.out.println("Rendering...");
-		ArrayList<String> frames = asciiVideo.getFrames();
-		System.out.print("Video fully rendered. Press <Enter> to play:\n>");
-		scanner.nextLine();
-    	
-    	double waitDouble = 1000.0 / asciiVideo.getFrameRate();
-		
-    	timer.start();
-    	System.out.println(frames.get(0));
-    	timer.stop();
-    	
-    	int waitInt = (int) (waitDouble - timer.getTime());
-    	frames.remove(0);
-    	
-		for (String frame : frames) {
-			System.out.println(frame);
-		    Thread.sleep(waitInt);
-		}
-    }
-    
-    
 	
 }

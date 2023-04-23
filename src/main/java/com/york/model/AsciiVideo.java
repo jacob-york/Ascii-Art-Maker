@@ -1,29 +1,27 @@
-package com.york.model.asciiArt;
+/**
+ * A class representing an AsciiArt video.
+ * TODO: Disabled until issue with external library "openCV" is resolved.
+ */
 
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.awt.image.WritableRaster;
-import java.util.ArrayList;
+package com.york.model;
 
+/*
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.videoio.VideoCapture;
 import org.opencv.videoio.Videoio;
-
-import com.york.util.Timer;
+*/
 
 public class AsciiVideo implements AsciiArt {
 
 	private String path;
-	private VideoCapture vc;
+	//private VideoCapture vc;
 	private int charWidth;
-
 	private double frameRate;
-	
 	private String basePalette;
 	private String activePalette;
-	
-	// constructor(s)
+
+	/*
 	public AsciiVideo(String path) {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		
@@ -65,7 +63,7 @@ public class AsciiVideo implements AsciiArt {
 		
 		vc.release();
 	}
-	
+	*/
 	@Override
 	public int getWidth() {
 		// TODO Auto-generated method stub
@@ -97,6 +95,8 @@ public class AsciiVideo implements AsciiArt {
 	public String getPalette() {
 		return basePalette;
 	}
+
+	/*
     public ArrayList<String> getFrames() {
     	
     	ArrayList<String> frameList = new ArrayList<String>();
@@ -130,7 +130,29 @@ public class AsciiVideo implements AsciiArt {
 		
 		return frameList;
     }
-    
+    public static void compileToConsole(Scanner scanner) throws InterruptedException {
+
+    	Timer timer = new Timer();
+
+		System.out.println("Rendering...");
+		ArrayList<String> frames = getFrames();
+		System.out.print("Video fully rendered. Press <Enter> to play:\n>");
+		scanner.nextLine();
+
+    	double waitDouble = 1000.0 / frameRate;
+
+    	timer.start();
+    	System.out.println(frames.get(0));
+    	timer.stop();
+
+    	int waitInt = (int) (waitDouble - timer.getTime());
+    	frames.remove(0);
+
+		for (String frame : frames) {
+			System.out.println(frame);
+		    Thread.sleep(waitInt);
+		}
+    }
 	public void interpretToConsole() throws InterruptedException {
     	
     	vc.open(path);
@@ -165,31 +187,33 @@ public class AsciiVideo implements AsciiArt {
 		}
 		vc.release();
     }
-    
+    */
     public String getPath() {
     	return path;
     }
+
 	@Override
-	public int setCharWidth(int newCharWidth) {
+	public boolean setCharWidth(int newCharWidth) {
 		// TODO Auto-generated method stub
-		return 0;
+		return false;
 	}
+
 	public void setFrameRate(double newFrameRate) {
 		frameRate = newFrameRate;
 	}
+
 	@Override
-	public int setPalette(String newPalette) {
-		if (newPalette.length() != 16)
-			return 1;
-		
+	public boolean setPalette(String newPalette) {
+		if (256 % newPalette.length() != 0) return false;
+
 		basePalette = newPalette;
 		if (shadingIsInverted())
 			activePalette = AsciiArt.reverseString(basePalette);
 		else activePalette = basePalette;
-		
-		return 0;
+
+		return true;
 	}
-	
+
 	@Override
 	public void setInvertedShading(boolean invertShading) {
 		if (invertShading)
