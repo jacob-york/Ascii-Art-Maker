@@ -3,7 +3,7 @@ module com.example.demo {
     requires javafx.controls;
     requires javafx.graphics;
     requires javafx.fxml;
-    //requires opencv.java460;
+    requires opencv;
 
     opens com.york to javafx.fxml;
     exports com.york;

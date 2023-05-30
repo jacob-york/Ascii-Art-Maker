@@ -56,8 +56,9 @@ public class ConsoleApp {
 			System.out.print("Enter character width:\n>");
 			try {
 				int charWidth = Integer.parseInt(scanner.nextLine());
-				if (charWidth <= 0)
+				if (charWidth <= 0) {
 					throw new ArithmeticException();
+				}
 				return charWidth;
 			}
 			catch (NumberFormatException e) {
@@ -80,11 +81,10 @@ public class ConsoleApp {
 		try {
 			System.out.println("Working...");
 			timer.start();
-			AsciiImage asciiImage = new AsciiImage(path);
-			asciiImage
+			AsciiImage asciiImage = new AsciiImage(path)
 					.setCharWidth(charWidth)
-					.setInvertedShading(invertedShading)
-					.writeToOutput(DOWNLOADS);
+					.setInvertedShading(invertedShading);
+			asciiImage.writeToOutput(DOWNLOADS);
 
 			System.out.println(asciiImage.getName() + " successfully printed art to: \n" + DOWNLOADS + "\\" + asciiImage.getName());
 			System.out.println(asciiImage.usesDefaultPalette());

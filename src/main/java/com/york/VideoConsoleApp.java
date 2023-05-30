@@ -33,12 +33,11 @@ public class VideoConsoleApp extends ConsoleApp {
 
 	@Override
 	public void generateAscii(String path, int charWidth, boolean invertedShading) {
-		AsciiVideo asciiVideo = new AsciiVideo(path);
-		asciiVideo
+		AsciiVideo asciiVideo = new AsciiVideo(path)
 				.setCharWidth(charWidth)
 				.setInvertedShading(invertedShading);
 		try {
-			asciiVideo.interpretToConsole();
+			asciiVideo.compileToConsole();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

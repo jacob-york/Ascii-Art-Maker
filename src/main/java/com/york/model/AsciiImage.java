@@ -9,6 +9,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+/*
+ * Todo: consider builder design pattern.
+ */
 public class AsciiImage implements AsciiArt {
 	
 	private final ImageLoader imageLoader;

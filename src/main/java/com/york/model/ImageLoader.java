@@ -51,7 +51,7 @@ public class ImageLoader {
 
 	public String getName() {
 		if (path == null)
-			return "[ANON]";
+			return "image";
 		else
 			return path.substring(path.lastIndexOf('\\') + 1); 
 	}
@@ -71,6 +71,7 @@ public class ImageLoader {
 		image = newImage;
 		path = null;
 	}
+
 	public Result loadFromFile(String path) {
 		
 		try {

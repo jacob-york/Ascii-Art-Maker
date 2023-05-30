@@ -16,28 +16,27 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.WritableRaster;
 import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.List;
 
 public class AsciiVideo implements AsciiArt {
 
 	private String path;
-	private VideoCapture vc;
+	private final VideoCapture vc;
 	private int charWidth;
 	private double frameRate;
 	private String basePalette;
 	private String activePalette;
 
 	public AsciiVideo(String path) {
-		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+		nu.pattern.OpenCV.loadLocally();
 		
 		this.path = path;
 		this.charWidth = 1;
 		vc = new VideoCapture(path);
 		basePalette = DEFAULT_PALETTE;
 		activePalette = DEFAULT_PALETTE;
-		frameRate =	vc.get(Videoio.CAP_PROP_FPS);;
-		//System.out.println("DEBUG : " + frameRate);
-		
+		frameRate =	vc.get(Videoio.CAP_PROP_FPS);
+
 		vc.release();
 	}
 
@@ -73,9 +72,13 @@ public class AsciiVideo implements AsciiArt {
 		return basePalette;
 	}
 
-    public ArrayList<String> getFrames() {
+	/**
+	 *
+	 * @return a list of asciiArt strings called Frames.
+	 */
+    public List<String> getFrames() {
     	
-    	ArrayList<String> frameList = new ArrayList<String>();
+    	List<String> frameList = new ArrayList<>();
     	ImageLoader imgHandler = new ImageLoader();
     	vc.open(path);
 		Mat mat = new Mat();
@@ -111,68 +114,6 @@ public class AsciiVideo implements AsciiArt {
 		
 		return frameList;
     }
-    public static void compileToConsole(Scanner scanner) throws InterruptedException {
-
-    	Timer timer = new Timer();
-
-		System.out.println("Rendering...");
-		ArrayList<String> frames = getFrames();
-		System.out.print("Video fully rendered. Press <Enter> to play:\n>");
-		scanner.nextLine();
-
-    	double waitDouble = 1000.0 / frameRate;
-
-    	timer.start();
-    	System.out.println(frames.get(0));
-    	timer.stop();
-
-    	int waitInt = (int) (waitDouble - timer.getTime());
-    	frames.remove(0);
-
-		for (String frame : frames) {
-			System.out.println(frame);
-		    Thread.sleep(waitInt);
-		}
-    }
-	public void interpretToConsole() throws InterruptedException {
-    	
-    	vc.open(path);
-		Mat mat = new Mat();
-		Timer timer = new Timer();
-		
-		double waitDouble = 1000.0 / getFrameRate();
-		
-		while (vc.read(mat)) {
-			
-			timer.start();
-			// convert mat to a BufferedImage
-			BufferedImage image;
-	        int type = 0;
-	        if (mat.channels() == 1) {
-	            type = BufferedImage.TYPE_BYTE_GRAY;
-	        } else if (mat.channels() == 3) {
-	            type = BufferedImage.TYPE_3BYTE_BGR;
-	        }
-	        image = new BufferedImage(mat.width(), mat.height(), type);
-	        WritableRaster raster = image.getRaster();
-	        DataBufferByte dataBuffer = (DataBufferByte) raster.getDataBuffer();
-	        byte[] data = dataBuffer.getData();
-	        mat.get(0, 0, data);
-	        //
-
-	        AsciiImage asciiImage = new AsciiImage(image);
-	        asciiImage.setCharWidth(charWidth)
-	        		.setInvertedShading(shadingIsInverted())
-	        		.setPalette(activePalette);
-
-			System.out.println(asciiImage.generateInParallel());
-			timer.stop();
-			
-			int waitInt = (int) (waitDouble - timer.getTime());
-			Thread.sleep(waitInt);
-		}
-		vc.release();
-    }
 
     public String getPath() {
     	return path;
@@ -180,8 +121,9 @@ public class AsciiVideo implements AsciiArt {
 
 	@Override
 	public AsciiVideo setCharWidth(int newCharWidth) throws IllegalArgumentException {
-		// TODO Auto-generated method stub
+		// Todo: input validation
 
+		charWidth = newCharWidth;
 		return this;
 	}
 
@@ -222,4 +164,81 @@ public class AsciiVideo implements AsciiArt {
 		return activePalette.equals(AsciiArt.reverseString(basePalette));
 	}
 
+
+	/**
+	 * Generates frames, then prints them to console.
+	 * @throws InterruptedException
+	 */
+	public void compileToConsole() throws InterruptedException {
+		System.out.println("Rendering...");
+		Timer timer = new Timer();
+		double waitDouble = 1_000.0/frameRate;
+
+		// render frames via getFrames()
+		List<String> frames = getFrames();
+
+		// calculate how long printing a single frame takes.
+		timer.start();
+		System.out.println(frames.get(0));
+		timer.stop();
+		frames.remove(0);
+
+		// print frames
+		for (String frame : frames) {
+			System.out.println(frame);
+			int sleepTimeMillis = (int) (waitDouble - timer.getTime());
+			Thread.sleep(sleepTimeMillis);
+		}
+	}
+
+	/**
+	 * 1) generate a frame.
+	 * 2) print it to console.
+	 * 3) rinse and repeat.
+	 * @throws InterruptedException
+	 */
+	public void interpretToConsole() throws InterruptedException {
+		/*
+		 * wait time between prints updates dynamically, i.e. if your System had a sudden performance drop
+		 * and got slower, framerate wouldn't be affected.
+		 */
+		vc.open(path);
+
+		Mat mat = new Mat();
+		Timer timer = new Timer();
+		double waitDouble = 1_000.0/getFrameRate();
+
+		while (vc.read(mat)) {
+			timer.start();
+
+			// convert mat to a BufferedImage
+			BufferedImage image;
+			int type = 0;
+			if (mat.channels() == 1) {
+				type = BufferedImage.TYPE_BYTE_GRAY;
+			} else if (mat.channels() == 3) {
+				type = BufferedImage.TYPE_3BYTE_BGR;
+			}
+			image = new BufferedImage(mat.width(), mat.height(), type);
+			WritableRaster raster = image.getRaster();
+			DataBufferByte dataBuffer = (DataBufferByte) raster.getDataBuffer();
+			byte[] data = dataBuffer.getData();
+			mat.get(0, 0, data);
+			//
+
+			AsciiImage asciiImage = new AsciiImage(image);
+			asciiImage.setCharWidth(charWidth)
+					.setInvertedShading(shadingIsInverted())
+					.setPalette(activePalette);
+
+			System.out.println(asciiImage);
+
+			timer.stop();
+
+			int sleepTimeMillis = (int) (waitDouble - timer.getTime());
+			// TODO: Timeout Value is negative on second frame.
+			Thread.sleep(sleepTimeMillis);
+		}
+		vc.release();
+	}
 }

@@ -95,7 +95,7 @@ public class App extends Application {
 					new Alert(AlertType.INFORMATION, "art has been output to file '" + DOWNLOADS + "'.").showAndWait();
 
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
+					new Alert(AlertType.ERROR, "Unexpected Error with writing to output.").showAndWait();
 					e.printStackTrace();
 				}
 			}
