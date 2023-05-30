@@ -44,19 +44,21 @@ public interface AsciiArt {
 	/**
 	 * @param newCharWidth
 	 * @return
+	 * @throws IllegalArgumentException if newCharWidth < 1, newCharWidth is greater than the image width, or if newCharWidth * 2 is greater than the image height.
 	 */
-	boolean setCharWidth(int newCharWidth);
+	AsciiArt setCharWidth(int newCharWidth) throws IllegalArgumentException ;
 
 	/**
 	 * @param newPalette the new palette.
 	 * @return
+	 * @throws IllegalArgumentException if newPalette is not divisible by 256.
 	 */
-	boolean setPalette(String newPalette);
+	AsciiArt setPalette(String newPalette) throws IllegalArgumentException ;
 
 	/**
 	 * @param invertShading
 	 */
-	void setInvertedShading(boolean invertShading);
+	AsciiArt setInvertedShading(boolean invertShading);
 
 	/**
 	 * @return true or false of whether the art uses the default palette

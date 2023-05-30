@@ -55,8 +55,9 @@ public class CharBox {
 	}
 
 	public char pickChar(int[][] shadingRaster, String palette) {
-		if (256 % palette.length() != 0)
+		if (256 % palette.length() != 0) {
 			throw new ArrayIndexOutOfBoundsException("Palette must be divisible by 256.");
+		}
 		
 		int index = (int) Math.floor(getGrayVal(shadingRaster) / (double) (256/palette.length()));
 		return palette.charAt(index);

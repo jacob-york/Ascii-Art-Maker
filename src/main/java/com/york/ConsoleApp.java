@@ -1,3 +1,5 @@
+package com.york;
+
 /**
  * A simple console interface for rendering images into txt files
  * @author Jacob York
@@ -10,32 +12,22 @@ import com.york.model.AsciiImage;
 import com.york.model.ImageLoader;
 import com.york.util.Timer;
 
-public class ImageConsoleApp {
+public class ConsoleApp {
 
 	public static final String DOWNLOADS = "C:\\Users\\" + System.getProperty("user.name") + "\\Downloads";
-	
-	public static void main(String[] args) {
-		try (Scanner scanner = new Scanner(System.in)) {
-			String path = null;
-			int charWidth = 1;
-			char ans = 'y';
-			boolean invertedShading = false;
 
-			// core while loop
-			while (ans == 'y') {
-				path = getPathToImage(scanner);
-				charWidth = getCharWidth(scanner);
-				invertedShading = getInvertedShading(scanner);
+	private final Scanner scanner;
 
-				// start generating...
-				generateAscii(path, charWidth, invertedShading);
-				ans = yesOrNo("Would you like to go again? (y/n):\n>", scanner);
-			}
-		}
+	public ConsoleApp() {
+		scanner = new Scanner(System.in);
 	}
-	
-	public static String getPathToImage(Scanner scanner) {
-	
+
+	public Scanner getScanner() {
+		return scanner;
+	}
+
+	public String requestPath() {
+
 		while (true) {
 			System.out.print("Enter the absolute path to an image file (w/ extension):\n>");
 			String pathToImage = scanner.nextLine();
@@ -58,7 +50,7 @@ public class ImageConsoleApp {
 		}
 	}
 	
-	public static int getCharWidth(Scanner scanner) {
+	public int requestCharWidth() {
 		
 		while (true) {
 			System.out.print("Enter character width:\n>");
@@ -77,20 +69,22 @@ public class ImageConsoleApp {
 		}
 	}
 	
-	public static boolean getInvertedShading(Scanner scanner) {		
-		char invertedAns = yesOrNo("Would you like to render it with inverted shading? (y/n):\n>", scanner);
+	public boolean requestInvertedShading() {
+		char invertedAns = yesOrNo("Would you like to render it with inverted shading? (y/n):\n>");
 		return invertedAns == 'y';
 	}
 	
-	public static void generateAscii(String pathToImage, int charWidth, boolean invertedShading) { 
+	public void generateAscii(String path, int charWidth, boolean invertedShading) {
 
 		Timer timer = new Timer();
 		try {
 			System.out.println("Working...");
 			timer.start();
-			AsciiImage asciiImage = new AsciiImage(pathToImage, charWidth);
-			asciiImage.setInvertedShading(invertedShading);
-			asciiImage.writeToOutput(DOWNLOADS);
+			AsciiImage asciiImage = new AsciiImage(path);
+			asciiImage
+					.setCharWidth(charWidth)
+					.setInvertedShading(invertedShading)
+					.writeToOutput(DOWNLOADS);
 
 			System.out.println(asciiImage.getName() + " successfully printed art to: \n" + DOWNLOADS + "\\" + asciiImage.getName());
 			System.out.println(asciiImage.usesDefaultPalette());
@@ -99,15 +93,34 @@ public class ImageConsoleApp {
 		}
 	}
 	
-	public static char yesOrNo(String prompt, Scanner scanner) {
+	public char yesOrNo(String prompt) {
 		System.out.print(prompt);
 		while (true) {
 			String input = scanner.nextLine().toLowerCase();
-			if (input.equals("y") || input.equals("n"))
-				return input.charAt(0);
-			else
-				System.out.print("Please try again ('y' or 'n'):\n>");
-		}}
+			if (input.equals("y") || input.equals("n")) return input.charAt(0);
+			else System.out.print("Please try again ('y' or 'n'):\n>");
+		}
+	}
 
+	public void launch() {
+		try {
+			char ans = 'y';
+			while (ans == 'y') {
+				String path = requestPath();
+				int charWidth = requestCharWidth();
+				boolean invertedShading = requestInvertedShading();
+
+				// start generating...
+				generateAscii(path, charWidth, invertedShading);
+				ans = yesOrNo("Would you like to go again? (y/n):\n>");
+			}
+		} finally {
+			getScanner().close();
+		}
+	}
+
+	public static void main(String[] args) {
+		new ConsoleApp().launch();
+	}
 	
 }

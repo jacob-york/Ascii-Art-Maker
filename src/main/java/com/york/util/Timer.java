@@ -16,7 +16,7 @@ public class Timer {
 		endTime = System.nanoTime();
 	}
 	public double getTime() {
-		return (double) ((endTime - startTime) / 1000000);
+		return (double) ((endTime - startTime) / 1_000_000);
 	}
 	
 }

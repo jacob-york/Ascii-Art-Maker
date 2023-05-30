@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
+import com.york.model.AsciiArt;
 import com.york.model.AsciiImage;
 import com.york.model.ImageLoader;
 import javafx.application.Application;
@@ -58,7 +59,7 @@ public class App extends Application {
 		
 		paletteField.setPrefColumnCount(16);
 		paletteField.setEditable(true);
-		paletteField.setText("[Use Default]");
+		paletteField.setText(AsciiArt.DEFAULT_PALETTE);
 
 		Button chooseImage = new Button("Choose Image");
 		Button render = new Button("Render");
@@ -78,16 +79,17 @@ public class App extends Application {
 			if (curImagePath != null) {
 				int charWidth = Integer.parseInt(charWidthField.getText());
 				String palette = paletteField.getText();
-				AsciiImage asciiImage = new AsciiImage(curImagePath, charWidth);
-				asciiImage.setInvertedShading(invShadingField.isSelected());
-				// Alerts
-				if (!palette.equals("[Use Default]")) {
-					if (!asciiImage.setPalette(palette)) {
-						Alert alert = new Alert(AlertType.ERROR, "Palette must be divisible by 256.");
-						alert.showAndWait();
-						return;
-					}
+
+				AsciiImage asciiImage = new AsciiImage(curImagePath);
+				asciiImage
+						.setCharWidth(charWidth)
+						.setInvertedShading(invShadingField.isSelected());
+				try {
+					asciiImage.setPalette(palette);
+				} catch (IllegalArgumentException e) {
+					new Alert(AlertType.ERROR, e.toString());
 				}
+
 				try {
 					asciiImage.writeToOutput(DOWNLOADS);
 					new Alert(AlertType.INFORMATION, "art has been output to file '" + DOWNLOADS + "'.").showAndWait();

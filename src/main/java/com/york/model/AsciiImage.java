@@ -19,19 +19,19 @@ public class AsciiImage implements AsciiArt {
 	private String activePalette;
 	private int[][] shadingRaster;
 
-	public AsciiImage(String path, int charWidth) {
+	public AsciiImage(String path) {
 		imageLoader = new ImageLoader();
 		imageLoader.loadFromFile(path);
-		charBox = new CharBox(charWidth);
+		charBox = new CharBox(1);
 		basePalette = DEFAULT_PALETTE;
 		activePalette = DEFAULT_PALETTE;
 		this.shadingRaster = imageLoader.getShadingRaster();
 
 		updateDomainAndRange();
 	}
-	public AsciiImage(BufferedImage image, int charWidth) {
+	public AsciiImage(BufferedImage image) {
 		imageLoader = new ImageLoader(image);
-		charBox = new CharBox(charWidth);
+		charBox = new CharBox(1);
 		basePalette = DEFAULT_PALETTE;
 		activePalette = DEFAULT_PALETTE;
 		this.shadingRaster = imageLoader.getShadingRaster();
@@ -75,34 +75,51 @@ public class AsciiImage implements AsciiArt {
 	}
 
 	@Override
-	public boolean setCharWidth(int newCharWidth) {
-		if (newCharWidth > getImage().getWidth()) return false;
-		if (2 * newCharWidth > getImage().getHeight()) return false;
-		if (newCharWidth <= 0) return false;
+	public AsciiImage setCharWidth(int newCharWidth) throws IllegalArgumentException  {
+		if (newCharWidth > getImage().getWidth()) {
+			throw new IllegalArgumentException("Char width cannot be greater than the image width.");
+		}
+		if (2 * newCharWidth > getImage().getHeight()) {
+			throw new IllegalArgumentException("Char width cannot be greater than [image height / 2].");
+		}
+		if (newCharWidth < 1) {
+			throw new IllegalArgumentException("Char width must be greater than 0.");
+		}
 		
 		charBox = new CharBox(newCharWidth);
 		updateDomainAndRange();
-		return true;
+		return this;
 	}
 
 	@Override
-	public boolean setPalette(String newPalette) {
-		if (256 % newPalette.length() != 0) return false;
+	public AsciiImage setPalette(String newPalette) throws IllegalArgumentException  {
+		if (256 % newPalette.length() != 0) {
+			throw new IllegalArgumentException ("Char count in Palette must be divisible by 256.");
+		}
 
 		basePalette = newPalette;
 		if (shadingIsInverted())
 			activePalette = AsciiArt.reverseString(basePalette);
 		else activePalette = basePalette;
-		
-		return true;
+		return this;
 	}
 
-	public boolean setImage(BufferedImage image) {
-		if (image.getWidth() < charBox.getWidth() || image.getHeight() < charBox.getHeight())return false;
+	@Override
+	public AsciiImage setInvertedShading(boolean invertedShading) {
+		if (invertedShading)
+			activePalette = AsciiArt.reverseString(basePalette);
+		else activePalette = basePalette;
+		return this;
+	}
+
+	public AsciiImage setImage(BufferedImage image) throws IllegalArgumentException {
+		if (image.getWidth() < charBox.getWidth() || image.getHeight() < charBox.getHeight()) {
+			throw new IllegalArgumentException("Image is too small for current value of char width.");
+		}
 
 		imageLoader.setImage(image);
 		shadingRaster = imageLoader.getShadingRaster();
-		return true;
+		return this;
 	}
 
 	private void updateDomainAndRange() {
@@ -111,13 +128,6 @@ public class AsciiImage implements AsciiArt {
 		
 		domain = SRWidth - (SRWidth % charBox.getWidth());
 		range = SRHeight - (SRHeight % charBox.getHeight());
-	}
-	
-	@Override
-	public void setInvertedShading(boolean invertedShading) {
-		if (invertedShading)
-			activePalette = AsciiArt.reverseString(basePalette);
-		else activePalette = basePalette;
 	}
 	
 	@Override

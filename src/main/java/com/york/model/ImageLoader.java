@@ -88,7 +88,6 @@ public class ImageLoader {
 			return Result.FILE_NOT_FOUND;
 		}
 		
-		
 	}
 
 	/**

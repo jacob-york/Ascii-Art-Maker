@@ -1,27 +1,32 @@
 /**
  * A class representing an AsciiArt video.
- * TODO: Disabled until issue with external library "openCV" is resolved.
+ * Powered by OpenCV.
  */
 
 package com.york.model;
 
-/*
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.videoio.VideoCapture;
 import org.opencv.videoio.Videoio;
-*/
+
+import com.york.util.Timer;
+
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.awt.image.WritableRaster;
+import java.util.ArrayList;
+import java.util.Scanner;
 
 public class AsciiVideo implements AsciiArt {
 
 	private String path;
-	//private VideoCapture vc;
+	private VideoCapture vc;
 	private int charWidth;
 	private double frameRate;
 	private String basePalette;
 	private String activePalette;
 
-	/*
 	public AsciiVideo(String path) {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		
@@ -35,35 +40,7 @@ public class AsciiVideo implements AsciiArt {
 		
 		vc.release();
 	}
-	public AsciiVideo(String path, int charWidth) {
-		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-		
-		this.path = path;
-		this.charWidth = charWidth;
-		vc = new VideoCapture(path);
-		basePalette = DEFAULT_PALETTE;
-		activePalette = DEFAULT_PALETTE;
-		frameRate =	vc.get(Videoio.CAP_PROP_FPS);;
-		//System.out.println("DEBUG : " + frameRate);
-		
-		vc.release();
-	}
-	public AsciiVideo(String path, int charWidth, boolean invertedShading) {
-		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-		
-		this.path = path;
-		this.charWidth = charWidth;
-		vc = new VideoCapture(path);
-		basePalette = DEFAULT_PALETTE;
-		if (invertedShading)
-			activePalette = AsciiArt.reverseString(basePalette);
-		else activePalette = basePalette;
-		frameRate = vc.get(Videoio.CAP_PROP_FPS);;
-		//System.out.println("DEBUG : " + frameRate);
-		
-		vc.release();
-	}
-	*/
+
 	@Override
 	public int getWidth() {
 		// TODO Auto-generated method stub
@@ -96,7 +73,6 @@ public class AsciiVideo implements AsciiArt {
 		return basePalette;
 	}
 
-	/*
     public ArrayList<String> getFrames() {
     	
     	ArrayList<String> frameList = new ArrayList<String>();
@@ -123,7 +99,12 @@ public class AsciiVideo implements AsciiArt {
 	        mat.get(0, 0, data);
 	        //
 	        
-			AsciiImage curFrame = new AsciiImage(image, charWidth, shadingIsInverted(), activePalette);
+			AsciiImage curFrame = new AsciiImage(image);
+			curFrame
+					.setCharWidth(charWidth)
+					.setInvertedShading(shadingIsInverted())
+					.setPalette(activePalette);
+
 			frameList.add(curFrame.toString());
 		}
 		vc.release();
@@ -178,8 +159,13 @@ public class AsciiVideo implements AsciiArt {
 	        byte[] data = dataBuffer.getData();
 	        mat.get(0, 0, data);
 	        //
-	        
-			System.out.println(new AsciiImage(image, charWidth, shadingIsInverted(), activePalette).generateInParallel());
+
+	        AsciiImage asciiImage = new AsciiImage(image);
+	        asciiImage.setCharWidth(charWidth)
+	        		.setInvertedShading(shadingIsInverted())
+	        		.setPalette(activePalette);
+
+			System.out.println(asciiImage.generateInParallel());
 			timer.stop();
 			
 			int waitInt = (int) (waitDouble - timer.getTime());
@@ -187,45 +173,48 @@ public class AsciiVideo implements AsciiArt {
 		}
 		vc.release();
     }
-    */
+
     public String getPath() {
     	return path;
     }
 
 	@Override
-	public boolean setCharWidth(int newCharWidth) {
+	public AsciiVideo setCharWidth(int newCharWidth) throws IllegalArgumentException {
 		// TODO Auto-generated method stub
-		return false;
-	}
 
-	public void setFrameRate(double newFrameRate) {
-		frameRate = newFrameRate;
+		return this;
 	}
 
 	@Override
-	public boolean setPalette(String newPalette) {
-		if (256 % newPalette.length() != 0) return false;
+	public AsciiVideo setPalette(String newPalette) throws IllegalArgumentException  {
+		if (256 % newPalette.length() != 0) {
+			throw new IllegalArgumentException ("char count in Palette must be divisible by 256.");
+		}
 
 		basePalette = newPalette;
 		if (shadingIsInverted())
 			activePalette = AsciiArt.reverseString(basePalette);
 		else activePalette = basePalette;
 
-		return true;
+		return this;
 	}
 
 	@Override
-	public void setInvertedShading(boolean invertShading) {
+	public AsciiVideo setInvertedShading(boolean invertShading) {
 		if (invertShading)
 			activePalette = AsciiArt.reverseString(basePalette);
 		else activePalette = basePalette;
+		return this;
+	}
+
+	public AsciiVideo setFrameRate(double newFrameRate) {
+		frameRate = newFrameRate;
+		return this;
 	}
 
 	@Override
 	public boolean usesDefaultPalette() {
-		if (basePalette.equals(DEFAULT_PALETTE))
-			return true;
-		else return false;
+		return basePalette.equals(DEFAULT_PALETTE);
 	}
 
 	@Override
