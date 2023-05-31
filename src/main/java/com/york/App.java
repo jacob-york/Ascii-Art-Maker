@@ -90,6 +90,7 @@ public class App extends Application {
 				String palette = paletteField.getText();
 
 				AsciiImage asciiImage = new AsciiImage(pathAdapter)
+						.setName(pathAdapter.getImageName())
 						.setCharWidth(charWidth)
 						.setInvertedShading(invShadingField.isSelected());
 				try {
@@ -99,8 +100,8 @@ public class App extends Application {
 				}
 
 				try {
-					ConsoleApp.writeToOutput(asciiImage, DOWNLOADS);
-					new Alert(AlertType.INFORMATION, "art has been output to file '" + DOWNLOADS + "'.").showAndWait();
+					String outPutPath = ConsoleApp.writeToOutput(asciiImage, DOWNLOADS);
+					new Alert(AlertType.INFORMATION, "art has been output to: " + outPutPath).showAndWait();
 
 				} catch (IOException e) {
 					new Alert(AlertType.ERROR, "Unexpected Error with writing to output.").showAndWait();

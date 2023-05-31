@@ -85,26 +85,25 @@ public class ConsoleApp {
 
 	/**
 	 * writes the image's toString to a .txt file in the specified path.
-	 * @param outPath directory into which to write the Txt File
+	 * @param outPutLocation directory into which to write the Txt File
 	 */
-	public static void writeToOutput(AsciiImage asciiImage, String outPath) throws IOException {
-		FileOutputStream fos = null;
-		OutputStreamWriter osw = null;
-
+	public static String writeToOutput(AsciiImage asciiImage, String outPutLocation) throws IOException {
 		String art = asciiImage.toString();
 
-		try {
-			File file = new File(outPath + "\\" + asciiImage.getName() + ".txt");
-			fos = new FileOutputStream(file);
-			osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
-			osw.write(art);
+		String outPutPath = outPutLocation + "\\" + asciiImage.getName() + "-cw" + asciiImage.getCharWidth();
+		if (asciiImage.shadingIsInverted()) {
+			outPutPath += "-inv";
 		}
-		finally {
-			if (osw != null)
-				osw.close();
-			if (fos != null)
-				fos.close();
-		}
+		outPutPath += ".txt";
+
+		File file = new File(outPutPath);
+		FileOutputStream fos = new FileOutputStream(file);
+		OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
+		osw.write(art);
+		osw.close();
+		fos.close();
+
+		return outPutPath;
 	}
 
 	public void generateAscii(int charWidth, boolean invertedShading) {
@@ -118,10 +117,9 @@ public class ConsoleApp {
 					.setName(pathAdapter.getImageName())
 					.setCharWidth(charWidth)
 					.setInvertedShading(invertedShading);
-			writeToOutput(asciiImage, DOWNLOADS);
+			String outPutPath = writeToOutput(asciiImage, DOWNLOADS);
 
-			System.out.println(asciiImage.getName() +
-					" successfully printed art to: \n" + DOWNLOADS + "\\" + asciiImage.getName() + ".txt");
+			System.out.println(asciiImage.getName() + " successfully printed art to: " + outPutPath);
 			System.out.println(asciiImage.usesDefaultPalette());
 		} catch (IOException e) {
 			System.out.print("Failed to output file:\n" + e + "\n");
