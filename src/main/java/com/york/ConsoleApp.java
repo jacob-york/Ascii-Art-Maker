@@ -6,10 +6,11 @@ package com.york;
  */
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
 import com.york.model.AsciiImage;
-import com.york.model.ImageLoader;
+import com.york.model.RasterMaker;
 import com.york.util.Timer;
 
 public class ConsoleApp {
@@ -32,14 +33,14 @@ public class ConsoleApp {
 			System.out.print("Enter the absolute path to an image file (w/ extension):\n>");
 			String pathToImage = scanner.nextLine();
 
-			switch (ImageLoader.testPath(pathToImage)) {
+			switch (RasterMaker.testPath(pathToImage)) {
 				case SUCCESS -> {
 					return pathToImage;
 				}
 				case FILE_NOT_FOUND -> System.out.println("File not found. Please try again.");
 				case FILE_NOT_ACCEPTED -> {
 					StringBuilder displayFormats = new StringBuilder();
-					for (String format : ImageLoader.getAcceptedFormats()) {
+					for (String format : RasterMaker.getAcceptedFormats()) {
 						if (displayFormats.toString().equals(""))
 							displayFormats.append(format);
 						else displayFormats.append(", ").append(format);
@@ -74,19 +75,49 @@ public class ConsoleApp {
 		char invertedAns = yesOrNo("Would you like to render it with inverted shading? (y/n):\n>");
 		return invertedAns == 'y';
 	}
-	
+
+	/**
+	 * writes the image's toString to a .txt file in the specified path.
+	 * @param outPath directory into which to write the Txt File
+	 */
+	public static void writeToOutput(AsciiImage asciiImage, String outPath) throws IOException {
+		FileOutputStream fos = null;
+		OutputStreamWriter osw = null;
+
+		String art = asciiImage.toString();
+
+		try {
+			File file = new File(outPath + "\\" + asciiImage.getName() + ".txt");
+			fos = new FileOutputStream(file);
+			osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
+			osw.write(art);
+		}
+		finally {
+			if (osw != null)
+				osw.close();
+			if (fos != null)
+				fos.close();
+		}
+	}
+
 	public void generateAscii(String path, int charWidth, boolean invertedShading) {
 
 		Timer timer = new Timer();
 		try {
 			System.out.println("Working...");
 			timer.start();
-			AsciiImage asciiImage = new AsciiImage(path)
+
+			RasterMaker rasterMaker = new RasterMaker();
+			rasterMaker.loadFromFile(path);
+
+			AsciiImage asciiImage = new AsciiImage(rasterMaker.getShadingRaster())
+					.setName(rasterMaker.getImageName())
 					.setCharWidth(charWidth)
 					.setInvertedShading(invertedShading);
-			asciiImage.writeToOutput(DOWNLOADS);
+			writeToOutput(asciiImage, DOWNLOADS);
 
-			System.out.println(asciiImage.getName() + " successfully printed art to: \n" + DOWNLOADS + "\\" + asciiImage.getName());
+			System.out.println(asciiImage.getName() +
+					" successfully printed art to: \n" + DOWNLOADS + "\\" + asciiImage.getName() + ".txt");
 			System.out.println(asciiImage.usesDefaultPalette());
 		} catch (IOException e) {
 			System.out.print("Failed to output file:\n" + e + "\n");

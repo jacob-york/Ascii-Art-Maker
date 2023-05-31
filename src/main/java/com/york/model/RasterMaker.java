@@ -6,7 +6,11 @@ import java.awt.image.BufferedImage;
 
 import javax.imageio.ImageIO;
 
-public class ImageLoader {
+/**
+ * Standardizes various image formats into a 2-dimensional int array of shading data.
+ * Also handles all IO logic like exception handling and input validation.
+ */
+public class RasterMaker {
 
 	public enum Result {
 		SUCCESS,
@@ -18,12 +22,12 @@ public class ImageLoader {
 	private String path;
 	private BufferedImage image;
 
-	public ImageLoader() {
+	public RasterMaker() {
 		this.path = null;
 		this.image = null;
 	}
 
-	public ImageLoader(BufferedImage image) {
+	public RasterMaker(BufferedImage image) {
 		this.path = null;
 		this.image = image;
 	}
@@ -34,7 +38,7 @@ public class ImageLoader {
 
 	public int[][] getShadingRaster() {
 		
-		if (this.image == null) return new int[][] {{255}};
+		if (this.image == null) return null;
 		
 		int sRWidth = image.getWidth();
 		int sRHeight = image.getHeight();
@@ -49,11 +53,15 @@ public class ImageLoader {
 		return shadingRaster;
 	}
 
-	public String getName() {
+	/**
+	 * returns null if no path was used.
+	 * @return
+	 */
+	public String getImageName() {
 		if (path == null)
-			return "image";
+			return null;
 		else
-			return path.substring(path.lastIndexOf('\\') + 1); 
+			return path.substring(path.lastIndexOf('\\') + 1, path.lastIndexOf('.'));
 	}
 
 	public String getFileExtension() {

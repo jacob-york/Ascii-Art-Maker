@@ -5,7 +5,6 @@
 
 package com.york.model;
 
-import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.videoio.VideoCapture;
 import org.opencv.videoio.Videoio;
@@ -21,11 +20,19 @@ import java.util.List;
 public class AsciiVideo implements AsciiArt {
 
 	private String path;
+
 	private final VideoCapture vc;
+
 	private int charWidth;
+
 	private double frameRate;
+
+	String name;
+
 	private String basePalette;
+
 	private String activePalette;
+
 
 	public AsciiVideo(String path) {
 		nu.pattern.OpenCV.loadLocally();
@@ -36,6 +43,7 @@ public class AsciiVideo implements AsciiArt {
 		basePalette = DEFAULT_PALETTE;
 		activePalette = DEFAULT_PALETTE;
 		frameRate =	vc.get(Videoio.CAP_PROP_FPS);
+		name = "asciiVideo";
 
 		vc.release();
 	}
@@ -72,6 +80,11 @@ public class AsciiVideo implements AsciiArt {
 		return basePalette;
 	}
 
+	@Override
+	public String getName() {
+		return name;
+	}
+
 	/**
 	 *
 	 * @return a list of asciiArt strings called Frames.
@@ -79,7 +92,6 @@ public class AsciiVideo implements AsciiArt {
     public List<String> getFrames() {
     	
     	List<String> frameList = new ArrayList<>();
-    	ImageLoader imgHandler = new ImageLoader();
     	vc.open(path);
 		Mat mat = new Mat();
 		
@@ -101,9 +113,8 @@ public class AsciiVideo implements AsciiArt {
 	        byte[] data = dataBuffer.getData();
 	        mat.get(0, 0, data);
 	        //
-	        
-			AsciiImage curFrame = new AsciiImage(image);
-			curFrame
+
+			AsciiImage curFrame = new AsciiImage(new RasterMaker(image).getShadingRaster())
 					.setCharWidth(charWidth)
 					.setInvertedShading(shadingIsInverted())
 					.setPalette(activePalette);
@@ -146,6 +157,12 @@ public class AsciiVideo implements AsciiArt {
 		if (invertShading)
 			activePalette = AsciiArt.reverseString(basePalette);
 		else activePalette = basePalette;
+		return this;
+	}
+
+	@Override
+	public AsciiVideo setName(String newName) {
+		name = newName;
 		return this;
 	}
 
@@ -195,13 +212,12 @@ public class AsciiVideo implements AsciiArt {
 	 * 1) generate a frame.
 	 * 2) print it to console.
 	 * 3) rinse and repeat.
+	 * wait time between prints updates dynamically, i.e. if your System has a sudden performance drop
+	 * and gets slower, frame rate won't be affected.
+	 *
 	 * @throws InterruptedException
 	 */
 	public void interpretToConsole() throws InterruptedException {
-		/*
-		 * wait time between prints updates dynamically, i.e. if your System had a sudden performance drop
-		 * and got slower, framerate wouldn't be affected.
-		 */
 		vc.open(path);
 
 		Mat mat = new Mat();
@@ -226,12 +242,12 @@ public class AsciiVideo implements AsciiArt {
 			mat.get(0, 0, data);
 			//
 
-			AsciiImage asciiImage = new AsciiImage(image);
-			asciiImage.setCharWidth(charWidth)
+			AsciiImage curFrame = new AsciiImage(new RasterMaker(image).getShadingRaster())
+					.setCharWidth(charWidth)
 					.setInvertedShading(shadingIsInverted())
 					.setPalette(activePalette);
 
-			System.out.println(asciiImage);
+			System.out.println(curFrame);
 
 			timer.stop();
 

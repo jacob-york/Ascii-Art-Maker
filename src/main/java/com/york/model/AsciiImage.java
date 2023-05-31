@@ -1,11 +1,5 @@
 package com.york.model;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -13,32 +7,27 @@ import java.util.stream.Collectors;
  * Todo: consider builder design pattern.
  */
 public class AsciiImage implements AsciiArt {
-	
-	private final ImageLoader imageLoader;
+
 	private CharBox charBox;
+
 	private int domain;
+
 	private int range;
+
+	private String name;
+
 	private String basePalette;
+
 	private String activePalette;
+
 	private int[][] shadingRaster;
 
-	public AsciiImage(String path) {
-		imageLoader = new ImageLoader();
-		imageLoader.loadFromFile(path);
+	public AsciiImage(int[][] shadingRaster) {
 		charBox = new CharBox(1);
 		basePalette = DEFAULT_PALETTE;
 		activePalette = DEFAULT_PALETTE;
-		this.shadingRaster = imageLoader.getShadingRaster();
-
-		updateDomainAndRange();
-	}
-	public AsciiImage(BufferedImage image) {
-		imageLoader = new ImageLoader(image);
-		charBox = new CharBox(1);
-		basePalette = DEFAULT_PALETTE;
-		activePalette = DEFAULT_PALETTE;
-		this.shadingRaster = imageLoader.getShadingRaster();
-
+		this.shadingRaster = shadingRaster;
+		name = "asciiImage";
 		updateDomainAndRange();
 	}
 
@@ -62,33 +51,28 @@ public class AsciiImage implements AsciiArt {
 	public String getPalette() {
 		return basePalette;
 	}
-	public BufferedImage getImage() {
-		return imageLoader.getImage();
-	}
-	public int[][] getShadingRaster() {
-		return shadingRaster;
-	}
+
+	@Override
 	public String getName() {
-		String imgName = imageLoader.getName();
-		String artName = 
-				imgName.contains(".") ? imgName : imgName.substring(0, imgName.lastIndexOf('.'));
-		artName += "-charWidth-" + charBox.getWidth();
-		artName += shadingIsInverted() ? "-negative.txt" : ".txt";
-		return artName;
+		return name;
+	}
+
+	public int[][] getShadingRaster() {
+		return shadingRaster.clone();
 	}
 
 	@Override
 	public AsciiImage setCharWidth(int newCharWidth) throws IllegalArgumentException  {
-		if (newCharWidth > getImage().getWidth()) {
+		if (newCharWidth > shadingRaster[0].length) {
 			throw new IllegalArgumentException("Char width cannot be greater than the image width.");
 		}
-		if (2 * newCharWidth > getImage().getHeight()) {
+		if (2 * newCharWidth > shadingRaster.length) {
 			throw new IllegalArgumentException("Char width cannot be greater than [image height / 2].");
 		}
 		if (newCharWidth < 1) {
 			throw new IllegalArgumentException("Char width must be greater than 0.");
 		}
-		
+
 		charBox = new CharBox(newCharWidth);
 		updateDomainAndRange();
 		return this;
@@ -115,13 +99,18 @@ public class AsciiImage implements AsciiArt {
 		return this;
 	}
 
-	public AsciiImage setImage(BufferedImage image) throws IllegalArgumentException {
-		if (image.getWidth() < charBox.getWidth() || image.getHeight() < charBox.getHeight()) {
-			throw new IllegalArgumentException("Image is too small for current value of char width.");
+	@Override
+	public AsciiImage setName(String newName) {
+		name = newName;
+		return this;
+	}
+
+	public AsciiImage setShadingRaster(int[][] newShadingRaster) {
+		if (newShadingRaster[0].length < charBox.getWidth() || newShadingRaster.length < charBox.getHeight()) {
+			throw new IllegalArgumentException("Raster is too small for current value of char width.");
 		}
 
-		imageLoader.setImage(image);
-		shadingRaster = imageLoader.getShadingRaster();
+		shadingRaster = newShadingRaster;
 		return this;
 	}
 
@@ -156,8 +145,6 @@ public class AsciiImage implements AsciiArt {
 	
 	public String[] toStringArray() {
 		int charWidth = charBox.getWidth();
-
-		// shadingRaster via ImageLoader
 
 		int SRWidth = shadingRaster[0].length;
 		int SRHeight = shadingRaster.length;
@@ -219,27 +206,4 @@ public class AsciiImage implements AsciiArt {
 		return charRaster;
 	}
 
-	/**
-	 * writes the image's toString to a .txt file in the specified path.
-	 * @param outPath directory into which to write the Txt File
-	 */
-	public void writeToOutput(String outPath) throws IOException {
-		FileOutputStream fos = null;
-		OutputStreamWriter osw = null;
-
-		String art = toString();
-
-		try {
-			File file = new File(outPath + "\\" + getName());
-			fos = new FileOutputStream(file);
-			osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
-			osw.write(art);
-		}
-		finally {
-			if (osw != null)
-				osw.close();
-			if (fos != null)
-				fos.close();
-		}
-	}
 }

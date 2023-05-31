@@ -6,7 +6,7 @@ import java.util.Objects;
 
 import com.york.model.AsciiArt;
 import com.york.model.AsciiImage;
-import com.york.model.ImageLoader;
+import com.york.model.RasterMaker;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
@@ -70,7 +70,7 @@ public class App extends Application {
 			File selectedFile = fileChooser.showOpenDialog(new Stage());
 			if (selectedFile != null) {
 				String path = selectedFile.toString();
-				if (ImageLoader.testPath(path) == ImageLoader.Result.SUCCESS) curImagePath = path;
+				if (RasterMaker.testPath(path) == RasterMaker.Result.SUCCESS) curImagePath = path;
 			}
 			else new Alert(AlertType.ERROR, "Unexpected Error: file not found.").showAndWait();
 		});
@@ -80,8 +80,10 @@ public class App extends Application {
 				int charWidth = Integer.parseInt(charWidthField.getText());
 				String palette = paletteField.getText();
 
-				AsciiImage asciiImage = new AsciiImage(curImagePath);
-				asciiImage
+				RasterMaker rasterMaker = new RasterMaker();
+				rasterMaker.loadFromFile(curImagePath);
+
+				AsciiImage asciiImage = new AsciiImage(rasterMaker.getShadingRaster())
 						.setCharWidth(charWidth)
 						.setInvertedShading(invShadingField.isSelected());
 				try {
@@ -91,7 +93,7 @@ public class App extends Application {
 				}
 
 				try {
-					asciiImage.writeToOutput(DOWNLOADS);
+					ConsoleApp.writeToOutput(asciiImage, DOWNLOADS);
 					new Alert(AlertType.INFORMATION, "art has been output to file '" + DOWNLOADS + "'.").showAndWait();
 
 				} catch (IOException e) {
