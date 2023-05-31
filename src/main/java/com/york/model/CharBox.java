@@ -1,5 +1,7 @@
 package com.york.model;
 
+import com.york.model.adapters.ShadingRaster;
+
 public class CharBox {
 	
 	private int xPos;  // top-left pixel of rectangle
@@ -39,11 +41,11 @@ public class CharBox {
 	/**
 	 * @return 0-255 avr that represents how dark the region outlined by CharBox is.
 	 */
-	public int getGrayVal(int[][] shadingRaster) {
+	public int getGrayVal(ShadingRaster shadingRaster) {
 		int sumOfPixels = 0;
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				sumOfPixels += shadingRaster[yPos + y][xPos + x];
+				sumOfPixels += shadingRaster.getShadingAt(xPos + x, yPos + y);
 			}
 		}
 		return sumOfPixels / area;
@@ -54,7 +56,7 @@ public class CharBox {
 		yPos = y;
 	}
 
-	public char pickChar(int[][] shadingRaster, String palette) {
+	public char pickChar(ShadingRaster shadingRaster, String palette) {
 		if (256 % palette.length() != 0) {
 			throw new ArrayIndexOutOfBoundsException("Palette must be divisible by 256.");
 		}

@@ -11,4 +11,6 @@ module com.example.demo {
     opens com.york.model to javafx.fxml;
     exports com.york.util;
     opens com.york.util to javafx.fxml;
+    exports com.york.model.adapters;
+    opens com.york.model.adapters to javafx.fxml;
 }

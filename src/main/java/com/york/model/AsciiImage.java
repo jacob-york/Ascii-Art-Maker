@@ -1,5 +1,7 @@
 package com.york.model;
 
+import com.york.model.adapters.ShadingRaster;
+
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -20,9 +22,9 @@ public class AsciiImage implements AsciiArt {
 
 	private String activePalette;
 
-	private int[][] shadingRaster;
+	private ShadingRaster shadingRaster;
 
-	public AsciiImage(int[][] shadingRaster) {
+	public AsciiImage(ShadingRaster shadingRaster) {
 		charBox = new CharBox(1);
 		basePalette = DEFAULT_PALETTE;
 		activePalette = DEFAULT_PALETTE;
@@ -57,16 +59,16 @@ public class AsciiImage implements AsciiArt {
 		return name;
 	}
 
-	public int[][] getShadingRaster() {
-		return shadingRaster.clone();
+	public ShadingRaster getShadingRaster() {
+		return shadingRaster;
 	}
 
 	@Override
 	public AsciiImage setCharWidth(int newCharWidth) throws IllegalArgumentException  {
-		if (newCharWidth > shadingRaster[0].length) {
+		if (newCharWidth > shadingRaster.getWidth()) {
 			throw new IllegalArgumentException("Char width cannot be greater than the image width.");
 		}
-		if (2 * newCharWidth > shadingRaster.length) {
+		if (2 * newCharWidth > shadingRaster.getHeight()) {
 			throw new IllegalArgumentException("Char width cannot be greater than [image height / 2].");
 		}
 		if (newCharWidth < 1) {
@@ -105,8 +107,8 @@ public class AsciiImage implements AsciiArt {
 		return this;
 	}
 
-	public AsciiImage setShadingRaster(int[][] newShadingRaster) {
-		if (newShadingRaster[0].length < charBox.getWidth() || newShadingRaster.length < charBox.getHeight()) {
+	public AsciiImage setShadingRaster(ShadingRaster newShadingRaster) {
+		if (newShadingRaster.getWidth() < charBox.getWidth() || newShadingRaster.getHeight() < charBox.getHeight()) {
 			throw new IllegalArgumentException("Raster is too small for current value of char width.");
 		}
 
@@ -115,11 +117,8 @@ public class AsciiImage implements AsciiArt {
 	}
 
 	private void updateDomainAndRange() {
-		int SRWidth = shadingRaster[0].length;
-		int SRHeight = shadingRaster.length;
-		
-		domain = SRWidth - (SRWidth % charBox.getWidth());
-		range = SRHeight - (SRHeight % charBox.getHeight());
+		domain = shadingRaster.getWidth() - (shadingRaster.getWidth() % charBox.getWidth());
+		range = shadingRaster.getHeight() - (shadingRaster.getHeight() % charBox.getHeight());
 	}
 	
 	@Override
@@ -146,8 +145,8 @@ public class AsciiImage implements AsciiArt {
 	public String[] toStringArray() {
 		int charWidth = charBox.getWidth();
 
-		int SRWidth = shadingRaster[0].length;
-		int SRHeight = shadingRaster.length;
+		int SRWidth = shadingRaster.getWidth();
+		int SRHeight = shadingRaster.getHeight();
 
 		int domain = SRWidth - (SRWidth % charWidth);
 		int range = SRHeight - (SRHeight % (2 * charWidth));

@@ -10,8 +10,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
 import com.york.model.AsciiImage;
-import com.york.model.RasterMaker;
+import com.york.model.adapters.PathAdapter;
 import com.york.util.Timer;
+
+import javax.imageio.ImageIO;
 
 public class ConsoleApp {
 
@@ -19,34 +21,39 @@ public class ConsoleApp {
 
 	private final Scanner scanner;
 
+	private PathAdapter pathAdapter;
+
 	public ConsoleApp() {
 		scanner = new Scanner(System.in);
+		pathAdapter = null;
 	}
 
 	public Scanner getScanner() {
 		return scanner;
 	}
 
-	public String requestPath() {
+	public void requestPath() {
 
 		while (true) {
 			System.out.print("Enter the absolute path to an image file (w/ extension):\n>");
 			String pathToImage = scanner.nextLine();
 
-			switch (RasterMaker.testPath(pathToImage)) {
-				case SUCCESS -> {
-					return pathToImage;
-				}
-				case FILE_NOT_FOUND -> System.out.println("File not found. Please try again.");
-				case FILE_NOT_ACCEPTED -> {
+			try {
+				pathAdapter = new PathAdapter(pathToImage);
+				if (PathAdapter.testPath(pathToImage) == PathAdapter.FILE_NOT_ACCEPTED) {
 					StringBuilder displayFormats = new StringBuilder();
-					for (String format : RasterMaker.getAcceptedFormats()) {
-						if (displayFormats.toString().equals(""))
+					for (String format : PathAdapter.getAcceptedFormats()) {
+						if (displayFormats.toString().equals("")) {
 							displayFormats.append(format);
+						}
 						else displayFormats.append(", ").append(format);
 					}
 					System.out.println("Format is not accepted (Accepted formats: " + displayFormats + ").");
 				}
+				else return;
+			}
+			catch (IOException e) {
+				System.out.println("File not found. Please try again.");
 			}
 		}
 	}
@@ -100,18 +107,15 @@ public class ConsoleApp {
 		}
 	}
 
-	public void generateAscii(String path, int charWidth, boolean invertedShading) {
+	public void generateAscii(int charWidth, boolean invertedShading) {
 
 		Timer timer = new Timer();
 		try {
 			System.out.println("Working...");
 			timer.start();
 
-			RasterMaker rasterMaker = new RasterMaker();
-			rasterMaker.loadFromFile(path);
-
-			AsciiImage asciiImage = new AsciiImage(rasterMaker.getShadingRaster())
-					.setName(rasterMaker.getImageName())
+			AsciiImage asciiImage = new AsciiImage(pathAdapter)
+					.setName(pathAdapter.getImageName())
 					.setCharWidth(charWidth)
 					.setInvertedShading(invertedShading);
 			writeToOutput(asciiImage, DOWNLOADS);
@@ -137,12 +141,12 @@ public class ConsoleApp {
 		try {
 			char ans = 'y';
 			while (ans == 'y') {
-				String path = requestPath();
+				requestPath();
 				int charWidth = requestCharWidth();
 				boolean invertedShading = requestInvertedShading();
 
 				// start generating...
-				generateAscii(path, charWidth, invertedShading);
+				generateAscii(charWidth, invertedShading);
 				ans = yesOrNo("Would you like to go again? (y/n):\n>");
 			}
 		} finally {

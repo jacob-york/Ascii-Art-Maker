@@ -6,7 +6,7 @@ import java.util.Objects;
 
 import com.york.model.AsciiArt;
 import com.york.model.AsciiImage;
-import com.york.model.RasterMaker;
+import com.york.model.adapters.PathAdapter;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
@@ -22,7 +22,7 @@ public class App extends Application {
 
 	public static final String DOWNLOADS = "C:\\Users\\" + System.getProperty("user.name") + "\\Downloads";
 
-	private String curImagePath;
+	private PathAdapter pathAdapter;
 
 	private TextField charWidthField;
 	private CheckBox invShadingField;
@@ -37,7 +37,7 @@ public class App extends Application {
 	@Override
 	public void start(Stage stage) {
 		Image icon = new Image(getPathOfResource("/com/york/images/icon.png"));
-		curImagePath = null;
+		pathAdapter = null;
 		
 		GridPane gridPane = new GridPane();
 		gridPane.setPadding(new Insets(20, 20, 20, 20));
@@ -68,22 +68,28 @@ public class App extends Application {
 			FileChooser fileChooser = new FileChooser();
 			fileChooser.setTitle("Choose File");
 			File selectedFile = fileChooser.showOpenDialog(new Stage());
-			if (selectedFile != null) {
-				String path = selectedFile.toString();
-				if (RasterMaker.testPath(path) == RasterMaker.Result.SUCCESS) curImagePath = path;
+			if (selectedFile == null) {
+				new Alert(AlertType.ERROR, "Unexpected Error: file not found.").showAndWait();
 			}
-			else new Alert(AlertType.ERROR, "Unexpected Error: file not found.").showAndWait();
+			else {
+				String path = selectedFile.toString();
+				if (PathAdapter.testPath(path) != PathAdapter.FILE_NOT_ACCEPTED) {
+					try {
+						pathAdapter = new PathAdapter(path);
+
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
 		});
 		
 		render.setOnAction(ae -> {
-			if (curImagePath != null) {
+			if (pathAdapter != null) {
 				int charWidth = Integer.parseInt(charWidthField.getText());
 				String palette = paletteField.getText();
 
-				RasterMaker rasterMaker = new RasterMaker();
-				rasterMaker.loadFromFile(curImagePath);
-
-				AsciiImage asciiImage = new AsciiImage(rasterMaker.getShadingRaster())
+				AsciiImage asciiImage = new AsciiImage(pathAdapter)
 						.setCharWidth(charWidth)
 						.setInvertedShading(invShadingField.isSelected());
 				try {
