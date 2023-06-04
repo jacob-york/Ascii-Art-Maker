@@ -5,7 +5,10 @@
 
 package com.york.model;
 
-import com.york.model.adapters.ShadingRaster;
+import com.york.model.media.ShadingRaster;
+import com.york.model.media.VideoSource;
+
+import java.util.Arrays;
 
 public class AsciiVideo implements AsciiArt {
 
@@ -13,34 +16,34 @@ public class AsciiVideo implements AsciiArt {
 
 	private String name;
 
-	private ShadingRaster[] shadingRasters;
+	private VideoSource videoSource;
 
 	private String basePalette;
 
 	private String activePalette;
 
-	private double frameRate;
+	private final double fps;
 
 
-	public AsciiVideo(ShadingRaster[] shadingRasters) {
+	public AsciiVideo(VideoSource videoSource) {
 		this.charWidth = 1;
 		basePalette = DEFAULT_PALETTE;
 		activePalette = DEFAULT_PALETTE;
-		frameRate =	24;
-		this.shadingRasters = shadingRasters;
+		fps = videoSource.getFrameRate();
+		this.videoSource = videoSource;
 		name = "asciiVideo";
 	}
 
 	@Override
 	public int getWidth() {
-		// TODO Auto-generated method stub
-		return 0;
+		int domain = videoSource.getWidthPixels() - (videoSource.getWidthPixels() % charWidth);
+		return domain / charWidth;
 	}
 
 	@Override
 	public int getHeight() {
-		// TODO Auto-generated method stub
-		return 0;
+		int range = videoSource.getHeightPixels() - (videoSource.getHeightPixels() % (2 * charWidth));
+		return range / (2 * charWidth);
 	}
 
 	@Override
@@ -53,8 +56,8 @@ public class AsciiVideo implements AsciiArt {
 		return charWidth;
 	}
 	
-	public double getFrameRate() {
-		return frameRate;
+	public double getFPS() {
+		return fps;
 	}
 	
 	@Override
@@ -67,9 +70,34 @@ public class AsciiVideo implements AsciiArt {
 		return name;
 	}
 
+	/**
+	 * Converts AsciiVideo to an array of Ascii Images.
+	 * @return all frames of AsciiVideo as an array of AsciiImages.
+	 */
+	public AsciiImage[] toAsciiImageArray() {
+		ShadingRaster[] shadingRasters = videoSource.getShadingRasterArray();
+
+		return Arrays.stream(shadingRasters)
+				.parallel()
+				.map(shadingRaster -> new AsciiImage(shadingRaster)
+					.setCharWidth(charWidth)
+					.setInvertedShading(shadingIsInverted())
+					.setPalette(activePalette)
+				)
+				.toArray(AsciiImage[]::new);
+	}
+
 	@Override
 	public AsciiVideo setCharWidth(int newCharWidth) throws IllegalArgumentException {
-		// Todo: input validation
+		if (newCharWidth > videoSource.getWidthPixels()) {
+			throw new IllegalArgumentException("Char width cannot be greater than the media width.");
+		}
+		if (2 * newCharWidth > videoSource.getHeightPixels()) {
+			throw new IllegalArgumentException("Char width cannot be greater than [media height / 2].");
+		}
+		if (newCharWidth < 1) {
+			throw new IllegalArgumentException("Char width must be greater than 0.");
+		}
 
 		charWidth = newCharWidth;
 		return this;
@@ -103,13 +131,10 @@ public class AsciiVideo implements AsciiArt {
 		return this;
 	}
 
-	public AsciiVideo setFrameRate(double newFrameRate) {
-		frameRate = newFrameRate;
-		return this;
-	}
+	public AsciiVideo setVideoSource(VideoSource newVideoSource) {
+		// todo: input validation
 
-	public AsciiVideo setShadingRasters(ShadingRaster[] newShadingRasters) {
-		shadingRasters = newShadingRasters;
+		videoSource = newVideoSource;
 		return this;
 	}
 
@@ -121,13 +146,6 @@ public class AsciiVideo implements AsciiArt {
 	@Override
 	public boolean shadingIsInverted() {
 		return activePalette.equals(AsciiArt.reverseString(basePalette));
-	}
-
-	/**
-	 * Generates frames, then prints them to console.
-	 * @throws InterruptedException
-	 */
-	public void compileToConsole() throws InterruptedException {
 	}
 
 }

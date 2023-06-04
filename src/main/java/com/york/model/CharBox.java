@@ -1,10 +1,10 @@
 package com.york.model;
 
-import com.york.model.adapters.ShadingRaster;
+import com.york.model.media.ShadingRaster;
 
 public class CharBox {
 	
-	private int xPos;  // top-left pixel of rectangle
+	private int xPos;  // top-left pixel of charBox
 	private int yPos;  // 
 	private final int width;
 	private final int height;
@@ -56,7 +56,7 @@ public class CharBox {
 		yPos = y;
 	}
 
-	public char pickChar(ShadingRaster shadingRaster, String palette) {
+	public char matchChar(ShadingRaster shadingRaster, String palette) {
 		if (256 % palette.length() != 0) {
 			throw new ArrayIndexOutOfBoundsException("Palette must be divisible by 256.");
 		}

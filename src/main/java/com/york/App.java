@@ -6,7 +6,9 @@ import java.util.Objects;
 
 import com.york.model.AsciiArt;
 import com.york.model.AsciiImage;
-import com.york.model.adapters.PathAdapter;
+import com.york.model.Settings;
+import com.york.model.console.Mode;
+import com.york.model.media.ImagePathAdapter;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
@@ -20,9 +22,7 @@ import javafx.scene.layout.GridPane;
 
 public class App extends Application {
 
-	public static final String DOWNLOADS = "C:\\Users\\" + System.getProperty("user.name") + "\\Downloads";
-
-	private PathAdapter pathAdapter;
+	private ImagePathAdapter pathAdapter;
 
 	private TextField charWidthField;
 	private CheckBox invShadingField;
@@ -34,6 +34,7 @@ public class App extends Application {
 		).toString();
 	}
 
+	// TODO: belongs in view
 	@Override
 	public void start(Stage stage) {
 		Image icon = new Image(getPathOfResource("/com/york/images/icon.png"));
@@ -73,9 +74,9 @@ public class App extends Application {
 			}
 			else {
 				String path = selectedFile.toString();
-				if (PathAdapter.testPath(path) != PathAdapter.FILE_NOT_ACCEPTED) {
+				if (ImagePathAdapter.testPath(path) != ImagePathAdapter.FILE_NOT_ACCEPTED) {
 					try {
-						pathAdapter = new PathAdapter(path);
+						pathAdapter = new ImagePathAdapter(path);
 
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -83,7 +84,7 @@ public class App extends Application {
 				}
 			}
 		});
-		
+
 		render.setOnAction(ae -> {
 			if (pathAdapter != null) {
 				int charWidth = Integer.parseInt(charWidthField.getText());
@@ -100,7 +101,7 @@ public class App extends Application {
 				}
 
 				try {
-					String outPutPath = ConsoleApp.writeToOutput(asciiImage, DOWNLOADS);
+					String outPutPath = Mode.writeImageToOutput(asciiImage, Settings.DOWNLOADS);
 					new Alert(AlertType.INFORMATION, "art has been output to: " + outPutPath).showAndWait();
 
 				} catch (IOException e) {

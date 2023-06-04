@@ -1,14 +1,11 @@
-package com.york.model.adapters;
+package com.york.model.media;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-/*
- * More of a decorator, really...
- */
-public class PathAdapter implements ShadingRaster {
+public class ImagePathAdapter implements ShadingRaster {
 
     public static final int NULL_PATH = 3;
 
@@ -20,45 +17,34 @@ public class PathAdapter implements ShadingRaster {
 
     private static final String[] ACCEPTED_FORMATS = {"jpg", "jpeg", "png"};
 
-    int[][] raster;
+    private final BufferedImage bufferedImage;
 
-    String path;
+    private final String path;
 
-    public PathAdapter(String path) throws IOException {
-        BufferedImage image = ImageIO.read(new File(path));
-
-        int sRWidth = image.getWidth();
-        int sRHeight = image.getHeight();
-        int[][] shadingRaster = new int[sRHeight][sRWidth];
-
-        for (int y = 0; y < sRHeight; y++) {
-            for(int x = 0; x < sRWidth; x++) {
-                int pixelColor = image.getRGB(x, y);
-                shadingRaster[y][x] = ShadingRaster.desaturate(pixelColor);
-            }
-        }
-        raster = shadingRaster;
+    public ImagePathAdapter(String path) throws IOException {
+        bufferedImage = ImageIO.read(new File(path));
         this.path = path;
     }
 
     @Override
-    public int getWidth() {
-        return raster[0].length;
+    public int getWidthPixels() {
+        return bufferedImage.getWidth();
     }
 
     @Override
-    public int getHeight() {
-        return raster.length;
+    public int getHeightPixels() {
+        return bufferedImage.getHeight();
     }
 
     @Override
     public int getShadingAt(int x, int y) {
-        return raster[y][x];
+        int pixelColor = bufferedImage.getRGB(x, y);
+        return ShadingRaster.desaturate(pixelColor);
     }
 
     /**
-     * returns null if no path was used.
-     * @return
+     * Returns the name of the original image file (not including file extension).
+     * @return The name of the original image file (not including file extension).
      */
     public String getImageName() {
         return path.substring(path.lastIndexOf('\\') + 1, path.lastIndexOf('.'));

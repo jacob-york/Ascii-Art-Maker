@@ -1,6 +1,6 @@
 package com.york.model;
 
-import com.york.model.adapters.ShadingRaster;
+import com.york.model.media.ShadingRaster;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -31,6 +31,11 @@ public class AsciiImage implements AsciiArt {
 		this.shadingRaster = shadingRaster;
 		name = "asciiImage";
 		updateDomainAndRange();
+	}
+
+	private void updateDomainAndRange() {
+		domain = shadingRaster.getWidthPixels() - (shadingRaster.getWidthPixels() % charBox.getWidth());
+		range = shadingRaster.getHeightPixels() - (shadingRaster.getHeightPixels() % charBox.getHeight());
 	}
 
 	@Override
@@ -65,10 +70,10 @@ public class AsciiImage implements AsciiArt {
 
 	@Override
 	public AsciiImage setCharWidth(int newCharWidth) throws IllegalArgumentException  {
-		if (newCharWidth > shadingRaster.getWidth()) {
+		if (newCharWidth > shadingRaster.getWidthPixels()) {
 			throw new IllegalArgumentException("Char width cannot be greater than the image width.");
 		}
-		if (2 * newCharWidth > shadingRaster.getHeight()) {
+		if (2 * newCharWidth > shadingRaster.getHeightPixels()) {
 			throw new IllegalArgumentException("Char width cannot be greater than [image height / 2].");
 		}
 		if (newCharWidth < 1) {
@@ -108,17 +113,13 @@ public class AsciiImage implements AsciiArt {
 	}
 
 	public AsciiImage setShadingRaster(ShadingRaster newShadingRaster) {
-		if (newShadingRaster.getWidth() < charBox.getWidth() || newShadingRaster.getHeight() < charBox.getHeight()) {
+		if (newShadingRaster.getWidthPixels() < charBox.getWidth() || newShadingRaster.getHeightPixels() < charBox.getHeight()) {
 			throw new IllegalArgumentException("Raster is too small for current value of char width.");
 		}
 
 		shadingRaster = newShadingRaster;
+		updateDomainAndRange();
 		return this;
-	}
-
-	private void updateDomainAndRange() {
-		domain = shadingRaster.getWidth() - (shadingRaster.getWidth() % charBox.getWidth());
-		range = shadingRaster.getHeight() - (shadingRaster.getHeight() % charBox.getHeight());
 	}
 	
 	@Override
@@ -132,9 +133,9 @@ public class AsciiImage implements AsciiArt {
 	}
 
 	public String toString() {
-
 		String[] stringArray = toStringArray();
 		StringBuilder returnVal = new StringBuilder();
+
 		for (String line : stringArray) {
 			returnVal.append(line);
 			returnVal.append("\n");
@@ -143,27 +144,14 @@ public class AsciiImage implements AsciiArt {
 	}
 	
 	public String[] toStringArray() {
-		int charWidth = charBox.getWidth();
+		CharBox[][] charBoxes = new CharBox[getHeight()][getWidth()];
 
-		int SRWidth = shadingRaster.getWidth();
-		int SRHeight = shadingRaster.getHeight();
-
-		int domain = SRWidth - (SRWidth % charWidth);
-		int range = SRHeight - (SRHeight % (2 * charWidth));
-
-		// final dimensions of asciiImage
-		int asciiImageWidth = domain / charWidth;
-		int asciiImageHeight = range / (2 * charWidth);
-
-		// fill and populate charBox
-		CharBox[][] charBoxes = new CharBox[asciiImageHeight][asciiImageWidth];
-
-		// setPos (might be parallelizable)
+		// might be parallelizable
 		for (int y = 0; y < charBoxes.length; y++) {
 			for (int x = 0; x < charBoxes[0].length; x++){
-				CharBox curBox = new CharBox(charWidth);
+				CharBox curBox = new CharBox(charBox.getWidth());
 				charBoxes[y][x] = curBox;
-				curBox.setPos((x * charWidth), (y * 2 * charWidth));
+				curBox.setPos(x * charBox.getWidth(), y * charBox.getHeight());
 			}
 		}
 
@@ -174,7 +162,7 @@ public class AsciiImage implements AsciiArt {
 						row -> Arrays.stream(row)
 								.map(
 										charBox -> String.valueOf(
-												charBox.pickChar(shadingRaster, activePalette)
+												charBox.matchChar(shadingRaster, activePalette)
 										)
 								)
 								.collect(Collectors.joining())
@@ -195,7 +183,7 @@ public class AsciiImage implements AsciiArt {
 		for (SRy = 0; SRy < range; SRy += charBox.getHeight()) {
 			for (SRx = 0; SRx < domain; SRx += charBox.getWidth()) {
 				charBox.setPos(SRx, SRy);
-				charRaster[CRy][CRx] = charBox.pickChar(shadingRaster, activePalette);
+				charRaster[CRy][CRx] = charBox.matchChar(shadingRaster, activePalette);
 				CRx++;
 			}
 			CRx = 0;

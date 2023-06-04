@@ -1,4 +1,4 @@
-package com.york.model.adapters;
+package com.york.model.media;
 
 import org.opencv.core.Mat;
 
@@ -8,25 +8,16 @@ import java.awt.image.WritableRaster;
 
 public class MatAdapter implements ShadingRaster {
 
-    int[][] raster;
+    private final BufferedImage bufferedImage;
+
+    private final Mat mat;
 
     public MatAdapter(Mat mat) {
-        BufferedImage image = matToBufferedImage(mat);
-
-        int sRWidth = image.getWidth();
-        int sRHeight = image.getHeight();
-        int[][] shadingRaster = new int[sRHeight][sRWidth];
-
-        for (int y = 0; y < sRHeight; y++) {
-            for(int x = 0; x < sRWidth; x++) {
-                int pixelColor = image.getRGB(x, y);
-                shadingRaster[y][x] = ShadingRaster.desaturate(pixelColor);
-            }
-        }
-        raster = shadingRaster;
+        bufferedImage = matToBufferedImage(mat);
+        this.mat = mat;
     }
 
-    // temp.
+    // TODO: bypass the need for buffered image conversion by converting mat directly to an array.
     private static BufferedImage matToBufferedImage(Mat mat) {
         BufferedImage returnImage;
         int type = 0;
@@ -45,17 +36,17 @@ public class MatAdapter implements ShadingRaster {
     }
 
     @Override
-    public int getWidth() {
-        return raster[0].length;
+    public int getWidthPixels() {
+        return mat.width();
     }
 
     @Override
-    public int getHeight() {
-        return raster.length;
+    public int getHeightPixels() {
+        return mat.height();
     }
 
     @Override
     public int getShadingAt(int x, int y) {
-        return raster[y][x];
+        return ShadingRaster.desaturate(bufferedImage.getRGB(x, y));
     }
 }
