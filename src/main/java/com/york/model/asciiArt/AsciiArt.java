@@ -1,5 +1,6 @@
-package com.york.model;
+package com.york.model.asciiArt;
 
+// TODO: documentation
 public interface AsciiArt {
 
 	/**

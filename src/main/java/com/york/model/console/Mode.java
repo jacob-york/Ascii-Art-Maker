@@ -1,6 +1,6 @@
 package com.york.model.console;
 
-import com.york.model.AsciiImage;
+import com.york.model.asciiArt.AsciiImage;
 
 import java.io.File;
 import java.io.FileOutputStream;

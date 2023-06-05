@@ -3,12 +3,12 @@ package com.york.model.console;
 import java.io.*;
 import java.util.Scanner;
 
-import com.york.model.AsciiImage;
+import com.york.model.asciiArt.AsciiImage;
 import com.york.model.Settings;
-import com.york.model.media.ImagePathAdapter;
+import com.york.model.adapters.ImagePathAdapter;
 import com.york.util.Timer;
 
-public class ImageFileMode extends Mode {
+public final class ImageFileMode extends Mode {
 
 	public ImageFileMode(Scanner scanner) {
 		this.scanner = scanner;
@@ -54,7 +54,7 @@ public class ImageFileMode extends Mode {
 			timer.start();
 
 			AsciiImage asciiImage = new AsciiImage(pathAdapter)
-					.setName(pathAdapter.getImageName())
+					.setName(pathAdapter.getFileName())
 					.setCharWidth(charWidth)
 					.setInvertedShading(invertedShading);
 			String outPutPath = writeImageToOutput(asciiImage, Settings.DOWNLOADS);

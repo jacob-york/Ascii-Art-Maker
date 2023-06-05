@@ -1,14 +1,76 @@
-package com.york.model;
+package com.york.model.asciiArt;
 
-import com.york.model.media.ShadingRaster;
+import com.york.model.adapters.ImageSource;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-/*
- * Todo: consider builder design pattern.
- */
 public class AsciiImage implements AsciiArt {
+
+	private static final class CharBox {
+
+		private int xPos;  // top-left pixel of charBox
+		private int yPos;  //
+		private final int width;
+		private final int height;
+		private final int area;
+
+		public CharBox(int width) {
+			xPos = 0;
+			yPos = 0;
+			this.width = width;
+			this.height = width * 2;
+			this.area = width * height;
+		}
+
+		public int getX() {
+			return xPos;
+		}
+
+		public int getY() {
+			return yPos;
+		}
+
+		public int getWidth() {
+			return width;
+		}
+
+		public int getHeight() {
+			return height;
+		}
+
+		public int getArea() {
+			return area;
+		}
+
+		/**
+		 * @return 0-255 avr that represents the average Black and White value outlined by CharBox.
+		 */
+		private int getBWValue(ImageSource imageSource) {
+			int sumOfPixels = 0;
+			for (int y = 0; y < height; y++) {
+				for (int x = 0; x < width; x++) {
+					sumOfPixels += imageSource.getBWValue(xPos + x, yPos + y);
+				}
+			}
+			return sumOfPixels / area;
+		}
+
+		public void setPos(int x, int y) {
+			xPos = x;
+			yPos = y;
+		}
+
+		public char matchChar(ImageSource imageSource, String palette) {
+			if (256 % palette.length() != 0) {
+				throw new ArrayIndexOutOfBoundsException("Palette must be divisible by 256.");
+			}
+
+			int index = (int) Math.floor(getBWValue(imageSource) / (double) (256/palette.length()));
+			return palette.charAt(index);
+		}
+
+	}
 
 	private CharBox charBox;
 
@@ -22,20 +84,20 @@ public class AsciiImage implements AsciiArt {
 
 	private String activePalette;
 
-	private ShadingRaster shadingRaster;
+	private ImageSource imageSource;
 
-	public AsciiImage(ShadingRaster shadingRaster) {
+	public AsciiImage(ImageSource imageSource) {
 		charBox = new CharBox(1);
 		basePalette = DEFAULT_PALETTE;
 		activePalette = DEFAULT_PALETTE;
-		this.shadingRaster = shadingRaster;
+		this.imageSource = imageSource;
 		name = "asciiImage";
 		updateDomainAndRange();
 	}
 
 	private void updateDomainAndRange() {
-		domain = shadingRaster.getWidthPixels() - (shadingRaster.getWidthPixels() % charBox.getWidth());
-		range = shadingRaster.getHeightPixels() - (shadingRaster.getHeightPixels() % charBox.getHeight());
+		domain = imageSource.getWidthPixels() - (imageSource.getWidthPixels() % charBox.getWidth());
+		range = imageSource.getHeightPixels() - (imageSource.getHeightPixels() % charBox.getHeight());
 	}
 
 	@Override
@@ -64,16 +126,16 @@ public class AsciiImage implements AsciiArt {
 		return name;
 	}
 
-	public ShadingRaster getShadingRaster() {
-		return shadingRaster;
+	public ImageSource getShadingRaster() {
+		return imageSource;
 	}
 
 	@Override
 	public AsciiImage setCharWidth(int newCharWidth) throws IllegalArgumentException  {
-		if (newCharWidth > shadingRaster.getWidthPixels()) {
+		if (newCharWidth > imageSource.getWidthPixels()) {
 			throw new IllegalArgumentException("Char width cannot be greater than the image width.");
 		}
-		if (2 * newCharWidth > shadingRaster.getHeightPixels()) {
+		if (2 * newCharWidth > imageSource.getHeightPixels()) {
 			throw new IllegalArgumentException("Char width cannot be greater than [image height / 2].");
 		}
 		if (newCharWidth < 1) {
@@ -112,12 +174,12 @@ public class AsciiImage implements AsciiArt {
 		return this;
 	}
 
-	public AsciiImage setShadingRaster(ShadingRaster newShadingRaster) {
-		if (newShadingRaster.getWidthPixels() < charBox.getWidth() || newShadingRaster.getHeightPixels() < charBox.getHeight()) {
+	public AsciiImage setShadingRaster(ImageSource newImageSource) {
+		if (newImageSource.getWidthPixels() < charBox.getWidth() || newImageSource.getHeightPixels() < charBox.getHeight()) {
 			throw new IllegalArgumentException("Raster is too small for current value of char width.");
 		}
 
-		shadingRaster = newShadingRaster;
+		imageSource = newImageSource;
 		updateDomainAndRange();
 		return this;
 	}
@@ -162,7 +224,7 @@ public class AsciiImage implements AsciiArt {
 						row -> Arrays.stream(row)
 								.map(
 										charBox -> String.valueOf(
-												charBox.matchChar(shadingRaster, activePalette)
+												charBox.matchChar(imageSource, activePalette)
 										)
 								)
 								.collect(Collectors.joining())
@@ -183,7 +245,7 @@ public class AsciiImage implements AsciiArt {
 		for (SRy = 0; SRy < range; SRy += charBox.getHeight()) {
 			for (SRx = 0; SRx < domain; SRx += charBox.getWidth()) {
 				charBox.setPos(SRx, SRy);
-				charRaster[CRy][CRx] = charBox.matchChar(shadingRaster, activePalette);
+				charRaster[CRy][CRx] = charBox.matchChar(imageSource, activePalette);
 				CRx++;
 			}
 			CRx = 0;

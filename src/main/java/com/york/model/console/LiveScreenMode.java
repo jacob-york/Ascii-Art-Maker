@@ -2,7 +2,7 @@ package com.york.model.console;
 
 import java.util.Scanner;
 
-public class LiveScreenMode extends Mode {
+public final class LiveScreenMode extends Mode {
 
     public LiveScreenMode(Scanner scanner) {
         this.scanner = scanner;

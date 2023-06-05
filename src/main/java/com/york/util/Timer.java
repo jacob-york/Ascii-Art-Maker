@@ -4,7 +4,7 @@
 
 package com.york.util;
 
-public class Timer {
+public final class Timer {
 	
 	private long startTime, endTime;
 	  
@@ -15,6 +15,7 @@ public class Timer {
 	public void stop() {
 		endTime = System.nanoTime();
 	}
+
 	public double getTime() {
 		return (double) ((endTime - startTime) / 1_000_000);
 	}

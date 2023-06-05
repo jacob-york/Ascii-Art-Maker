@@ -3,10 +3,10 @@
  * Powered by OpenCV.
  */
 
-package com.york.model;
+package com.york.model.asciiArt;
 
-import com.york.model.media.ShadingRaster;
-import com.york.model.media.VideoSource;
+import com.york.model.adapters.ImageSource;
+import com.york.model.adapters.VideoSource;
 
 import java.util.Arrays;
 
@@ -29,7 +29,7 @@ public class AsciiVideo implements AsciiArt {
 		this.charWidth = 1;
 		basePalette = DEFAULT_PALETTE;
 		activePalette = DEFAULT_PALETTE;
-		fps = videoSource.getFrameRate();
+		fps = videoSource.getFPS();
 		this.videoSource = videoSource;
 		name = "asciiVideo";
 	}
@@ -75,11 +75,11 @@ public class AsciiVideo implements AsciiArt {
 	 * @return all frames of AsciiVideo as an array of AsciiImages.
 	 */
 	public AsciiImage[] toAsciiImageArray() {
-		ShadingRaster[] shadingRasters = videoSource.getShadingRasterArray();
+		ImageSource[] imageSources = videoSource.getImageSourceArray();
 
-		return Arrays.stream(shadingRasters)
+		return Arrays.stream(imageSources)
 				.parallel()
-				.map(shadingRaster -> new AsciiImage(shadingRaster)
+				.map(imageSource -> new AsciiImage(imageSource)
 					.setCharWidth(charWidth)
 					.setInvertedShading(shadingIsInverted())
 					.setPalette(activePalette)

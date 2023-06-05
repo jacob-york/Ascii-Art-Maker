@@ -1,8 +1,8 @@
-package com.york.model.media;
+package com.york.model.adapters;
 
 import java.awt.image.BufferedImage;
 
-public class BufferedImageAdapter implements ShadingRaster {
+public final class BufferedImageAdapter implements ImageSource {
 
     private final BufferedImage bufferedImage;
 
@@ -21,9 +21,9 @@ public class BufferedImageAdapter implements ShadingRaster {
     }
 
     @Override
-    public int getShadingAt(int x, int y) {
+    public int getBWValue(int x, int y) {
         int pixelColor = bufferedImage.getRGB(x, y);
-        return ShadingRaster.desaturate(pixelColor);
+        return ImageSource.desaturate(pixelColor);
     }
 
 }

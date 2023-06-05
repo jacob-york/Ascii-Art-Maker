@@ -3,7 +3,7 @@ package com.york.model;
 /**
  * Singleton for user Application Settings.
  */
-public class Settings {
+public final class Settings {
 
     public static final String DOWNLOADS = "C:\\Users\\" + System.getProperty("user.name") + "\\Downloads";
 

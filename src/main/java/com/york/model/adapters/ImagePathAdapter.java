@@ -1,11 +1,13 @@
-package com.york.model.media;
+package com.york.model.adapters;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-public class ImagePathAdapter implements ShadingRaster {
+// TODO: kinda bad
+
+public final class ImagePathAdapter implements ImageSource {
 
     public static final int NULL_PATH = 3;
 
@@ -14,8 +16,6 @@ public class ImagePathAdapter implements ShadingRaster {
     public static final int FILE_NOT_ACCEPTED = 1;
 
     public static final int SUCCESS = 0;
-
-    private static final String[] ACCEPTED_FORMATS = {"jpg", "jpeg", "png"};
 
     private final BufferedImage bufferedImage;
 
@@ -37,16 +37,16 @@ public class ImagePathAdapter implements ShadingRaster {
     }
 
     @Override
-    public int getShadingAt(int x, int y) {
+    public int getBWValue(int x, int y) {
         int pixelColor = bufferedImage.getRGB(x, y);
-        return ShadingRaster.desaturate(pixelColor);
+        return ImageSource.desaturate(pixelColor);
     }
 
     /**
-     * Returns the name of the original image file (not including file extension).
-     * @return The name of the original image file (not including file extension).
+     * Returns the name of the original file (not including file extension).
+     * @return The name of the original file (not including file extension).
      */
-    public String getImageName() {
+    public String getFileName() {
         return path.substring(path.lastIndexOf('\\') + 1, path.lastIndexOf('.'));
     }
 
@@ -58,11 +58,11 @@ public class ImagePathAdapter implements ShadingRaster {
     }
 
     public static String[] getAcceptedFormats() {
-        return ACCEPTED_FORMATS.clone();
+        return new String[] {"jpg", "jpeg", "png"};
     }
 
     public static boolean isAcceptedFormat(String path) {
-        for (String format : ACCEPTED_FORMATS) {
+        for (String format : getAcceptedFormats()) {
             if (path.toLowerCase().endsWith("." + format)) return true;
         }
         return false;

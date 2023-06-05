@@ -2,7 +2,7 @@ package com.york.model.console;
 
 import java.util.Scanner;
 
-public class ConsoleApp {
+public final class ConsoleApp {
 
     private final Scanner scanner;
 
@@ -14,7 +14,6 @@ public class ConsoleApp {
                 new ImageFileMode(scanner),
                 new VideoFileMode(scanner),
                 new LiveScreenMode(scanner),
-                new WebcamMode(scanner),
         };
     }
 
@@ -56,7 +55,4 @@ public class ConsoleApp {
         }
     }
 
-    public static void main(String[] args) {
-        new ConsoleApp().launch();
-    }
 }
