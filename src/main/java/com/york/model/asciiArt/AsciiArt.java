@@ -43,12 +43,6 @@ public interface AsciiArt {
 	String getPalette();
 
 	/**
-	 *
-	 * @return
-	 */
-	String getName();
-
-	/**
 	 * @param newCharWidth
 	 * @return
 	 * @throws IllegalArgumentException if newCharWidth < 1, newCharWidth is greater than the image width, or if newCharWidth * 2 is greater than the image height.
@@ -66,13 +60,6 @@ public interface AsciiArt {
 	 * @param invertShading
 	 */
 	AsciiArt setInvertedShading(boolean invertShading);
-
-	/**
-	 *
-	 * @param newName
-	 * @return
-	 */
-	AsciiArt setName(String newName);
 
 	/**
 	 * @return true or false of whether the art uses the default palette

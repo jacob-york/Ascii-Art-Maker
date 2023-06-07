@@ -3,16 +3,14 @@ package com.york.model.adapters;
 public interface VideoSource {
 
     /**
-     *
-     * @return the width in pixels of the original video.
+     * @return the width in pixels of the video stream.
      */
-    int getWidthPixels();
+    int getWidth();
 
     /**
-     *
-     * @return the height in pixels of the original video.
+     * @return the height in pixels of the video stream.
      */
-    int getHeightPixels();
+    int getHeight();
 
     /**
      *

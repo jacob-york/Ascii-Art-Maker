@@ -1,15 +1,19 @@
 package com.york.model;
 
-/**
- * Singleton for user Application Settings.
- */
-public final class Settings {
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
-    public static final String DOWNLOADS = "C:\\Users\\" + System.getProperty("user.name") + "\\Downloads";
+public class Settings {
+
+    public static final Path DOWNLOADS = Paths.get(
+            "C:\\Users\\" + System.getProperty("user.name") + "\\Downloads"
+    );
 
     private Settings instance;
 
-    private Settings() {}
+    private Settings() {
+
+    }
 
     public Settings getInstance() {
         if (instance == null) {

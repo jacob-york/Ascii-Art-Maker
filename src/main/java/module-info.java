@@ -4,13 +4,10 @@ module com.example.demo {
     requires javafx.graphics;
     requires javafx.fxml;
     requires opencv;
+    requires kotlin.stdlib;
 
-    opens com.york to javafx.fxml;
-    exports com.york;
     exports com.york.model;
     opens com.york.model to javafx.fxml;
-    exports com.york.util;
-    opens com.york.util to javafx.fxml;
     exports com.york.model.adapters;
     opens com.york.model.adapters to javafx.fxml;
     exports com.york.model.console;

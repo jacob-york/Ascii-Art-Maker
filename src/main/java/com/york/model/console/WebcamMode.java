@@ -2,17 +2,18 @@ package com.york.model.console;
 
 import java.util.Scanner;
 
-public final class VideoFileMode extends Mode {
+public class WebcamMode extends Mode {
 
-    public VideoFileMode(Scanner scanner) {
+    public WebcamMode(Scanner scanner) {
         this.scanner = scanner;
     }
 
     @Override
     public String toString() {
-        return "Video File Mode";
+        return "Webcam Mode (Coming Soon!)";
     }
 
+    @Override
     public void launch() {
         // TODO: implement this
     }

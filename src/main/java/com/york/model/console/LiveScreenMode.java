@@ -10,13 +10,12 @@ public final class LiveScreenMode extends Mode {
 
     @Override
     public String toString() {
-        return "Live Screen Mode";
+        return "Live Screen Mode (Coming Soon!)";
     }
 
     @Override
     public void launch() {
-        requestCharWidth();
-        requestInvertedShading();
+        // TODO: implement this
     }
 
 

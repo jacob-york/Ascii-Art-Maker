@@ -13,27 +13,38 @@ public final class ConsoleApp {
         modes = new Mode[] {
                 new ImageFileMode(scanner),
                 new VideoFileMode(scanner),
-                new LiveScreenMode(scanner),
         };
     }
 
-    private Mode getMode() {
+    private String getModesList() {
+        StringBuilder stringBuilder = new StringBuilder("(");
+        for (int i = 1; i <= modes.length; i++) {
+            if (i != 1) {
+                stringBuilder.append(", ");
+            }
+            stringBuilder.append(i);
+        }
+        stringBuilder.append(")");
 
+        return stringBuilder.toString();
+    }
+
+    private Mode requestMode() {
         for (int i = 1; i <= modes.length; i++) {
             System.out.println(i + ") " + modes[i - 1]);
         }
 
-        System.out.print("What would you like to do (");
+        System.out.print("What would you like to do " + getModesList() + "?:\n>");
 
-        for (int i = 1; i <= modes.length; i++) {
-            if (i != 1) {
-                System.out.print(", ");
+        while (true) {
+            try {
+                int choice = Integer.parseInt(scanner.nextLine());
+                return modes[choice - 1];
             }
-            System.out.print(i);
+            catch (NumberFormatException e) {
+                System.out.print("Invalid input. Please enter a mode " + getModesList() + ":\n>");
+            }
         }
-        System.out.print(")?:\n>");
-
-        return modes[Integer.parseInt(scanner.nextLine()) - 1];
     }
 
     private char yesOrNo(String prompt) {
@@ -48,7 +59,7 @@ public final class ConsoleApp {
     public void launch() {
         try {
             do {
-                getMode().launch();
+                requestMode().launch();
             } while (yesOrNo("Would you like to go again? (y/n):\n>") == 'y');
         } finally {
             scanner.close();

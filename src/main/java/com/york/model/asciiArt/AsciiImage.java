@@ -7,78 +7,46 @@ import java.util.stream.Collectors;
 
 public class AsciiImage implements AsciiArt {
 
-	private static final class CharBox {
+	private static final class CharOutline {
 
-		private int xPos;  // top-left pixel of charBox
-		private int yPos;  //
-		private final int width;
-		private final int height;
-		private final int area;
+		// Top-left pixel of charOutline
+		int x, y;
 
-		public CharBox(int width) {
-			xPos = 0;
-			yPos = 0;
+		final int width, height, area;
+
+		public CharOutline(int width, int x, int y) {
+			this.x = x;
+			this.y = y;
 			this.width = width;
 			this.height = width * 2;
 			this.area = width * height;
 		}
 
-		public int getX() {
-			return xPos;
-		}
-
-		public int getY() {
-			return yPos;
-		}
-
-		public int getWidth() {
-			return width;
-		}
-
-		public int getHeight() {
-			return height;
-		}
-
-		public int getArea() {
-			return area;
-		}
-
-		/**
-		 * @return 0-255 avr that represents the average Black and White value outlined by CharBox.
-		 */
-		private int getBWValue(ImageSource imageSource) {
-			int sumOfPixels = 0;
-			for (int y = 0; y < height; y++) {
-				for (int x = 0; x < width; x++) {
-					sumOfPixels += imageSource.getBWValue(xPos + x, yPos + y);
-				}
-			}
-			return sumOfPixels / area;
-		}
-
-		public void setPos(int x, int y) {
-			xPos = x;
-			yPos = y;
-		}
-
-		public char matchChar(ImageSource imageSource, String palette) {
-			if (256 % palette.length() != 0) {
-				throw new ArrayIndexOutOfBoundsException("Palette must be divisible by 256.");
-			}
-
-			int index = (int) Math.floor(getBWValue(imageSource) / (double) (256/palette.length()));
-			return palette.charAt(index);
-		}
-
 	}
 
-	private CharBox charBox;
+	private char matchChar(CharOutline charOutline) {
+		if (256 % activePalette.length() != 0) {
+			throw new ArrayIndexOutOfBoundsException("Palette must be divisible by 256.");
+		}
+
+		// 0-255 avr that represents the average Black and White value outlined by CharBox.
+		int sumOfPixels = 0;
+		for (int y = 0; y < charOutline.height; y++) {
+			for (int x = 0; x < charOutline.width; x++) {
+				sumOfPixels += imageSource.getBWValue(charOutline.x + x, charOutline.y + y);
+			}
+		}
+		int BWValue = sumOfPixels / charOutline.area;
+
+		int index = (int) Math.floor(BWValue / (double) (256/activePalette.length()));
+		return activePalette.charAt(index);
+	}
+
+	private int charWidth;
 
 	private int domain;
 
 	private int range;
-
-	private String name;
 
 	private String basePalette;
 
@@ -86,63 +54,61 @@ public class AsciiImage implements AsciiArt {
 
 	private ImageSource imageSource;
 
+	private void updateDomainAndRange() {
+		domain = imageSource.getWidth() - (imageSource.getWidth() % charWidth);
+		range = imageSource.getHeight() - (imageSource.getHeight() % (2 * charWidth));
+	}
+
 	public AsciiImage(ImageSource imageSource) {
-		charBox = new CharBox(1);
+		charWidth = 1;
 		basePalette = DEFAULT_PALETTE;
 		activePalette = DEFAULT_PALETTE;
 		this.imageSource = imageSource;
-		name = "asciiImage";
 		updateDomainAndRange();
-	}
-
-	private void updateDomainAndRange() {
-		domain = imageSource.getWidthPixels() - (imageSource.getWidthPixels() % charBox.getWidth());
-		range = imageSource.getHeightPixels() - (imageSource.getHeightPixels() % charBox.getHeight());
 	}
 
 	@Override
 	public int getWidth() {
-		return domain / charBox.getWidth();
+		return domain / charWidth;
 	}
+
 	@Override
 	public int getHeight() {
-		return range / charBox.getHeight();
+		return range / (2 * charWidth);
 	}
+
 	@Override
 	public int getArea() {
 		return getWidth() * getHeight();
 	}
+
 	@Override
 	public int getCharWidth() {
-		return charBox.getWidth();
+		return (2 * charWidth);
 	}
+
 	@Override
 	public String getPalette() {
 		return basePalette;
 	}
 
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	public ImageSource getShadingRaster() {
+	public ImageSource getImageSource() {
 		return imageSource;
 	}
 
 	@Override
 	public AsciiImage setCharWidth(int newCharWidth) throws IllegalArgumentException  {
-		if (newCharWidth > imageSource.getWidthPixels()) {
+		if (newCharWidth > imageSource.getWidth()) {
 			throw new IllegalArgumentException("Char width cannot be greater than the image width.");
 		}
-		if (2 * newCharWidth > imageSource.getHeightPixels()) {
+		if (2 * newCharWidth > imageSource.getHeight()) {
 			throw new IllegalArgumentException("Char width cannot be greater than [image height / 2].");
 		}
 		if (newCharWidth < 1) {
 			throw new IllegalArgumentException("Char width must be greater than 0.");
 		}
 
-		charBox = new CharBox(newCharWidth);
+		charWidth = newCharWidth;
 		updateDomainAndRange();
 		return this;
 	}
@@ -168,14 +134,8 @@ public class AsciiImage implements AsciiArt {
 		return this;
 	}
 
-	@Override
-	public AsciiImage setName(String newName) {
-		name = newName;
-		return this;
-	}
-
-	public AsciiImage setShadingRaster(ImageSource newImageSource) {
-		if (newImageSource.getWidthPixels() < charBox.getWidth() || newImageSource.getHeightPixels() < charBox.getHeight()) {
+	public AsciiImage setImageSource(ImageSource newImageSource) {
+		if (newImageSource.getWidth() < charWidth || newImageSource.getHeight() < (2 * charWidth)) {
 			throw new IllegalArgumentException("Raster is too small for current value of char width.");
 		}
 
@@ -206,53 +166,26 @@ public class AsciiImage implements AsciiArt {
 	}
 	
 	public String[] toStringArray() {
-		CharBox[][] charBoxes = new CharBox[getHeight()][getWidth()];
+		CharOutline[][] charOutlines = new CharOutline[getHeight()][getWidth()];
 
 		// might be parallelizable
-		for (int y = 0; y < charBoxes.length; y++) {
-			for (int x = 0; x < charBoxes[0].length; x++){
-				CharBox curBox = new CharBox(charBox.getWidth());
-				charBoxes[y][x] = curBox;
-				curBox.setPos(x * charBox.getWidth(), y * charBox.getHeight());
+		for (int y = 0; y < charOutlines.length; y++) {
+			for (int x = 0; x < charOutlines[0].length; x++) {
+				charOutlines[y][x] = new CharOutline(charWidth, x * charWidth, y * 2 * charWidth);
 			}
 		}
 
 		// pick each Char in parallel
-		return Arrays.stream(charBoxes)
+		return Arrays.stream(charOutlines)
 				.parallel()
-				.map(
-						row -> Arrays.stream(row)
-								.map(
-										charBox -> String.valueOf(
-												charBox.matchChar(imageSource, activePalette)
-										)
+				.map(row ->
+						Arrays.stream(row)
+								.map(charOutline ->
+										String.valueOf(matchChar(charOutline))
 								)
 								.collect(Collectors.joining())
 				)
 				.toArray(String[]::new);
-	}
-	
-	public char[][] toCharRaster() {
-		char[][] charRaster = new char[getHeight()][getWidth()];
-		
-		// shadingRaster position
-		int SRy;
-		int SRx;
-		// charRaster position
-		int CRy = 0;
-		int CRx = 0;
-		
-		for (SRy = 0; SRy < range; SRy += charBox.getHeight()) {
-			for (SRx = 0; SRx < domain; SRx += charBox.getWidth()) {
-				charBox.setPos(SRx, SRy);
-				charRaster[CRy][CRx] = charBox.matchChar(imageSource, activePalette);
-				CRx++;
-			}
-			CRx = 0;
-			CRy++;
-		}
-		
-		return charRaster;
 	}
 
 }

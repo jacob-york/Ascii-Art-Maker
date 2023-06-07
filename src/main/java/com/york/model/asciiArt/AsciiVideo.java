@@ -14,8 +14,6 @@ public class AsciiVideo implements AsciiArt {
 
 	private int charWidth;
 
-	private String name;
-
 	private VideoSource videoSource;
 
 	private String basePalette;
@@ -31,18 +29,17 @@ public class AsciiVideo implements AsciiArt {
 		activePalette = DEFAULT_PALETTE;
 		fps = videoSource.getFPS();
 		this.videoSource = videoSource;
-		name = "asciiVideo";
 	}
 
 	@Override
 	public int getWidth() {
-		int domain = videoSource.getWidthPixels() - (videoSource.getWidthPixels() % charWidth);
+		int domain = videoSource.getWidth() - (videoSource.getWidth() % charWidth);
 		return domain / charWidth;
 	}
 
 	@Override
 	public int getHeight() {
-		int range = videoSource.getHeightPixels() - (videoSource.getHeightPixels() % (2 * charWidth));
+		int range = videoSource.getHeight() - (videoSource.getHeight() % (2 * charWidth));
 		return range / (2 * charWidth);
 	}
 
@@ -65,11 +62,6 @@ public class AsciiVideo implements AsciiArt {
 		return basePalette;
 	}
 
-	@Override
-	public String getName() {
-		return name;
-	}
-
 	/**
 	 * Converts AsciiVideo to an array of Ascii Images.
 	 * @return all frames of AsciiVideo as an array of AsciiImages.
@@ -89,10 +81,10 @@ public class AsciiVideo implements AsciiArt {
 
 	@Override
 	public AsciiVideo setCharWidth(int newCharWidth) throws IllegalArgumentException {
-		if (newCharWidth > videoSource.getWidthPixels()) {
+		if (newCharWidth > videoSource.getWidth()) {
 			throw new IllegalArgumentException("Char width cannot be greater than the media width.");
 		}
-		if (2 * newCharWidth > videoSource.getHeightPixels()) {
+		if (2 * newCharWidth > videoSource.getHeight()) {
 			throw new IllegalArgumentException("Char width cannot be greater than [media height / 2].");
 		}
 		if (newCharWidth < 1) {
@@ -122,12 +114,6 @@ public class AsciiVideo implements AsciiArt {
 		if (invertShading)
 			activePalette = AsciiArt.reverseString(basePalette);
 		else activePalette = basePalette;
-		return this;
-	}
-
-	@Override
-	public AsciiVideo setName(String newName) {
-		name = newName;
 		return this;
 	}
 

@@ -1,23 +1,21 @@
 package com.york.model.adapters;
 
-// TODO: documentation
 public interface LiveStreamSource {
-
     /**
      *
-     * @return the width in pixels of the video stream.
+     * @return the width in pixels of the original video.
      */
-    int getWidthPixels();
+    int getWidth();
 
     /**
      *
-     * @return the height in pixels of the video stream.
+     * @return the height in pixels of the original video.
      */
-    int getHeightPixels();
+    int getHeight();
 
     /**
      *
-     * @return the frames per second of the video stream.
+     * @return the frames per second of the original video.
      */
     int getFPS();
 

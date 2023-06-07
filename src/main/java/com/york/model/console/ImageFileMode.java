@@ -1,12 +1,17 @@
 package com.york.model.console;
 
+import java.awt.image.BufferedImage;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
 import java.util.Scanner;
 
-import com.york.model.asciiArt.AsciiImage;
 import com.york.model.Settings;
-import com.york.model.adapters.ImagePathAdapter;
-import com.york.util.Timer;
+import com.york.model.adapters.BufferedImageAdapter;
+import com.york.model.adapters.ImageSource;
+import com.york.model.asciiArt.AsciiImage;
+
+import javax.imageio.ImageIO;
 
 public final class ImageFileMode extends Mode {
 
@@ -19,59 +24,75 @@ public final class ImageFileMode extends Mode {
 		return "Image Mode";
 	}
 
-	private ImagePathAdapter requestPath() {
+	public boolean formatIsAccepted(String fileName, String[] validExtensions) {
+		for (String format : validExtensions) {
+			if (format.equals(fileName.substring(fileName.lastIndexOf('.') + 1))) return true;
+		}
+		return false;
+	}
 
-		while (true) {
-			System.out.print("Enter the absolute path to an image file (w/ extension):\n>");
-			String pathToImage = nextLine();
+	public static String writeImageToOutput(String name, AsciiImage asciiImage, Path writeTo) throws IOException {
+		String art = asciiImage.toString();
 
-			ImagePathAdapter pathAdapter;
+		String outputPath = writeTo + "\\" + name + "-cw" + asciiImage.getCharWidth();
+		if (asciiImage.shadingIsInverted()) {
+			outputPath += "-inv";
+		}
+		outputPath += ".txt";
+
+		File file = new File(outputPath);
+		FileOutputStream fos = new FileOutputStream(file);
+		OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
+		osw.write(art);
+		osw.close();
+		fos.close();
+
+		return outputPath;
+	}
+
+	public void launch() {
+
+		ImageSource imageSource = null;
+		String imageName = null;
+
+		boolean validInput = false;
+		while (!validInput) {
+			System.out.print("Enter the absolute path to an image file:\n>");
 			try {
-				pathAdapter = new ImagePathAdapter(pathToImage);
-				if (ImagePathAdapter.testPath(pathToImage) == ImagePathAdapter.FILE_NOT_ACCEPTED) {
-					StringBuilder displayFormats = new StringBuilder();
-					for (String format : ImagePathAdapter.getAcceptedFormats()) {
-						if (displayFormats.toString().equals("")) {
-							displayFormats.append(format);
-						}
-						else displayFormats.append(", ").append(format);
-					}
-					System.out.println("Format is not accepted (Accepted formats: " + displayFormats + ").");
+				Path myPath = Paths.get(scanner.nextLine());	// InvalidPathException
+				BufferedImage bufferedImage = ImageIO.read(myPath.toFile());	// IOException
+				imageName = myPath.getFileName().toString();
+
+				if (!formatIsAccepted(imageName, new String[] {"png", "jpg", "jpeg"})) {
+					System.out.println("Format not accepted. Please try again (must be png or jpg).");
+					continue;
 				}
-				else return pathAdapter;
+
+				imageName = imageName.substring(0, imageName.lastIndexOf('.'));
+				imageSource = new BufferedImageAdapter(bufferedImage);
+				validInput = true;
+			}
+			catch (InvalidPathException e) {
+				System.out.println("Error reading path. Please try again.");
 			}
 			catch (IOException e) {
 				System.out.println("File not found. Please try again.");
 			}
 		}
-	}
 
-	private void asciiImageFromPath(ImagePathAdapter pathAdapter, int charWidth, boolean invertedShading) {
+		AsciiImage asciiImage = new AsciiImage(imageSource);
+		asciiImage.setCharWidth(requestCharWidth());
+		asciiImage.setInvertedShading(requestInvertedShading());
 
-		Timer timer = new Timer();
+		System.out.println("Working...");
+
 		try {
-			System.out.println("Working...");
-			timer.start();
-
-			AsciiImage asciiImage = new AsciiImage(pathAdapter)
-					.setName(pathAdapter.getFileName())
-					.setCharWidth(charWidth)
-					.setInvertedShading(invertedShading);
-			String outPutPath = writeImageToOutput(asciiImage, Settings.DOWNLOADS);
-
-			System.out.println(asciiImage.getName() + " successfully printed art to: " + outPutPath);
-			System.out.println(asciiImage.usesDefaultPalette());
-		} catch (IOException e) {
+			String outputPath = writeImageToOutput(imageName, asciiImage, Settings.DOWNLOADS);
+			System.out.println(imageName + " successfully printed art to: " + outputPath);
+		}
+		catch (IOException e) {
 			System.out.print("Failed to output file:\n" + e + "\n");
 		}
-	}
-
-	public void launch() {
-		ImagePathAdapter pathAdapter = requestPath();
-		requestCharWidth();
-		requestInvertedShading();
-
-		asciiImageFromPath(pathAdapter, charWidth, invertedShading);
 	}
 	
 }
