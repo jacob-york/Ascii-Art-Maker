@@ -84,7 +84,7 @@ public class AsciiImage implements AsciiArt {
 
 	@Override
 	public int getCharWidth() {
-		return (2 * charWidth);
+		return charWidth;
 	}
 
 	@Override
