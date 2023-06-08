@@ -8,6 +8,7 @@ import java.util.Scanner;
 
 import com.york.model.Settings;
 import com.york.model.adapters.BufferedImageAdapter;
+import com.york.model.adapters.ImageFileAdapter;
 import com.york.model.adapters.ImageSource;
 import com.york.model.asciiArt.AsciiImage;
 
@@ -22,13 +23,6 @@ public final class ImageFileMode extends Mode {
 	@Override
 	public String toString() {
 		return "Image Mode";
-	}
-
-	public boolean formatIsAccepted(String fileName, String[] validExtensions) {
-		for (String format : validExtensions) {
-			if (format.equals(fileName.substring(fileName.lastIndexOf('.') + 1))) return true;
-		}
-		return false;
 	}
 
 	public static String writeImageToOutput(String name, AsciiImage asciiImage, Path writeTo) throws IOException {
@@ -53,30 +47,20 @@ public final class ImageFileMode extends Mode {
 	public void launch() {
 
 		ImageSource imageSource = null;
-		String imageName = null;
 
 		boolean validInput = false;
 		while (!validInput) {
 			System.out.print("Enter the absolute path to an image file:\n>");
 			try {
-				Path myPath = Paths.get(scanner.nextLine());	// InvalidPathException
-				BufferedImage bufferedImage = ImageIO.read(myPath.toFile());	// IOException
-				imageName = myPath.getFileName().toString();
-
-				if (!formatIsAccepted(imageName, new String[] {"png", "jpg", "jpeg"})) {
-					System.out.println("Format not accepted. Please try again (must be png or jpg).");
-					continue;
-				}
-
-				imageName = imageName.substring(0, imageName.lastIndexOf('.'));
-				imageSource = new BufferedImageAdapter(bufferedImage);
+				File myFile = new File(scanner.nextLine());
+				imageSource = new ImageFileAdapter(myFile);
 				validInput = true;
 			}
-			catch (InvalidPathException e) {
-				System.out.println("Error reading path. Please try again.");
-			}
 			catch (IOException e) {
-				System.out.println("File not found. Please try again.");
+				System.out.println("Invalid Input. Please try again.");
+			}
+			catch (IllegalArgumentException e) {
+				System.out.println("Format not accepted. Please try again.");
 			}
 		}
 
@@ -87,8 +71,8 @@ public final class ImageFileMode extends Mode {
 		System.out.println("Working...");
 
 		try {
-			String outputPath = writeImageToOutput(imageName, asciiImage, Settings.DOWNLOADS);
-			System.out.println(imageName + " successfully printed art to: " + outputPath);
+			String outputPath = writeImageToOutput(imageSource.getName(), asciiImage, Settings.DOWNLOADS);
+			System.out.println(imageSource.getName() + " successfully printed art to: " + outputPath);
 		}
 		catch (IOException e) {
 			System.out.print("Failed to output file:\n" + e + "\n");

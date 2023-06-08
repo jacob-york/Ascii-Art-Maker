@@ -7,36 +7,45 @@ import java.util.stream.Collectors;
 
 public class AsciiImage implements AsciiArt {
 
-	private static final class CharOutline {
+	/**
+	 * Outlines a rectangle of pixels to be rendered into a char.
+	 * PixelOutlines, like actual chars, are twice as tall as they are long.
+	 */
+	private static final class PixelOutline {
 
 		// Top-left pixel of charOutline
 		int x, y;
 
 		final int width, height, area;
 
-		public CharOutline(int width, int x, int y) {
+		public PixelOutline(int charWidth, int x, int y) {
 			this.x = x;
 			this.y = y;
-			this.width = width;
-			this.height = width * 2;
-			this.area = width * height;
+			width = charWidth;
+			height = charWidth * 2;
+			area = charWidth * height;
 		}
 
 	}
 
-	private char matchChar(CharOutline charOutline) {
+	/**
+	 * Match a char to a pixelOutline.
+	 * @param pixelOutline a pixelOutline to match a char to.
+	 * @return the matched char.
+	 */
+	private char matchChar(PixelOutline pixelOutline) {
 		if (256 % activePalette.length() != 0) {
 			throw new ArrayIndexOutOfBoundsException("Palette must be divisible by 256.");
 		}
 
 		// 0-255 avr that represents the average Black and White value outlined by CharBox.
 		int sumOfPixels = 0;
-		for (int y = 0; y < charOutline.height; y++) {
-			for (int x = 0; x < charOutline.width; x++) {
-				sumOfPixels += imageSource.getBWValue(charOutline.x + x, charOutline.y + y);
+		for (int y = 0; y < pixelOutline.height; y++) {
+			for (int x = 0; x < pixelOutline.width; x++) {
+				sumOfPixels += imageSource.getBWValue(pixelOutline.x + x, pixelOutline.y + y);
 			}
 		}
-		int BWValue = sumOfPixels / charOutline.area;
+		int BWValue = sumOfPixels / pixelOutline.area;
 
 		int index = (int) Math.floor(BWValue / (double) (256/activePalette.length()));
 		return activePalette.charAt(index);
@@ -166,22 +175,22 @@ public class AsciiImage implements AsciiArt {
 	}
 	
 	public String[] toStringArray() {
-		CharOutline[][] charOutlines = new CharOutline[getHeight()][getWidth()];
+		PixelOutline[][] pixelOutlines = new PixelOutline[getHeight()][getWidth()];
 
 		// might be parallelizable
-		for (int y = 0; y < charOutlines.length; y++) {
-			for (int x = 0; x < charOutlines[0].length; x++) {
-				charOutlines[y][x] = new CharOutline(charWidth, x * charWidth, y * 2 * charWidth);
+		for (int y = 0; y < pixelOutlines.length; y++) {
+			for (int x = 0; x < pixelOutlines[0].length; x++) {
+				pixelOutlines[y][x] = new PixelOutline(charWidth, x * charWidth, y * 2 * charWidth);
 			}
 		}
 
 		// pick each Char in parallel
-		return Arrays.stream(charOutlines)
+		return Arrays.stream(pixelOutlines)
 				.parallel()
 				.map(row ->
 						Arrays.stream(row)
-								.map(charOutline ->
-										String.valueOf(matchChar(charOutline))
+								.map(pixelOutline ->
+										String.valueOf(matchChar(pixelOutline))
 								)
 								.collect(Collectors.joining())
 				)

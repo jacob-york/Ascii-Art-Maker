@@ -1,11 +1,13 @@
 package com.york.controller;
 
 import com.york.model.adapters.BufferedImageAdapter;
+import com.york.model.adapters.ImageFileAdapter;
 import com.york.model.adapters.ImageSource;
 import com.york.model.asciiArt.AsciiImage;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -23,7 +25,7 @@ import java.nio.file.Paths;
 public class CPController {
 
     @FXML
-    TextField charWidthField;
+    Spinner<Integer> charWidthSpinner;
 
     @FXML
     RadioButton invertShadingBtn;
@@ -32,35 +34,21 @@ public class CPController {
     TextField paletteField;
 
     @FXML
-    Button chooseFileBtn;
-
-    @FXML
     Text currentFileText;
 
-    @FXML
-    Button downloadBtn;
-
-    @FXML
-    Button renderBtn;
-
-    ImageSource imageSource;
+    private ImageSource imageSource;
 
     @FXML
     void initialize() {
-        imageSource = null;
+        SpinnerValueFactory<Integer> spinnerValueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 1);
+        spinnerValueFactory.setValue(1);
+        charWidthSpinner.setValueFactory(spinnerValueFactory);
     }
 
-    public boolean formatIsAccepted(String fileName, String[] validExtensions) {
-        for (String format : validExtensions) {
-            if (format.equals(fileName.substring(fileName.lastIndexOf('.') + 1))) return true;
-        }
-        return false;
-    }
-
-    public static String writeImageToOutput(String name, AsciiImage asciiImage, Path writeTo) throws IOException {
+    private String writeImageToOutput(AsciiImage asciiImage, Path writeTo) throws IOException {
         String art = asciiImage.toString();
 
-        String outputPath = writeTo + "\\" + name + "-cw" + asciiImage.getCharWidth();
+        String outputPath = writeTo + "\\" + imageSource.getName() + "-cw" + asciiImage.getCharWidth();
         if (asciiImage.shadingIsInverted()) {
             outputPath += "-inv";
         }
@@ -77,35 +65,49 @@ public class CPController {
     }
 
     @FXML
-    public void chooseFile(ActionEvent ae) {
+    public void chooseFile() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select an image");
         File selected = fileChooser.showOpenDialog(new Stage());
+
         if (selected == null) return;
+
         try {
-            BufferedImage bufferedImage = ImageIO.read(selected);
-            currentFileText.setText(selected.getName());
-            imageSource = new BufferedImageAdapter(bufferedImage);
+            imageSource = new ImageFileAdapter(selected);
         }
         catch (IOException e) {
-            e.printStackTrace();
+            currentFileText.setText("Invalid file");
+            return;
+        }
+        catch (IllegalArgumentException e) {
+            currentFileText.setText("Invalid file format");
+            return;
         }
 
+        currentFileText.setText(selected.getName());
+
+        boolean ge2 = imageSource.getHeight() / imageSource.getWidth() >= 2;
+        int maxCW = ge2 ? imageSource.getWidth() : imageSource.getHeight() / 2;
+
+        ((SpinnerValueFactory.IntegerSpinnerValueFactory) charWidthSpinner.getValueFactory()).setMax(maxCW);
     }
 
     @FXML
-    public void download(ActionEvent ae) {
-        if (imageSource == null) return;
+    public void download() {
+        if (imageSource == null) {
+            new Alert(Alert.AlertType.ERROR, "Please select an image.").showAndWait();
+            return;
+        }
 
         Path downloads = Paths.get("C:\\Users\\" + System.getProperty("user.name") + "\\Downloads"
         );
         AsciiImage asciiImage = new AsciiImage(imageSource)
-                .setCharWidth(Integer.parseInt(charWidthField.getText()))
+                .setCharWidth(charWidthSpinner.getValue())
                 .setPalette(paletteField.getText())
                 .setInvertedShading(invertShadingBtn.selectedProperty().get());
         // TEMP
         try {
-            writeImageToOutput("asciiImage", asciiImage, downloads);
+            writeImageToOutput(asciiImage, downloads);
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -113,12 +115,14 @@ public class CPController {
     }
 
     @FXML
-    public void render(ActionEvent ae) {
-        if (imageSource == null) return;
+    public void render() {
+        if (imageSource == null) {
+            new Alert(Alert.AlertType.ERROR, "Please select an image.").showAndWait();
+            return;
+        }
 
-        AsciiImage asciiImage = new AsciiImage(imageSource)
-                .setCharWidth(Integer.parseInt(charWidthField.getText()))
-                .setPalette(paletteField.getText())
-                .setInvertedShading(invertShadingBtn.selectedProperty().get());
-    }
+        Stage asciiStage = new Stage();
+        asciiStage.setScene(new Scene(new Pane()));
+        asciiStage.show();
+   }
 }

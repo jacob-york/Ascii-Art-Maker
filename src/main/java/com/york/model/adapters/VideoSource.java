@@ -13,6 +13,11 @@ public interface VideoSource {
     int getHeight();
 
     /**
+     * @return the name of the video file.
+     */
+    String getName();
+
+    /**
      *
      * @return the frames per second of the original video.
      */

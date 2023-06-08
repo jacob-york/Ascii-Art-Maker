@@ -12,4 +12,7 @@ module com.example.demo {
 
     opens com.york.model.asciiArt to javafx.fxml;
     exports com.york.model.asciiArt;
+
+    opens com.york.model.adapters to javafx.fxml;
+    exports com.york.model.adapters;
 }

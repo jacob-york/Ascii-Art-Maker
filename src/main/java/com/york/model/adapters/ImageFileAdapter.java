@@ -1,13 +1,27 @@
 package com.york.model.adapters;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
-public class BufferedImageAdapter implements ImageSource {
+/**
+ * Represents a File object as an image source.
+ */
+public class ImageFileAdapter implements ImageSource {
 
     private final BufferedImage bufferedImage;
+    private final File file;
 
-    public BufferedImageAdapter(BufferedImage bufferedImage) {
-        this.bufferedImage = bufferedImage;
+    /**
+     * @param file Image File to read data from.
+     * @throws IOException When file does not exist.
+     * @throws IllegalArgumentException When the file's format is not supported.
+     */
+    public ImageFileAdapter(File file) throws IOException, IllegalArgumentException {
+        this.file = file;
+        bufferedImage = ImageIO.read(file);
+        if (bufferedImage == null) throw new IllegalArgumentException("Invalid file format.");
     }
 
     @Override
@@ -33,8 +47,9 @@ public class BufferedImageAdapter implements ImageSource {
         return (int) ((Math.min(r, Math.min(g, b)) + Math.max(r, Math.max(g, b))) * .5);
     }
 
+
     @Override
     public String getName() {
-        return null;
+        return file.getName();
     }
 }
