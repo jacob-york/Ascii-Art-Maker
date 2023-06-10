@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.york</groupId>
-    <artifactId>AsciiArtMaker</artifactId>
-    <version>Alpha 0.9.0</version>
-    <name>Ascii Art Maker</name>
+    <artifactId>Ascii-Art-Studio</artifactId>
+    <version>0.9.0-Alpha</version>
+    <name>Ascii-Art-Studio</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
