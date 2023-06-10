@@ -3,9 +3,9 @@ package com.york.model.adapters;
 /**
  * Interface for reading necessary image data.
  * Implements the Adapter design pattern:
- *  for a new image format (be it a file, class, etc),
- *  Write a class which implements ImageSource, implement the three methods,
- *  and then just pass that adapter to an AsciiArt.
+ * for a new image format (be it a file, class, etc),
+ * write a class that implements ImageSource, implement the methods,
+ * and then just pass that adapter to an AsciiArt.
  */
 public interface ImageSource {
 

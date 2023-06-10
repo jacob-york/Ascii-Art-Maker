@@ -61,7 +61,9 @@ public class AsciiImage implements AsciiArt {
 
 	private String activePalette;
 
-	private ImageSource imageSource;
+	private final ImageSource imageSource;
+
+	private String name;
 
 	private void updateDomainAndRange() {
 		domain = imageSource.getWidth() - (imageSource.getWidth() % charWidth);
@@ -73,6 +75,7 @@ public class AsciiImage implements AsciiArt {
 		basePalette = DEFAULT_PALETTE;
 		activePalette = DEFAULT_PALETTE;
 		this.imageSource = imageSource;
+		name = imageSource.getName();
 		updateDomainAndRange();
 	}
 
@@ -99,6 +102,11 @@ public class AsciiImage implements AsciiArt {
 	@Override
 	public String getPalette() {
 		return basePalette;
+	}
+
+	@Override
+	public String getName() {
+		return name;
 	}
 
 	public ImageSource getImageSource() {
@@ -143,16 +151,12 @@ public class AsciiImage implements AsciiArt {
 		return this;
 	}
 
-	public AsciiImage setImageSource(ImageSource newImageSource) {
-		if (newImageSource.getWidth() < charWidth || newImageSource.getHeight() < (2 * charWidth)) {
-			throw new IllegalArgumentException("Raster is too small for current value of char width.");
-		}
-
-		imageSource = newImageSource;
-		updateDomainAndRange();
+	@Override
+	public AsciiImage setName(String newName) {
+		name = newName;
 		return this;
 	}
-	
+
 	@Override
 	public boolean usesDefaultPalette() {
 		return basePalette.equals(DEFAULT_PALETTE);
@@ -177,7 +181,7 @@ public class AsciiImage implements AsciiArt {
 	public String[] toStringArray() {
 		PixelOutline[][] pixelOutlines = new PixelOutline[getHeight()][getWidth()];
 
-		// might be parallelizable
+		// populate pixelOutline array
 		for (int y = 0; y < pixelOutlines.length; y++) {
 			for (int x = 0; x < pixelOutlines[0].length; x++) {
 				pixelOutlines[y][x] = new PixelOutline(charWidth, x * charWidth, y * 2 * charWidth);
@@ -185,14 +189,11 @@ public class AsciiImage implements AsciiArt {
 		}
 
 		// pick each Char in parallel
-		return Arrays.stream(pixelOutlines)
-				.parallel()
-				.map(row ->
-						Arrays.stream(row)
-								.map(pixelOutline ->
-										String.valueOf(matchChar(pixelOutline))
-								)
-								.collect(Collectors.joining())
+		return Arrays.stream(pixelOutlines).parallel()
+				.map(row -> Arrays.stream(row)
+						.map(pixelOutline -> String.valueOf(matchChar(pixelOutline))
+						)
+						.collect(Collectors.joining())
 				)
 				.toArray(String[]::new);
 	}

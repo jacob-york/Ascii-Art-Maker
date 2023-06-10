@@ -1,24 +1,42 @@
 package com.york.model;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.File;
 
 public class Settings {
 
-    public static final Path DOWNLOADS = Paths.get(
-            "C:\\Users\\" + System.getProperty("user.name") + "\\Downloads"
-    );
+    public static final File DOWNLOADS = new File("C:\\Users\\" + System.getProperty("user.name") + "\\Downloads");
 
-    private Settings instance;
+
+    private File curChooseDir = Settings.DOWNLOADS;
+
+    private File curSaveDir = Settings.DOWNLOADS;
+
+    private static Settings instance;
 
     private Settings() {
 
     }
 
-    public Settings getInstance() {
+    public static Settings getInstance() {
         if (instance == null) {
             instance = new Settings();
         }
         return instance;
+    }
+
+    public File getCurSaveDir() {
+        return curSaveDir;
+    }
+
+    public void setCurSaveDir(File newSaveDir) {
+        curSaveDir = newSaveDir;
+    }
+
+    public File getCurChooseDir() {
+        return curChooseDir;
+    }
+
+    public void setCurChooseDir(File newChooseDir) {
+        curChooseDir = newChooseDir;
     }
 }

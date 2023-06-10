@@ -1,38 +1,43 @@
 package com.york.model.asciiArt;
 
-// TODO: documentation
+/**
+ * Class representation of AsciiArt.
+ */
 public interface AsciiArt {
 
 	/**
 	 * The characters used in the AsciiArt, organized from darkest to lightest.
+	 * This palette is internally measured in reverse when inverted shading is enabled.
 	 */
 	String DEFAULT_PALETTE = "@N#bhyo+s/=-:.` ";
 
 	/**
 	 *
-	 * @return
+	 */
+	String FONT = "Consolas";
+	// TODO: multi-font support
+
+	/**
+	 * Get the width of the art in characters.
+	 * @return the width of the art in characters.
 	 */
 	int getWidth();
 
 	/**
-	 *
-	 * @return
+	 * Get the height of the image in characters.
+	 * @return the height of the image in characters.
 	 */
 	int getHeight();
 
 	/**
-	 *
-	 * @return
-	 */
-	/**
-	 *
-	 * @return
+	 * Get the area of the image in pixels
+	 * @return the area of the image in pixels.
 	 */
 	int getArea();
 
 	/**
-	 *
-	 * @return
+	 * get how wide each character is in pixels (from the original image).
+	 * @return Width of each character in pixels
 	 */
 	int getCharWidth();
 
@@ -41,6 +46,12 @@ public interface AsciiArt {
 	 * @return
 	 */
 	String getPalette();
+
+	/**
+	 *
+	 * @return The name of the image; or null if there is none.
+	 */
+	String getName();
 
 	/**
 	 * @param newCharWidth
@@ -60,6 +71,13 @@ public interface AsciiArt {
 	 * @param invertShading
 	 */
 	AsciiArt setInvertedShading(boolean invertShading);
+
+	/**
+	 *
+	 * @param newName
+	 * @return
+	 */
+	AsciiArt setName(String newName);
 
 	/**
 	 * @return true or false of whether the art uses the default palette

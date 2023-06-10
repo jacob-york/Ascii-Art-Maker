@@ -6,7 +6,7 @@
 
     <groupId>com.york</groupId>
     <artifactId>AsciiArtMaker</artifactId>
-    <version>Pre-Alpha</version>
+    <version>Alpha 0.9.0</version>
     <name>Ascii Art Maker</name>
 
     <properties>

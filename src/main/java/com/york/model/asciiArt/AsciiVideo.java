@@ -14,7 +14,7 @@ public class AsciiVideo implements AsciiArt {
 
 	private int charWidth;
 
-	private VideoSource videoSource;
+	private final VideoSource videoSource;
 
 	private String basePalette;
 
@@ -22,12 +22,14 @@ public class AsciiVideo implements AsciiArt {
 
 	private final double fps;
 
+	private String name;
 
 	public AsciiVideo(VideoSource videoSource) {
 		this.charWidth = 1;
 		basePalette = DEFAULT_PALETTE;
 		activePalette = DEFAULT_PALETTE;
 		fps = videoSource.getFPS();
+		name = videoSource.getName();
 		this.videoSource = videoSource;
 	}
 
@@ -60,6 +62,11 @@ public class AsciiVideo implements AsciiArt {
 	@Override
 	public String getPalette() {
 		return basePalette;
+	}
+
+	@Override
+	public String getName() {
+		return name;
 	}
 
 	/**
@@ -117,10 +124,9 @@ public class AsciiVideo implements AsciiArt {
 		return this;
 	}
 
-	public AsciiVideo setVideoSource(VideoSource newVideoSource) {
-		// todo: input validation
-
-		videoSource = newVideoSource;
+	@Override
+	public AsciiVideo setName(String newName) {
+		name = newName;
 		return this;
 	}
 
