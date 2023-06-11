@@ -2,41 +2,51 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ColorPicker?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
-<?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.RadioMenuItem?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.paint.Color?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane fx:id="body" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.york.controller.MainController">
+<BorderPane fx:id="body" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1400.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.york.controller.MainController">
    <top>
       <VBox BorderPane.alignment="CENTER">
          <children>
-            <MenuBar>
+            <MenuBar fx:id="menuBar" focusTraversable="false">
               <menus>
-                <Menu mnemonicParsing="false" text="File">
+                <Menu fx:id="fileMenu" mnemonicParsing="false" text="File">
                   <items>
-                    <MenuItem mnemonicParsing="false" onAction="#chooseFile" text="Open..." />
-                        <MenuItem mnemonicParsing="false" text="Save as Txt..." />
+                    <MenuItem mnemonicParsing="false" onAction="#chooseFile" text="Open File..." />
+                        <MenuItem mnemonicParsing="false" onAction="#saveAsTxt" text="Save as Txt..." />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" onAction="#stopRequest" text="Quit" />
                   </items>
                 </Menu>
-              </menus>
-            </MenuBar>
-            <ToolBar prefHeight="40.0" prefWidth="200.0">
-               <items>
-                  <MenuButton mnemonicParsing="false" text="Mode">
+                  <Menu fx:id="editMenu" mnemonicParsing="false" text="Edit">
+                    <items>
+                      <MenuItem disable="true" mnemonicParsing="false" text="Undo" />
+                        <MenuItem disable="true" mnemonicParsing="false" text="Redo" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" onAction="#copyToClipboard" text="Copy to Clipboard" />
+                    </items>
+                  </Menu>
+                  <Menu fx:id="modeMenu" mnemonicParsing="false" text="Mode">
                      <items>
                         <RadioMenuItem mnemonicParsing="false" selected="true" text="Image files">
                            <toggleGroup>
@@ -49,111 +59,174 @@
                         <RadioMenuItem disable="true" mnemonicParsing="false" text="Screenshot (WIP)" toggleGroup="$modeGroup" />
                         <RadioMenuItem disable="true" mnemonicParsing="false" text="Screen record (WIP)" toggleGroup="$modeGroup" />
                      </items>
-                  </MenuButton>
-                  <Button fx:id="charWidthBtn" contentDisplay="RIGHT" disable="true" mnemonicParsing="false" onAction="#setCharWidth" text="Character Width">
-                     <graphic>
-                        <Spinner fx:id="charWidthSpinner" disable="true" editable="true" nodeOrientation="LEFT_TO_RIGHT" prefWidth="75.0">
+                  </Menu>
+              </menus>
+            </MenuBar>
+            <ToolBar fx:id="toolBar" disable="true" focusTraversable="false" prefHeight="40.0" prefWidth="200.0">
+               <items>
+                  <HBox fx:id="characterWidthBox" alignment="CENTER">
+                     <children>
+                        <Label focusTraversable="false" text="Character Width">
+                           <font>
+                              <Font name="Consolas Bold" size="12.0" />
+                           </font>
+                           <HBox.margin>
+                              <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                           </HBox.margin>
                            <tooltip>
-                              <Tooltip text="The width of each character in pixels (The larger the value, the smaller the ascii art)." />
+                              <Tooltip text="Refers to how wide each character is in pixels [The larger the value, the smaller the resolution.]" />
                            </tooltip>
-                        </Spinner>
-                     </graphic>
-                     <tooltip>
-                        <Tooltip text="Click to make selection" />
-                     </tooltip>
-                  </Button>
-                  <ToggleButton fx:id="invertShadingBtn" disable="true" mnemonicParsing="false" onAction="#setInvertedShading" text="Inverted Shading" />
+                        </Label>
+                        <Button fx:id="charWidthUpBtn" mnemonicParsing="false" onAction="#raiseCharWidth" prefHeight="40.0" prefWidth="40.0" text="+">
+                           <tooltip>
+                              <Tooltip text="Increase character width" />
+                           </tooltip>
+                           <font>
+                              <Font name="Consolas" size="15.0" />
+                           </font>
+                        </Button>
+                        <TextField fx:id="charWidthField" alignment="CENTER" onKeyPressed="#charWidthFromField" prefHeight="30.0" prefWidth="30.0">
+                           <HBox.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </HBox.margin>
+                           <tooltip>
+                              <Tooltip text="Refers to how wide each character is in pixels [The larger the value, the smaller the resolution.]" />
+                           </tooltip>
+                           <font>
+                              <Font name="Consolas" size="12.0" />
+                           </font>
+                        </TextField>
+                        <Button fx:id="charWidthDownBtn" mnemonicParsing="false" onAction="#lowerCharWidth" prefHeight="40.0" prefWidth="40.0" text="-">
+                           <tooltip>
+                              <Tooltip text="Decrease character width" />
+                           </tooltip>
+                           <font>
+                              <Font name="Consolas" size="15.0" />
+                           </font>
+                        </Button>
+                     </children>
+                     <padding>
+                        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                     </padding>
+                  </HBox>
+                  <Separator focusTraversable="false" orientation="VERTICAL" />
+                  <HBox fx:id="zoomBox" alignment="CENTER">
+                     <children>
+                        <Label focusTraversable="false" text="Zoom (Font size)">
+                           <font>
+                              <Font name="Consolas Bold" size="12.0" />
+                           </font>
+                           <HBox.margin>
+                              <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                           </HBox.margin>
+                        </Label>
+                        <Button fx:id="zoomInBtn" mnemonicParsing="false" onAction="#zoomIn" prefHeight="40.0" prefWidth="40.0" text="+">
+                           <tooltip>
+                              <Tooltip text="Zoom In" />
+                           </tooltip>
+                           <font>
+                              <Font name="Consolas" size="15.0" />
+                           </font>
+                        </Button>
+                        <TextField fx:id="fontField" alignment="CENTER" onKeyPressed="#setFontFromField" prefHeight="30.0" prefWidth="50.0">
+                           <HBox.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </HBox.margin>
+                           <font>
+                              <Font name="Consolas" size="12.0" />
+                           </font>
+                        </TextField>
+                        <Button fx:id="zoomOutBtn" mnemonicParsing="false" onAction="#zoomOut" prefHeight="40.0" prefWidth="40.0" text="-">
+                           <tooltip>
+                              <Tooltip text="Zoom Out" />
+                           </tooltip>
+                           <font>
+                              <Font name="Consolas" size="15.0" />
+                           </font>
+                        </Button>
+                     </children>
+                     <padding>
+                        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                     </padding>
+                  </HBox>
+                  <Separator focusTraversable="false" orientation="VERTICAL" />
+                  <RadioButton fx:id="invertedShadingBtn" mnemonicParsing="false" nodeOrientation="RIGHT_TO_LEFT" onAction="#setInvertedShading" text="Inverted Shading">
+                     <font>
+                        <Font name="Consolas Bold" size="12.0" />
+                     </font></RadioButton>
+                  <Separator focusTraversable="false" orientation="VERTICAL" />
+                  <HBox fx:id="saveCopyBox" alignment="CENTER">
+                     <children>
+                        <Label focusTraversable="false" text="Copy to Clipboard">
+                           <font>
+                              <Font name="Consolas Bold" size="12.0" />
+                           </font>
+                        </Label>
+                        <Button fx:id="copyBtn" graphicTextGap="1.0" mnemonicParsing="false" onAction="#copyToClipboard" prefHeight="40.0">
+                           <tooltip>
+                              <Tooltip text="Copy to Clipboard" />
+                           </tooltip>
+                           <font>
+                              <Font name="Consolas" size="20.0" />
+                           </font>
+                           <graphic>
+                              <ImageView fitHeight="20.0" fitWidth="20.0" opacity="0.6" pickOnBounds="true" preserveRatio="true" smooth="false">
+                                 <image>
+                                    <Image url="@copy.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                           <HBox.margin>
+                              <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                           </HBox.margin>
+                        </Button>
+                        <Separator focusTraversable="false" orientation="VERTICAL" />
+                        <Label focusTraversable="false" text="Save as Txt...">
+                           <font>
+                              <Font name="Consolas Bold" size="12.0" />
+                           </font>
+                        </Label>
+                        <Button fx:id="saveBtn" graphicTextGap="1.0" mnemonicParsing="false" onAction="#saveAsTxt" prefHeight="40.0">
+                           <tooltip>
+                              <Tooltip text="Save as Txt..." />
+                           </tooltip>
+                           <font>
+                              <Font name="Consolas" size="20.0" />
+                           </font>
+                           <graphic>
+                              <ImageView fitHeight="20.0" fitWidth="20.0" onDragDetected="#saveAsTxt" opacity="0.6" pickOnBounds="true" preserveRatio="true" smooth="false">
+                                 <image>
+                                    <Image url="@save.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                           <HBox.margin>
+                              <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                           </HBox.margin>
+                        </Button>
+                     </children>
+                     <padding>
+                        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                     </padding>
+                  </HBox>
+                  <ColorPicker fx:id="bgColorPicker" promptText="Background Color" />
+                  <ColorPicker fx:id="textColorPicker" promptText="Text Color">
+                     <value>
+                        <Color />
+                     </value>
+                  </ColorPicker>
                </items>
                <VBox.margin>
-                  <Insets top="5.0" />
+                  <Insets />
                </VBox.margin>
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
             </ToolBar>
          </children>
       </VBox>
    </top>
    <center>
-      <ScrollPane fx:id="scrollPane" BorderPane.alignment="CENTER" />
+      <ScrollPane fx:id="scrollPane" focusTraversable="false" BorderPane.alignment="TOP_CENTER" />
    </center>
-   <right>
-      <VBox fx:id="controls" alignment="TOP_CENTER" BorderPane.alignment="CENTER">
-         <children>
-            <VBox fx:id="zoomControls" alignment="CENTER">
-               <children>
-                  <Button fx:id="zoomInBtn" mnemonicParsing="false" onAction="#zoomIn" text="+">
-                     <VBox.margin>
-                        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
-                     </VBox.margin>
-                     <tooltip>
-                        <Tooltip text="Zoom In" />
-                     </tooltip>
-                     <font>
-                        <Font name="Consolas" size="20.0" />
-                     </font>
-                  </Button>
-                  <TextField prefWidth="10.0" />
-                  <Button fx:id="zoomOutBtn" mnemonicParsing="false" onAction="#zoomOut" text="-">
-                     <VBox.margin>
-                        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
-                     </VBox.margin>
-                     <tooltip>
-                        <Tooltip text="Zoom Out" />
-                     </tooltip>
-                     <font>
-                        <Font name="Consolas" size="20.0" />
-                     </font>
-                  </Button>
-               </children>
-               <VBox.margin>
-                  <Insets bottom="10.0" />
-               </VBox.margin>
-            </VBox>
-            <VBox alignment="CENTER">
-               <children>
-                  <Button fx:id="copyBtn" graphicTextGap="1.0" mnemonicParsing="false" onAction="#copyToClipboard">
-                     <VBox.margin>
-                        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
-                     </VBox.margin>
-                     <tooltip>
-                        <Tooltip text="Copy to Clipboard" />
-                     </tooltip>
-                     <font>
-                        <Font name="Consolas" size="17.0" />
-                     </font>
-                     <graphic>
-                        <ImageView fitHeight="20.0" fitWidth="20.0" opacity="0.6" pickOnBounds="true" preserveRatio="true" smooth="false">
-                           <image>
-                              <Image url="@copy.png" />
-                           </image>
-                        </ImageView>
-                     </graphic>
-                  </Button>
-                  <Button graphicTextGap="1.0" mnemonicParsing="false" onAction="#saveAsTxt">
-                     <tooltip>
-                        <Tooltip text="Save as Txt..." />
-                     </tooltip>
-                     <font>
-                        <Font name="Consolas" size="17.0" />
-                     </font>
-                     <graphic>
-                        <ImageView fitHeight="20.0" fitWidth="20.0" onDragDetected="#saveAsTxt" opacity="0.6" pickOnBounds="true" preserveRatio="true" smooth="false">
-                           <image>
-                              <Image url="@save.png" />
-                           </image>
-                        </ImageView>
-                     </graphic>
-                  </Button>
-               </children>
-               <VBox.margin>
-                  <Insets top="10.0" />
-               </VBox.margin>
-            </VBox>
-         </children>
-         <padding>
-            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-         </padding>
-         <BorderPane.margin>
-            <Insets />
-         </BorderPane.margin>
-      </VBox>
-   </right>
 </BorderPane>

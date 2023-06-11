@@ -51,6 +51,12 @@ public class AsciiVideo implements AsciiArt {
 	}
 
 	@Override
+	public int getMaxCharWidth() {
+		boolean ge2 = videoSource.getHeight() / videoSource.getWidth() >= 2;
+		return ge2 ? videoSource.getWidth() : videoSource.getHeight() / 2;
+	}
+
+	@Override
 	public int getCharWidth() {
 		return charWidth;
 	}
@@ -88,11 +94,8 @@ public class AsciiVideo implements AsciiArt {
 
 	@Override
 	public AsciiVideo setCharWidth(int newCharWidth) throws IllegalArgumentException {
-		if (newCharWidth > videoSource.getWidth()) {
-			throw new IllegalArgumentException("Char width cannot be greater than the media width.");
-		}
-		if (2 * newCharWidth > videoSource.getHeight()) {
-			throw new IllegalArgumentException("Char width cannot be greater than [media height / 2].");
+		if (newCharWidth > getMaxCharWidth()) {
+			throw new IllegalArgumentException("Char width cannot be greater than max char width: " + getMaxCharWidth());
 		}
 		if (newCharWidth < 1) {
 			throw new IllegalArgumentException("Char width must be greater than 0.");

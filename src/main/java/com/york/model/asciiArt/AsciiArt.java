@@ -14,8 +14,7 @@ public interface AsciiArt {
 	/**
 	 *
 	 */
-	String FONT = "Consolas";
-	// TODO: multi-font support
+	String FONT = "Consolas"; // TODO: multi-font support
 
 	/**
 	 * Get the width of the art in characters.
@@ -34,6 +33,8 @@ public interface AsciiArt {
 	 * @return the area of the image in pixels.
 	 */
 	int getArea();
+
+	int getMaxCharWidth();
 
 	/**
 	 * get how wide each character is in pixels (from the original image).
