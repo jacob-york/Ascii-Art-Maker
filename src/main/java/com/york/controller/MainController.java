@@ -15,6 +15,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
@@ -36,9 +37,8 @@ public class MainController {
     public BorderPane body;
     @FXML
     public ToolBar toolBar;
-    @FXML
-    public ScrollPane scrollPane;
 
+    private ScrollPane scrollPane;
     private Text asciiText;
 
     // charWidth
@@ -66,16 +66,18 @@ public class MainController {
 
     // save/copy controls
     @FXML
-    public HBox saveCopyBox;
+    public HBox copyBox;
     @FXML
     public Button copyBtn;
+    @FXML
+    public HBox saveBox;
     @FXML
     public Button saveBtn;
 
 
     // color pickers
     @FXML
-    public ColorPicker bgColorPicker;
+    public ColorPicker bGColorPicker;
     @FXML
     public ColorPicker textColorPicker;
 
@@ -88,9 +90,16 @@ public class MainController {
 
     @FXML
     public void initialize() {
+        scrollPane = new ScrollPane() {
+            @Override
+            public void requestFocus() {
+                // Do nothing
+            }
+        };
         asciiText = new Text();
         scrollPane.setContent(asciiText);
         scrollPane.setStyle("-fx-font-size: 30px;");
+        body.setCenter(scrollPane);
     }
 
     private static String calculateName(AsciiImage asciiImage) {
@@ -262,4 +271,16 @@ public class MainController {
         Platform.exit();
     }
 
+    @FXML
+    public void setBGColor() {
+        Color newColor = bGColorPicker.getValue();
+        String hexCode = newColor.toString().substring(2, 8);
+        // TODO
+    }
+
+    @FXML
+    public void setTextColor() {
+        asciiText.setFill(textColorPicker.getValue());
+    }
+    
 }

@@ -9,7 +9,6 @@
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.RadioMenuItem?>
-<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.TextField?>
@@ -153,9 +152,10 @@
                   <RadioButton fx:id="invertedShadingBtn" mnemonicParsing="false" nodeOrientation="RIGHT_TO_LEFT" onAction="#setInvertedShading" text="Inverted Shading">
                      <font>
                         <Font name="Consolas Bold" size="12.0" />
-                     </font></RadioButton>
+                     </font>
+                  </RadioButton>
                   <Separator focusTraversable="false" orientation="VERTICAL" />
-                  <HBox fx:id="saveCopyBox" alignment="CENTER">
+                  <HBox fx:id="copyBox" alignment="CENTER">
                      <children>
                         <Label focusTraversable="false" text="Copy to Clipboard">
                            <font>
@@ -180,7 +180,14 @@
                               <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
                            </HBox.margin>
                         </Button>
-                        <Separator focusTraversable="false" orientation="VERTICAL" />
+                     </children>
+                     <padding>
+                        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                     </padding>
+                  </HBox>
+                  <Separator focusTraversable="false" orientation="VERTICAL" />
+                  <HBox fx:id="saveBox" alignment="CENTER">
+                     <children>
                         <Label focusTraversable="false" text="Save as Txt...">
                            <font>
                               <Font name="Consolas Bold" size="12.0" />
@@ -209,16 +216,33 @@
                         <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
                      </padding>
                   </HBox>
-                  <ColorPicker fx:id="bgColorPicker" promptText="Background Color" />
-                  <ColorPicker fx:id="textColorPicker" promptText="Text Color">
-                     <value>
-                        <Color />
-                     </value>
-                  </ColorPicker>
+                  <Separator focusTraversable="false" orientation="VERTICAL" />
+                  <VBox fx:id="bGColorBox" alignment="CENTER">
+                     <children>
+                        <Label text="Background Color">
+                           <font>
+                              <Font name="Consolas Bold" size="12.0" />
+                           </font>
+                        </Label>
+                        <ColorPicker fx:id="bGColorPicker" onAction="#setBGColor" promptText="Background Color" />
+                     </children>
+                  </VBox>
+                  <Separator focusTraversable="false" orientation="VERTICAL" />
+                  <VBox fx:id="TextColorBox" alignment="CENTER">
+                     <children>
+                        <Label text="Text Color">
+                           <font>
+                              <Font name="Consolas Bold" size="12.0" />
+                           </font>
+                        </Label>
+                        <ColorPicker fx:id="textColorPicker" onAction="#setTextColor" promptText="Text Color">
+                           <value>
+                              <Color />
+                           </value>
+                        </ColorPicker>
+                     </children>
+                  </VBox>
                </items>
-               <VBox.margin>
-                  <Insets />
-               </VBox.margin>
                <padding>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </padding>
@@ -226,7 +250,4 @@
          </children>
       </VBox>
    </top>
-   <center>
-      <ScrollPane fx:id="scrollPane" focusTraversable="false" BorderPane.alignment="TOP_CENTER" />
-   </center>
 </BorderPane>
