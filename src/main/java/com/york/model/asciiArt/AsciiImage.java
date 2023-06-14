@@ -115,10 +115,6 @@ public class AsciiImage implements AsciiArt {
 		return name;
 	}
 
-	public ImageSource getImageSource() {
-		return imageSource;
-	}
-
 	@Override
 	public AsciiImage setCharWidth(int newCharWidth) throws IllegalArgumentException  {
 		if (newCharWidth > getMaxCharWidth()) {
