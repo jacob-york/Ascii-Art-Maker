@@ -1,8 +1,6 @@
 package com.york;
 
-import com.york.controller.IFMController;
 import javafx.application.Application;
-import javafx.collections.ObservableMap;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -29,9 +27,6 @@ public class App extends Application {
 
         URL icon = Objects.requireNonNull(getClass().getResource("icons/appIcon.png"));
         mainStage.getIcons().add(new Image(icon.toString()));
-
-        // String css = Objects.requireNonNull(getClass().getResource("css/application.css")).toExternalForm();
-        // imageFileScene.getStylesheets().add(css);
 
         mainStage.setScene(imageFileScene);
         mainStage.setTitle(TITLE);

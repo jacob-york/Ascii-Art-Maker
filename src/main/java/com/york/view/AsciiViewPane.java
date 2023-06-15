@@ -5,6 +5,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
+/**
+ * Pane in which ascii art is displayed.
+ */
 public class AsciiViewPane extends ScrollPane {
 
     private final String font;
@@ -59,4 +62,5 @@ public class AsciiViewPane extends ScrollPane {
     public void setTextColor(Color value) {
         text.setFill(value);
     }
+
 }

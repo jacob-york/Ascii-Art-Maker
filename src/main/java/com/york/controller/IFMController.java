@@ -7,6 +7,7 @@ import com.york.model.adapters.ImageSource;
 import com.york.model.asciiArt.AsciiArt;
 import com.york.model.asciiArt.AsciiImage;
 import com.york.view.AsciiViewPane;
+import com.york.view.TimelineManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -23,8 +24,6 @@ import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 
 
-// TODO: break up responsibility to multiple classes
-
 public class IFMController {
 
     @FXML
@@ -32,71 +31,125 @@ public class IFMController {
     @FXML
     public ToolBar toolBar;
 
+    @FXML
+    public Button zoomInBtn;
+
     private AsciiViewPane asciiViewPane;
 
     @FXML
     public Button chooseImageBtn;
 
-    // charWidth
     @FXML
-    public TextField artWidthField;
+    public TextField charWidthField;
 
-    // zoom
     @FXML
     public TextField fontField;
 
-    // invertedShading
     @FXML
     public RadioButton invertedShadingBtn;
 
-    // color pickers
     @FXML
     public ColorPicker bGColorPicker;
+
     @FXML
     public ColorPicker textColorPicker;
 
-    // Menu Items
     @FXML
     public MenuItem openMenuItem;
+
     @FXML
     public MenuItem saveMenuItem;
+
     @FXML
     public MenuItem copyMenuItem;
 
     private AsciiImage asciiImage;
-    private ImageSource imageSource;
 
+    private TimelineManager timelines;
 
     @FXML
     public void initialize() {
         fontField.setText("");
-        artWidthField.setText("");
+        charWidthField.setText("");
+
+        timelines = new TimelineManager(
+                () -> {
+                    // zoom in behavior
+                    double fontSize = Double.parseDouble(fontField.getText());
+                    asciiViewPane.setFontSize(++fontSize);
+                    fontField.setText(String.valueOf(fontSize));
+                },
+                () -> {
+                    // zoom out behavior
+                    double fontSize = Double.parseDouble(fontField.getText());
+                    if (!asciiViewPane.setFontSize(--fontSize)) return;
+                    fontField.setText(String.valueOf(fontSize));
+                },
+                () -> {
+                    // raise char width behavior
+                    assert asciiImage != null;
+                    int newCharWidth = asciiImage.getCharWidth();
+                    if (newCharWidth + 1 > asciiImage.getMaxCharWidth()) return;
+                    updateCharWidth(++newCharWidth);
+                },
+                () -> {
+                    // lower char width behavior
+                    assert asciiImage != null;
+                    int newCharWidth = asciiImage.getCharWidth();
+                    if (newCharWidth - 1 <= 0) return;
+                    updateCharWidth(--newCharWidth);
+                }
+        );
 
         asciiViewPane = new AsciiViewPane(AsciiArt.FONT);
-        asciiViewPane.setOnScroll((ScrollEvent event) -> {
-            if (event.getDeltaY() == 0) return;
-            if (imageSource == null && asciiImage == null) return;
-
-            if (event.getDeltaY() < 0) {
-                zoomIn();
-            }
-            else {
-                zoomOut();
-            }
-        });
-
         openMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN));
         saveMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN));
         copyMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN));
     }
 
-    private String calculateName() {
-        String name = (asciiImage.getName() == null ? "asciiImage" : asciiImage.getName());
-        String outputPath = name + "-" + asciiImage.getWidth();
-        if (asciiImage.shadingIsInverted()) {
-            outputPath += "-inv";
-        }
-        return outputPath;
+    @FXML
+    public void zoomInPressed() {
+        timelines.zoomIn();
+    }
+
+    @FXML
+    public void zoomInReleased() {
+        timelines.stopZoom();
+    }
+
+    @FXML
+    public void zoomOutPressed() {
+        timelines.zoomOut();
+    }
+
+    @FXML
+    public void zoomOutReleased() {
+        timelines.stopZoom();
+    }
+
+    @FXML
+    public void charWidthUpPressed() {
+        timelines.charWidthUp();
+    }
+
+    @FXML
+    public void charWidthUpReleased() {
+        timelines.stopCharWidth();
+    }
+
+    @FXML
+    public void charWidthDownPressed() {
+        timelines.charWidthDown();
+    }
+
+    @FXML
+    public void charWidthDownReleased() {
+        timelines.stopCharWidth();
+    }
+
+    @FXML
+    public void chooseImageBtnClicked() {
+        chooseFile();
     }
 
     @FXML
@@ -113,6 +166,8 @@ public class IFMController {
 
         // check user selected file
         if (selected == null) return;
+
+        ImageSource imageSource;
         try {
             imageSource = new ImageFileAdapter(selected);
         }
@@ -125,12 +180,14 @@ public class IFMController {
         if (body.getCenter() != asciiViewPane) {
             body.setCenter(asciiViewPane);
             fontField.setText(String.valueOf(asciiViewPane.getFontSize()));
+            charWidthField.setText("1");
         }
-        asciiImage = new AsciiImage(imageSource);
-        setInvertedShading();
-
+        asciiImage = new AsciiImage(imageSource)
+                .setInvertedShading(invertedShadingBtn.isSelected())
+                .setCharWidth(Integer.parseInt(charWidthField.getText()));
+        asciiViewPane.setText(asciiImage.toString());
         toolBar.setDisable(false);
-        artWidthField.setText(String.valueOf(asciiImage.getWidth()));
+        charWidthField.setText(String.valueOf(asciiImage.getCharWidth()));
         Settings.getInstance().setCurChooseDir(new File(selected.getParent()));
         asciiViewPane.setText(asciiImage.toString());
         ((Stage) body.getScene().getWindow())
@@ -138,89 +195,7 @@ public class IFMController {
     }
 
     @FXML
-    public void zoomIn() {
-       double fontSize = Double.parseDouble(fontField.getText());
-
-       asciiViewPane.setFontSize(++fontSize);
-       fontField.setText(String.valueOf(fontSize));
-    }
-
-    @FXML
-    public void zoomOut() {
-        double fontSize = Double.parseDouble(fontField.getText());
-
-        if (!asciiViewPane.setFontSize(--fontSize)) return;
-        fontField.setText(String.valueOf(fontSize));
-    }
-
-    @FXML
-    public void setFontFromField(KeyEvent keyEvent) {
-        if (!keyEvent.getCode().equals(KeyCode.ENTER)) return;
-
-        double newFontSize;
-        try {
-            newFontSize = Double.parseDouble(fontField.getText());
-        }
-        catch (NumberFormatException e) {
-            return;
-        }
-        if (!asciiViewPane.setFontSize(newFontSize)) return;
-        fontField.setText(new DecimalFormat("#.0").format(newFontSize));
-    }
-
-    private void updateCharWidth(int newCharWidth) {
-        asciiImage.setCharWidth(newCharWidth);
-        artWidthField.setText(String.valueOf(asciiImage.getWidth()));
-        asciiViewPane.setText(asciiImage.toString());
-    }
-
-    @FXML
-    public void raiseArtWidth() {
-        assert asciiImage != null;
-
-        int newCharWidth = asciiImage.getCharWidth();
-        if (newCharWidth - 1 <= 0) return;
-        newCharWidth--;
-
-        updateCharWidth(newCharWidth);
-    }
-
-    @FXML
-    public void raiseCharWidth() {
-        assert asciiImage != null;
-
-        int newCharWidth = asciiImage.getCharWidth();
-        newCharWidth++;
-
-        updateCharWidth(newCharWidth);
-    }
-
-    @FXML
-    public void charWidthFromField(KeyEvent keyEvent) {
-        if (!keyEvent.getCode().equals(KeyCode.ENTER)) {
-            return;
-        }
-        assert asciiImage != null;
-
-        int newCharWidth;
-        try {
-            newCharWidth = Integer.parseInt(artWidthField.getText());
-        } catch (NumberFormatException e) {
-            return;
-        }
-
-        if (newCharWidth <= 0) {
-            return;
-        }
-        if (newCharWidth > asciiImage.getMaxCharWidth()) {
-            newCharWidth = asciiImage.getMaxCharWidth();
-        }
-
-        updateCharWidth(newCharWidth);
-    }
-
-    @FXML
-    public void copyToClipboard() {
+    public void copyPressed() {
         Clipboard clipboard = Clipboard.getSystemClipboard();
         clipboard.clear();
 
@@ -230,8 +205,8 @@ public class IFMController {
     }
 
     @FXML
-    public void saveAsTxt() {
-        boolean emptyTxt = imageSource == null && asciiImage == null;
+    public void exportAsTxtPressed() {
+        boolean emptyTxt = asciiImage == null;
 
         FileChooser save = new FileChooser();
         save.setTitle("Save As...");
@@ -258,36 +233,87 @@ public class IFMController {
     }
 
     @FXML
-    public void setInvertedShading() {
+    public void fontSizeEntered(KeyEvent keyEvent) {
+        if (!keyEvent.getCode().equals(KeyCode.ENTER)) return;
+
+        double newFontSize;
+        try {
+            newFontSize = Double.parseDouble(fontField.getText());
+        }
+        catch (NumberFormatException e) {
+            return;
+        }
+        if (!asciiViewPane.setFontSize(newFontSize)) return;
+        fontField.setText(new DecimalFormat("#.0").format(newFontSize));
+    }
+
+    @FXML
+    public void charWidthEntered(KeyEvent keyEvent) {
+        if (!keyEvent.getCode().equals(KeyCode.ENTER)) return;
+        assert asciiImage != null;
+
+        int newCharWidth;
+        try {
+            newCharWidth = Integer.parseInt(charWidthField.getText());
+        }
+        catch (NumberFormatException e) {
+            return;
+        }
+
+        if (newCharWidth <= 0) return;
+
+        if (newCharWidth > asciiImage.getMaxCharWidth()) {
+            newCharWidth = asciiImage.getMaxCharWidth();
+        }
+
+        updateCharWidth(newCharWidth);
+    }
+
+    @FXML
+    public void invertedShadingClicked() {
         asciiImage.setInvertedShading(invertedShadingBtn.isSelected());
         asciiViewPane.setText(asciiImage.toString());
     }
 
     @FXML
-    public void stopRequest() {
+    public void exitClicked() {
         Platform.exit();
     }
 
     @FXML
-    public void setBGColor() {
+    public void bgColorSelected() {
         asciiViewPane.setBGColor(bGColorPicker.getValue());
     }
 
     @FXML
-    public void setTextColor() {
+    public void textColorSelected() {
         asciiViewPane.setTextColor(textColorPicker.getValue());
     }
 
     @FXML
-    public void clearImage() {
+    public void clearImageClicked() {
         asciiImage = null;
-        imageSource = null;
-
         asciiViewPane.setText("");
         fontField.setText("");
-        artWidthField.setText("");
+        charWidthField.setText("");
 
         toolBar.setDisable(true);
         body.setCenter(chooseImageBtn);
+    }
+
+    private String calculateName() {
+        String name = (asciiImage.getName() == null ? "asciiImage" : asciiImage.getName());
+        String outputPath = name + "-" + asciiImage.getWidth();
+
+        if (asciiImage.shadingIsInverted()) {
+            outputPath += "-inv";
+        }
+        return outputPath;
+    }
+
+    private void updateCharWidth(int newCharWidth) {
+        asciiImage.setCharWidth(newCharWidth);
+        charWidthField.setText(String.valueOf(asciiImage.getCharWidth()));
+        asciiViewPane.setText(asciiImage.toString());
     }
 }
