@@ -30,4 +30,5 @@ public interface ImageSource {
      * @return The name of the image; or null if not applicable (i.e. object instances like BufferedImage).
      */
     String getName();
+
 }

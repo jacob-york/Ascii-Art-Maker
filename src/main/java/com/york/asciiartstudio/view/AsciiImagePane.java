@@ -8,7 +8,7 @@ import javafx.scene.text.Text;
 /**
  * Pane in which ascii art is displayed.
  */
-public class AsciiViewPane extends ScrollPane {
+public class AsciiImagePane extends ScrollPane {
 
     private final String font;
 
@@ -18,7 +18,7 @@ public class AsciiViewPane extends ScrollPane {
 
     private static final double MIN_FONT_SIZE = 1;
 
-    public AsciiViewPane(String font) {
+    public AsciiImagePane(String font) {
         super();
         this.font = font;
         text = new Text();

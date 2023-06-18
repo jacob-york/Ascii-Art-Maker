@@ -5,9 +5,9 @@ import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.util.Duration;
 
-public class TimelineManager {
+public class TimelineContainer {
 
-    private static final Duration DURATION = Duration.seconds(.1);
+    private static final Duration DURATION = Duration.seconds(.15);
 
     private static final int LONG_PRESS = 3;  // time of long press = DURATION x LONG_PRESS
 
@@ -29,8 +29,8 @@ public class TimelineManager {
 
     private int pressDuration;
 
-    public TimelineManager(Runnable zoomIn, Runnable zoomOut,
-                           Runnable charWidthUp, Runnable charWidthDown
+    public TimelineContainer(Runnable zoomIn, Runnable zoomOut,
+                             Runnable charWidthUp, Runnable charWidthDown
     ) {
         this.zoomIn = zoomIn;
         this.zoomOut = zoomOut;

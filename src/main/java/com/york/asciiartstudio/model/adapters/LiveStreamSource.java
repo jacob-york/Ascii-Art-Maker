@@ -24,4 +24,5 @@ public interface LiveStreamSource {
      * @return the current frame (at call time) of the live steam source as an ImageSource.
      */
     ImageSource getCurrentFrame();
+
 }

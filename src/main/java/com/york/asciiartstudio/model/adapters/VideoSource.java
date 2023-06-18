@@ -34,4 +34,5 @@ public interface VideoSource {
      * @return the original video's frames as an array of image sources.
      */
     ImageSource[] getImageSourceArray();
+
 }

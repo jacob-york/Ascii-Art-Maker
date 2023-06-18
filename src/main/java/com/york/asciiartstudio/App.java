@@ -18,6 +18,7 @@ public class App extends Application {
     public static void main(String[] args) {
         launch(args);
     }
+
     @Override
     public void start(Stage mainStage) throws IOException {
         Parent root = new FXMLLoader(getClass().getResource("fxml/imageFileMode.fxml")).load();

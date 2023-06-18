@@ -1,6 +1,5 @@
 /**
  * A class representing an AsciiArt video.
- * Powered by OpenCV.
  */
 
 package com.york.asciiartstudio.model.asciiArt;
