@@ -9,12 +9,12 @@ public interface AsciiArt {
 	 * The characters used in the AsciiArt, organized from darkest to lightest.
 	 * This palette is internally measured in reverse when inverted shading is enabled.
 	 */
-	String DEFAULT_PALETTE = "@N#bhyo+s/=-:.` ";
+	String DEFAULT_PALETTE = "@N#bhyo+s/=-:.  ";
 
 	/**
-	 *
+	 * The intended font to render ascii art into.
 	 */
-	String FONT = "Consolas"; // TODO: multi-font support
+	String FONT = "Consolas";
 
 	/**
 	 * Get the width of the art in characters.
@@ -34,6 +34,10 @@ public interface AsciiArt {
 	 */
 	int getArea();
 
+	/**
+	 *
+	 * @return the max char width possible for the given image source.
+	 */
 	int getMaxCharWidth();
 
 	/**
@@ -44,7 +48,7 @@ public interface AsciiArt {
 
 	/**
 	 *
-	 * @return
+	 * @return the palette of chars currently being used to compose the art.
 	 */
 	String getPalette();
 
@@ -56,50 +60,41 @@ public interface AsciiArt {
 
 	/**
 	 * @param newCharWidth
-	 * @return
+	 * @return a reference to `this` so that setters can be chained together (ex: builder pattern).
 	 * @throws IllegalArgumentException if newCharWidth < 1, newCharWidth is greater than the image width, or if newCharWidth * 2 is greater than the image height.
 	 */
 	AsciiArt setCharWidth(int newCharWidth) throws IllegalArgumentException ;
 
 	/**
-	 * @param newPalette the new palette.
-	 * @return
+	 * @param newPalette A string composed of characters the user wishes to make the art out of. newPalette.length() must be divisible by 256.
+	 * @return a reference to `this` so that setters can be chained together (ex: builder pattern).
 	 * @throws IllegalArgumentException if newPalette is not divisible by 256.
 	 */
 	AsciiArt setPalette(String newPalette) throws IllegalArgumentException ;
 
 	/**
 	 * @param invertShading
+	 * @return a reference to `this` so that setters can be chained together (ex: builder pattern).
 	 */
 	AsciiArt setInvertedShading(boolean invertShading);
 
 	/**
-	 *
-	 * @param newName
-	 * @return
+	 * sets the name of the ascii art object.
+	 * @param newName the new name of the object.
+	 * @return a reference to `this` so that setters can be chained together (ex: builder pattern).
 	 */
 	AsciiArt setName(String newName);
 
 	/**
-	 * @return true or false of whether the art uses the default palette
+	 * @return true if the art is using the default palette, false if not.
 	 */
-	boolean usesDefaultPalette();
+	boolean usingDefaultPalette();
 
 	/**
-	 * @return true or false of whether shading is inverted
+	 * @return true if shading is inverted, false if not.
 	 */
 	boolean shadingIsInverted();
 
-	/**
-	 * @param orig String to be reversed.
-	 * @return orig reversed.
-	 */
-	static String reverseString(String orig) {
-		StringBuilder reversed = new StringBuilder();
-		for (int i = (orig.length() - 1); i >= 0; i--) {
-			reversed.append(orig.charAt(i));
-		}
-		return reversed.toString();
-	}
+
 	
 }

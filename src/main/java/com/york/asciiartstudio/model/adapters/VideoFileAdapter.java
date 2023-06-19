@@ -3,6 +3,7 @@ package com.york.asciiartstudio.model.adapters;
 import java.io.File;
 import java.io.IOException;
 
+// TODO
 public class VideoFileAdapter implements VideoSource {
 
     File file;
@@ -15,18 +16,15 @@ public class VideoFileAdapter implements VideoSource {
      */
     public VideoFileAdapter(File file) throws IOException, IllegalArgumentException {
         this.file = file;
-        // TODO
     }
 
     @Override
     public int getWidth() {
-        // TODO
         return 0;
     }
 
     @Override
     public int getHeight() {
-        // TODO
         return 0;
     }
 
@@ -37,19 +35,16 @@ public class VideoFileAdapter implements VideoSource {
 
     @Override
     public int getFPS() {
-        // TODO
         return 0;
     }
 
     @Override
     public int getFrameCount() {
-        // TODO
         return 0;
     }
 
     @Override
     public ImageSource[] getImageSourceArray() {
-        // TODO
         return new ImageSource[0];
     }
 }

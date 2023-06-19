@@ -32,6 +32,19 @@ public class AsciiVideo implements AsciiArt {
 		this.videoSource = videoSource;
 	}
 
+	/**
+	 * a method for reversing a string.
+	 * @param orig String to be reversed (original).
+	 * @return orig reversed.
+	 */
+	private static String reverseString(String orig) {
+		StringBuilder reversed = new StringBuilder();
+		for (int i = (orig.length() - 1); i >= 0; i--) {
+			reversed.append(orig.charAt(i));
+		}
+		return reversed.toString();
+	}
+
 	@Override
 	public int getWidth() {
 		int domain = videoSource.getWidth() - (videoSource.getWidth() % charWidth);
@@ -112,7 +125,7 @@ public class AsciiVideo implements AsciiArt {
 
 		basePalette = newPalette;
 		if (shadingIsInverted())
-			activePalette = AsciiArt.reverseString(basePalette);
+			activePalette = reverseString(basePalette);
 		else activePalette = basePalette;
 
 		return this;
@@ -121,7 +134,7 @@ public class AsciiVideo implements AsciiArt {
 	@Override
 	public AsciiVideo setInvertedShading(boolean invertShading) {
 		if (invertShading)
-			activePalette = AsciiArt.reverseString(basePalette);
+			activePalette = reverseString(basePalette);
 		else activePalette = basePalette;
 		return this;
 	}
@@ -133,13 +146,13 @@ public class AsciiVideo implements AsciiArt {
 	}
 
 	@Override
-	public boolean usesDefaultPalette() {
+	public boolean usingDefaultPalette() {
 		return basePalette.equals(DEFAULT_PALETTE);
 	}
 
 	@Override
 	public boolean shadingIsInverted() {
-		return activePalette.equals(AsciiArt.reverseString(basePalette));
+		return activePalette.equals(reverseString(basePalette));
 	}
 
 }

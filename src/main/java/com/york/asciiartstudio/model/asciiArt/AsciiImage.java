@@ -28,29 +28,6 @@ public class AsciiImage implements AsciiArt {
 
 	}
 
-	/**
-	 * Match a char to a pixelOutline.
-	 * @param pixelOutline a pixelOutline to match a char to.
-	 * @return the matched char.
-	 */
-	private char matchChar(PixelOutline pixelOutline) {
-		if (256 % activePalette.length() != 0) {
-			throw new ArrayIndexOutOfBoundsException("Palette must be divisible by 256.");
-		}
-
-		// 0-255 avr that represents the average Black and White value outlined by CharBox.
-		int sumOfPixels = 0;
-		for (int y = 0; y < pixelOutline.height; y++) {
-			for (int x = 0; x < pixelOutline.width; x++) {
-				sumOfPixels += imageSource.getBWValue(pixelOutline.x + x, pixelOutline.y + y);
-			}
-		}
-		int BWValue = sumOfPixels / pixelOutline.area;
-
-		int index = (int) Math.floor(BWValue / (double) (256/activePalette.length()));
-		return activePalette.charAt(index);
-	}
-
 	private int charWidth;
 
 	private int domain;
@@ -65,11 +42,6 @@ public class AsciiImage implements AsciiArt {
 
 	private String name;
 
-	private void updateDomainAndRange() {
-		domain = imageSource.getWidth() - (imageSource.getWidth() % charWidth);
-		range = imageSource.getHeight() - (imageSource.getHeight() % (2 * charWidth));
-	}
-
 	public AsciiImage(ImageSource imageSource) {
 		charWidth = 1;
 		basePalette = DEFAULT_PALETTE;
@@ -77,6 +49,58 @@ public class AsciiImage implements AsciiArt {
 		this.imageSource = imageSource;
 		name = imageSource.getName();
 		updateDomainAndRange();
+	}
+
+	private void updateDomainAndRange() {
+		domain = imageSource.getWidth() - (imageSource.getWidth() % charWidth);
+		range = imageSource.getHeight() - (imageSource.getHeight() % (2 * charWidth));
+	}
+
+	/**
+	 * Match a char to a pixelOutline.
+	 * @param pixelOutline a pixelOutline to match a char to.
+	 * @return the matched char.
+	 * Will return the space character ' ' automatically if more than 50% of the pixels in pixelOutline are transparent.
+	 */
+	private char matchChar(PixelOutline pixelOutline) {
+		if (256 % activePalette.length() != 0) {
+			throw new ArrayIndexOutOfBoundsException("Palette must be divisible by 256.");
+		}
+
+		// 0-255 avr that represents the average Black and White value outlined by CharBox.
+		int sumOfPixels = 0;
+		int transparentPixels = 0;
+		for (int y = 0; y < pixelOutline.height; y++) {
+			for (int x = 0; x < pixelOutline.width; x++) {
+				int pixelBWVal = imageSource.getBWValue(pixelOutline.x + x, pixelOutline.y + y);
+				if (pixelBWVal == -1) {
+					transparentPixels++;
+				}
+				else {
+					sumOfPixels += pixelBWVal;
+				}
+			}
+		}
+		int opaguePixels = pixelOutline.area - transparentPixels;
+		if (transparentPixels > opaguePixels) return ' ';
+
+		int BWValue = sumOfPixels / pixelOutline.area;
+
+		int index = (int) Math.floor(BWValue / (double) (256/activePalette.length()));
+		return activePalette.charAt(index);
+	}
+
+	/**
+	 * a method for reversing a string.
+	 * @param orig String to be reversed (original).
+	 * @return orig reversed.
+	 */
+	private static String reverseString(String orig) {
+		StringBuilder reversed = new StringBuilder();
+		for (int i = (orig.length() - 1); i >= 0; i--) {
+			reversed.append(orig.charAt(i));
+		}
+		return reversed.toString();
 	}
 
 	@Override
@@ -137,7 +161,7 @@ public class AsciiImage implements AsciiArt {
 
 		basePalette = newPalette;
 		if (shadingIsInverted())
-			activePalette = AsciiArt.reverseString(basePalette);
+			activePalette = reverseString(basePalette);
 		else activePalette = basePalette;
 		return this;
 	}
@@ -145,7 +169,7 @@ public class AsciiImage implements AsciiArt {
 	@Override
 	public AsciiImage setInvertedShading(boolean invertedShading) {
 		if (invertedShading)
-			activePalette = AsciiArt.reverseString(basePalette);
+			activePalette = reverseString(basePalette);
 		else activePalette = basePalette;
 		return this;
 	}
@@ -157,13 +181,13 @@ public class AsciiImage implements AsciiArt {
 	}
 
 	@Override
-	public boolean usesDefaultPalette() {
+	public boolean usingDefaultPalette() {
 		return basePalette.equals(DEFAULT_PALETTE);
 	}
 	
 	@Override
 	public boolean shadingIsInverted() {
-		return activePalette.equals(AsciiArt.reverseString(basePalette));
+		return activePalette.equals(reverseString(basePalette));
 	}
 
 	public String toString() {

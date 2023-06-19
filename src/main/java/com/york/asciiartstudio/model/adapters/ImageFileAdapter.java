@@ -43,7 +43,7 @@ public class ImageFileAdapter implements ImageSource {
         int g = (rgb & 0xff00) >> 8;
         int b = rgb & 0xff;
 
-        if (a == 0) return 255;
+        if (a == 0) return -1;
         return (int) ((Math.min(r, Math.min(g, b)) + Math.max(r, Math.max(g, b))) * .5);
     }
 

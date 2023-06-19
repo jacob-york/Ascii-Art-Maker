@@ -179,7 +179,7 @@
                               <Font name="Consolas" size="15.0" />
                            </font>
                         </Label>
-                        <ColorPicker fx:id="bGColorPicker" onAction="#bgColorSelected" promptText="Background Color" />
+                        <ColorPicker fx:id="bgColorPicker" onAction="#bgColorSelected" promptText="Background Color" />
                      </children>
                      <padding>
                         <Insets top="3.0" />

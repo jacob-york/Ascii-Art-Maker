@@ -5,8 +5,7 @@ import com.york.asciiartstudio.model.adapters.ImageFileAdapter;
 import com.york.asciiartstudio.model.adapters.ImageSource;
 import com.york.asciiartstudio.model.asciiArt.AsciiArt;
 import com.york.asciiartstudio.model.asciiArt.AsciiImage;
-import com.york.asciiartstudio.view.AsciiImagePane;
-import com.york.asciiartstudio.view.TimelineContainer;
+import com.york.asciiartstudio.view.*;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -15,6 +14,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.input.*;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -26,13 +26,22 @@ import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 
 
-// TODO: break up into multiple classes (this is bad)
+// TODO: This is bloated. Break it up into other classes.
 public class IFMController {
 
     @FXML
     public BorderPane body;
+
     @FXML
     public ToolBar toolBar;
+
+    // TODO: reallocate some responsibility to this class
+    private ImageFileView imageFileView;
+
+    private ColorTheme activeTheme;
+
+    @FXML
+    private MenuButton colorThemeMenu;
 
     @FXML
     public Button zoomInBtn;
@@ -52,7 +61,7 @@ public class IFMController {
     public RadioButton invertedShadingBtn;
 
     @FXML
-    public ColorPicker bGColorPicker;
+    public ColorPicker bgColorPicker;
 
     @FXML
     public ColorPicker textColorPicker;
@@ -76,60 +85,86 @@ public class IFMController {
 
     @FXML
     public void initialize() {
+        activeTheme = new ColorTheme("Notepad", Color.WHITE, Color.BLACK, false);
         fontField.setText("");
         charWidthField.setText("");
 
-        timelines = new TimelineContainer(
-                () -> {
-                    // zoom in behavior
-                    double fontHeight = Double.parseDouble(fontField.getText());
+        final ColorTheme[] colorThemes = new ColorTheme[] {
+                new ColorTheme("Notepad", Color.WHITE, Color.BLACK, false),
+                new ColorTheme("Command Prompt", Color.BLACK, Color.rgb(192, 192, 192), true),
+                new ColorTheme("PowerShell", Color.rgb(1, 36, 86), Color.WHITE, true),
+                new ColorTheme("Green Monochrome", Color.BLACK, Color.rgb(102, 255, 102), true),
+                new ColorTheme("Amber Monochrome", Color.BLACK, Color.rgb(255, 176, 0), true),
+                new ColorTheme("JetBrains", Color.rgb(43, 43, 43), Color.rgb(169, 183, 198), true),
+        };
 
-                    asciiImagePane.setFontSize(++fontHeight);
-                    fontField.setText(String.valueOf(fontHeight));
-                },
-                () -> {
-                    // zoom out behavior
-                    double fontHeight = Double.parseDouble(fontField.getText());
+        for (ColorTheme colorTheme : colorThemes) {
+            colorThemeMenu.getItems().add(new ThemeMenuItem(colorTheme, () -> setTheme(colorTheme)));
+        }
 
-                    if (!asciiImagePane.setFontSize(--fontHeight)) return;
-                    fontField.setText(String.valueOf(fontHeight));
-                },
-                () -> {
-                    // raise char width behavior
-                    assert asciiImage != null;
-
-                    int oldCharWidth = asciiImage.getCharWidth();
-                    if (oldCharWidth + 1 > asciiImage.getMaxCharWidth()) return;
-                    int newCharWidth = oldCharWidth + 1;
-                    updateCharWidth(newCharWidth);
-
-                    double newFontHeight = newFontSize(oldCharWidth, newCharWidth);
-                    asciiImagePane.setFontSize(newFontHeight);
-                    fontField.setText(String.valueOf(newFontHeight));
-                },
-                () -> {
-                    // lower char width behavior
-                    assert asciiImage != null;
-
-                    int oldCharWidth = asciiImage.getCharWidth();
-                    if (oldCharWidth - 1 <= 0) return;
-                    int newCharWidth = oldCharWidth - 1;
-                    double newFontHeight = newFontSize(oldCharWidth, newCharWidth);
-                    if (!asciiImagePane.setFontSize(newFontHeight)) return;
-
-                    updateCharWidth(newCharWidth);
-                    fontField.setText(String.valueOf(newFontHeight));
-                }
-        );
+        timelines = new TimelineContainer(this::zoomIn, this::zoomOut, this::raiseCharWidth, this:: lowerCharWidth);
 
         asciiImagePane = new AsciiImagePane(AsciiArt.FONT);
         openMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN));
         saveMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN));
         copyMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN));
-
     }
 
-    private double newFontSize(int prevCharWidth, int newCharWidth) {
+    private void zoomIn() {
+        double fontHeight = Double.parseDouble(fontField.getText());
+
+        asciiImagePane.setFontSize(++fontHeight);
+        fontField.setText(String.valueOf(fontHeight));
+    }
+
+    private void zoomOut() {
+        double fontHeight = Double.parseDouble(fontField.getText());
+
+        if (!asciiImagePane.setFontSize(--fontHeight)) return;
+        fontField.setText(String.valueOf(fontHeight));
+    }
+
+    private void raiseCharWidth() {
+        assert asciiImage != null;
+
+        int oldCharWidth = asciiImage.getCharWidth();
+        if (oldCharWidth + 1 > asciiImage.getMaxCharWidth()) return;
+        int newCharWidth = oldCharWidth + 1;
+        updateCharWidth(newCharWidth);
+
+        double newFontHeight = newFontHeight(oldCharWidth, newCharWidth);
+        asciiImagePane.setFontSize(newFontHeight);
+        fontField.setText(String.valueOf(newFontHeight));
+    }
+
+    private void lowerCharWidth() {
+        assert asciiImage != null;
+
+        int oldCharWidth = asciiImage.getCharWidth();
+        if (oldCharWidth - 1 <= 0) return;
+        int newCharWidth = oldCharWidth - 1;
+        double newFontHeight = newFontHeight(oldCharWidth, newCharWidth);
+        if (!asciiImagePane.setFontSize(newFontHeight)) return;
+
+        updateCharWidth(newCharWidth);
+        fontField.setText(String.valueOf(newFontHeight));
+    }
+
+    private void setTheme(ColorTheme colorTheme) {
+        Color bgColor = colorTheme.getBGColor();
+        asciiImagePane.setBGColor(bgColor);
+        bgColorPicker.setValue(bgColor);
+
+        Color textColor = colorTheme.getTextColor();
+        asciiImagePane.setTextColor(textColor);
+        textColorPicker.setValue(textColor);
+
+        boolean invertedShading = colorTheme.getInvertedShading();
+        asciiImagePane.setText(asciiImage.setInvertedShading(invertedShading).toString());
+        invertedShadingBtn.setSelected(invertedShading);
+    }
+
+    private double newFontHeight(int prevCharWidth, int newCharWidth) {
         final double fontHeightChange = ((double) newCharWidth / (double) prevCharWidth);
         final double fontHeight = Double.parseDouble(fontField.getText());
         return fontHeight * fontHeightChange;
@@ -284,7 +319,7 @@ public class IFMController {
             newCharWidth = asciiImage.getMaxCharWidth();
         }
 
-        double newFontHeight = newFontSize(oldCharWidth, newCharWidth);
+        double newFontHeight = newFontHeight(oldCharWidth, newCharWidth);
         if (!asciiImagePane.setFontSize(newFontHeight)) return;
         updateCharWidth(newCharWidth);
         fontField.setText(String.valueOf(newFontHeight));
@@ -300,7 +335,7 @@ public class IFMController {
     }
 
     public void bgColorSelected() {
-        asciiImagePane.setBGColor(bGColorPicker.getValue());
+        asciiImagePane.setBGColor(bgColorPicker.getValue());
     }
 
     public void textColorSelected() {
@@ -319,7 +354,7 @@ public class IFMController {
 
     private String calculateName() {
         String name = (asciiImage.getName() == null ? "asciiImage" : asciiImage.getName());
-        String outputPath = name + "-" + asciiImage.getWidth();
+        String outputPath = name + "-cw" + asciiImage.getCharWidth();
 
         if (asciiImage.shadingIsInverted()) {
             outputPath += "-inv";

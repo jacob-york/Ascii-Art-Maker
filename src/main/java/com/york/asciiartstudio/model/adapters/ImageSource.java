@@ -22,7 +22,8 @@ public interface ImageSource {
     /**
      * @param x the desired pixel's column (read like a cartesian plane)
      * @param y the desired pixel's row (read like a cartesian plane)
-     * @return an int value from 0 to 255 that represents the black-and-white color value at pixel (x, y)
+     * @return an int value from 0 to 255 that represents the black-and-white color value at pixel (x, y).
+     * Returns -1 f the pixel is transparent.
      */
     int getBWValue(int x, int y);
 
