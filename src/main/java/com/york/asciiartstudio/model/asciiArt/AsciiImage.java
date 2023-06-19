@@ -104,7 +104,7 @@ public class AsciiImage implements AsciiArt {
 	}
 
 	@Override
-	public int getMaxCharWidth() {
+	public int maxCharWidth() {
 		boolean ge2 = imageSource.getHeight() / imageSource.getWidth() >= 2;
 		return ge2 ? imageSource.getWidth() : imageSource.getHeight() / 2;
 	}
@@ -141,8 +141,8 @@ public class AsciiImage implements AsciiArt {
 
 	@Override
 	public AsciiImage setCharWidth(int newCharWidth) throws IllegalArgumentException  {
-		if (newCharWidth > getMaxCharWidth()) {
-			throw new IllegalArgumentException("Char width cannot be greater than max char width: " + getMaxCharWidth());
+		if (newCharWidth > maxCharWidth()) {
+			throw new IllegalArgumentException("Char width cannot be greater than max char width: " + maxCharWidth());
 		}
 		if (newCharWidth < 1) {
 			throw new IllegalArgumentException("Char width must be greater than 0.");

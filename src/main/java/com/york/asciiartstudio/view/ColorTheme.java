@@ -2,7 +2,13 @@ package com.york.asciiartstudio.view;
 
 import javafx.scene.paint.Color;
 
-public class ColorTheme {
+public enum ColorTheme {
+
+    COMMAND_PROMPT("Command Prompt", Color.BLACK, Color.rgb(192, 192, 192), true),
+    POWERSHELL("PowerShell", Color.rgb(1, 36, 86), Color.WHITE, true),
+    GREEN_MONOCHROME("Green Monochrome", Color.BLACK, Color.rgb(102, 255, 102), true),
+    AMBER_MONOCHROME("Amber Monochrome", Color.BLACK, Color.rgb(255, 176, 0), true),
+    JETBRAINS("JetBrains", Color.rgb(43, 43, 43), Color.rgb(169, 183, 198), true);
 
     private final String name;
 
@@ -12,8 +18,7 @@ public class ColorTheme {
 
     private final boolean invertedShading;
 
-
-    public ColorTheme(String name, Color bgColor, Color textColor, boolean invertedShading) {
+    ColorTheme(String name, Color bgColor, Color textColor, boolean invertedShading) {
         this.name = name;
         this.bgColor = bgColor;
         this.textColor = textColor;
@@ -35,5 +40,4 @@ public class ColorTheme {
     public String getName() {
         return name;
     }
-
 }

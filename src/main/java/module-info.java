@@ -6,8 +6,8 @@ module com.york.asciiartstudio {
     opens com.york.asciiartstudio to javafx.fxml;
     exports com.york.asciiartstudio;
 
-    opens com.york.asciiartstudio.controller to javafx.fxml;
-    exports com.york.asciiartstudio.controller;
+    opens com.york.asciiartstudio.presenter to javafx.fxml;
+    exports com.york.asciiartstudio.presenter;
 
     opens com.york.asciiartstudio.model.asciiArt to javafx.fxml;
     exports com.york.asciiartstudio.model.asciiArt;

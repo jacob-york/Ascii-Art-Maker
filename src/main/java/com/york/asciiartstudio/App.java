@@ -1,13 +1,11 @@
 package com.york.asciiartstudio;
 
+import com.york.asciiartstudio.view.ImageFileView;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.Objects;
 
@@ -20,9 +18,8 @@ public class App extends Application {
     }
 
     @Override
-    public void start(Stage mainStage) throws IOException {
-        Parent root = new FXMLLoader(getClass().getResource("fxml/imageFileMode.fxml")).load();
-        Scene imageFileScene = new Scene(root);
+    public void start(Stage mainStage) {
+        Scene imageFileScene = new Scene(new ImageFileView());
 
         URL icon = Objects.requireNonNull(getClass().getResource("icons/appIcon.png"));
         mainStage.getIcons().add(new Image(icon.toString()));
