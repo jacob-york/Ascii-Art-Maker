@@ -15,10 +15,10 @@ public class ThemeMenuItem extends MenuItem {
     public ThemeMenuItem(ColorTheme colorTheme, Runnable runnable) {
         this.colorTheme = colorTheme;
 
-        Label nameLabel = new Label(colorTheme.name());
+        Label nameLabel = new Label(colorTheme.getName());
         nameLabel.setFont(FONT);
-        nameLabel.setTextFill(colorTheme.textColor());
-        nameLabel.setStyle("-fx-background-color: #" + colorToHexCode(colorTheme.bgColor()) + ";");
+        nameLabel.setTextFill(colorTheme.getTextColor());
+        nameLabel.setStyle("-fx-background-color: #" + colorToHexCode(colorTheme.getBGColor()) + ";");
 
         this.setGraphic(nameLabel);
 
