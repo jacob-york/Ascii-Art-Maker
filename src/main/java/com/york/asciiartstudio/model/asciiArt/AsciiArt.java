@@ -38,7 +38,7 @@ public interface AsciiArt {
 	 *
 	 * @return the max char width possible for the given image source.
 	 */
-	int getMaxCharWidth();
+	int maxCharWidth();
 
 	/**
 	 * get how wide each character is in pixels (from the original image).

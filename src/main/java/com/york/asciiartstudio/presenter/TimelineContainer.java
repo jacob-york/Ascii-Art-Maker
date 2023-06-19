@@ -1,4 +1,4 @@
-package com.york.asciiartstudio.view;
+package com.york.asciiartstudio.presenter;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
