@@ -160,7 +160,7 @@ public class AsciiImage implements AsciiArt {
 		}
 
 		basePalette = newPalette;
-		if (shadingIsInverted())
+		if (getInvertedShading())
 			activePalette = reverseString(basePalette);
 		else activePalette = basePalette;
 		return this;
@@ -186,7 +186,7 @@ public class AsciiImage implements AsciiArt {
 	}
 	
 	@Override
-	public boolean shadingIsInverted() {
+	public boolean getInvertedShading() {
 		return activePalette.equals(reverseString(basePalette));
 	}
 

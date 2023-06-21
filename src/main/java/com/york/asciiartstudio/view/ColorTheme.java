@@ -4,6 +4,7 @@ import javafx.scene.paint.Color;
 
 public enum ColorTheme {
 
+    NOTEPAD("Notepad", Color.WHITE, Color.BLACK, false),
     COMMAND_PROMPT("Command Prompt", Color.BLACK, Color.rgb(192, 192, 192), true),
     POWERSHELL("PowerShell", Color.rgb(1, 36, 86), Color.WHITE, true),
     GREEN_MONOCHROME("Green Monochrome", Color.BLACK, Color.rgb(102, 255, 102), true),

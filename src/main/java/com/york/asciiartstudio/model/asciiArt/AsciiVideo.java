@@ -98,7 +98,7 @@ public class AsciiVideo implements AsciiArt {
 				.parallel()
 				.map(imageSource -> new AsciiImage(imageSource)
 					.setCharWidth(charWidth)
-					.setInvertedShading(shadingIsInverted())
+					.setInvertedShading(getInvertedShading())
 					.setPalette(activePalette)
 				)
 				.toArray(AsciiImage[]::new);
@@ -124,7 +124,7 @@ public class AsciiVideo implements AsciiArt {
 		}
 
 		basePalette = newPalette;
-		if (shadingIsInverted())
+		if (getInvertedShading())
 			activePalette = reverseString(basePalette);
 		else activePalette = basePalette;
 
@@ -151,7 +151,7 @@ public class AsciiVideo implements AsciiArt {
 	}
 
 	@Override
-	public boolean shadingIsInverted() {
+	public boolean getInvertedShading() {
 		return activePalette.equals(reverseString(basePalette));
 	}
 

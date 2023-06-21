@@ -176,7 +176,7 @@ public class IFPresenter {
     }
 
     @FXML
-    public void fontSizeEntered(KeyEvent keyEvent) {
+    public void fontHeightEntered(KeyEvent keyEvent) {
         if (!keyEvent.getCode().equals(KeyCode.ENTER)) return;
 
         double newFontHeight;
@@ -239,46 +239,6 @@ public class IFPresenter {
         saveAsTxt();
     }
 
-    private boolean saveAsTxt() {
-        boolean emptyTxt = asciiImage == null;
-
-        FileChooser save = new FileChooser();
-        save.setTitle("Save As...");
-        save.setInitialDirectory(curSaveDir);
-        save.getExtensionFilters().add(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
-
-        if (emptyTxt) {
-            save.setInitialFileName("empty-file");
-        }
-        else {
-            String imageName = (asciiImage.getName() == null ? "asciiImage" : asciiImage.getName());
-            String txtName = imageName + "-cw" + asciiImage.getCharWidth();
-
-            if (asciiImage.shadingIsInverted()) {
-                txtName += "-inv";
-            }
-            save.setInitialFileName(txtName);
-        }
-
-        File output = save.showSaveDialog(new Stage());
-
-        if (output == null) return false;
-
-        try {
-            curSaveDir = new File(output.getParent());
-            FileOutputStream fos = new FileOutputStream(output);
-            OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
-            if (emptyTxt) osw.write("");
-            else osw.write(asciiImage.toString());
-
-            osw.close();
-            fos.close();
-        } catch (IOException e) {
-            throw new RuntimeException();
-        }
-        return true;
-    }
-
     private boolean setAppFontHeight(double newFontHeight) {
         if (!asciiArtPane.setFontSize(newFontHeight)) return false;
 
@@ -329,18 +289,50 @@ public class IFPresenter {
         clipboard.setContent(content);
     }
 
-    private boolean chooseFile() {
-
-        // File Chooser work
+    private static FileChooser initFileChooser(String title, File initDir, FileChooser.ExtensionFilter filter) {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setInitialDirectory(curChooseDir);
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg")
+        fileChooser.setTitle(title);
+        fileChooser.setInitialDirectory(initDir);
+        fileChooser.getExtensionFilters().add(filter);
+        return fileChooser;
+    }
+
+    private String calculateFileName() {
+        String imageName = asciiImage.getName() == null ? "asciiImage" : asciiImage.getName();
+        String fileName = imageName + "-cw" + asciiImage.getCharWidth();
+        return asciiImage.getInvertedShading() ? fileName + "-inv" : fileName;
+    }
+
+    private boolean saveAsTxt() {
+        FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("Text Files", "*.txt");
+        FileChooser save = initFileChooser("Save As...", curSaveDir, filter);
+        save.setInitialFileName(calculateFileName());
+
+        File output = save.showSaveDialog(new Stage());
+
+        if (output == null) return false;
+
+        try (FileOutputStream fos = new FileOutputStream(output);
+             OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);)
+        {
+            curSaveDir = new File(output.getParent());
+            osw.write(asciiImage.toString());
+
+        } catch (IOException e) {
+            throw new RuntimeException();
+        }
+        return true;
+    }
+
+    private boolean chooseFile() {
+        final boolean viewRequiresInit = asciiImage == null;
+
+        final FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter(
+                "Image Files", "*.png", "*.jpg"
         );
-        fileChooser.setTitle("Select an image");
+        FileChooser fileChooser = initFileChooser("Select an Image...", curChooseDir, filter);
         File selected = fileChooser.showOpenDialog(new Stage());
 
-        // check user selected file
         if (selected == null) return false;
 
         ImageSource imageSource;
@@ -352,7 +344,10 @@ public class IFPresenter {
             return false;
         }
 
-        if (body.getCenter() != asciiArtPane) {
+        if (viewRequiresInit) {
+            toolBar.setDisable(false);
+            copyMenuItem.setDisable(false);
+            saveMenuItem.setDisable(false);
             body.setCenter(asciiArtPane);
             fontField.setText(String.valueOf(asciiArtPane.getFontSize()));
             charWidthField.setText("1");
@@ -363,12 +358,11 @@ public class IFPresenter {
                 .setCharWidth(Integer.parseInt(charWidthField.getText()));
 
         asciiArtPane.setText(asciiImage.toString());
-        toolBar.setDisable(false);
         charWidthField.setText(String.valueOf(asciiImage.getCharWidth()));
         curChooseDir = new File(selected.getParent());
         asciiArtPane.setText(asciiImage.toString());
-        ((Stage) body.getScene().getWindow())
-                .setTitle(asciiImage.getName() + " - " + App.TITLE);
+        ((Stage) body.getScene().getWindow()).setTitle(asciiImage.getName() + " - " + App.TITLE);
+
         return true;
     }
 }

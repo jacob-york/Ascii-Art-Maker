@@ -33,7 +33,7 @@
                 <Menu fx:id="fileMenu" mnemonicParsing="false" text="File">
                   <items>
                     <MenuItem fx:id="openMenuItem" mnemonicParsing="false" onAction="#openMenuItemClicked" text="Open File..." />
-                        <MenuItem fx:id="saveMenuItem" onAction="#saveMenuItemClicked" text="Save as Txt..." />
+                        <MenuItem fx:id="saveMenuItem" disable="true" onAction="#saveMenuItemClicked" text="Save as Txt..." />
                         <MenuItem disable="true" mnemonicParsing="false" text="Export as Image..." />
                         <MenuItem fx:id="clearMenuItem" mnemonicParsing="false" onAction="#clearMenuItemClicked" text="Clear" />
                         <SeparatorMenuItem mnemonicParsing="false" />
@@ -45,7 +45,7 @@
                       <MenuItem disable="true" mnemonicParsing="false" text="Undo" />
                         <MenuItem disable="true" mnemonicParsing="false" text="Redo" />
                         <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem fx:id="copyMenuItem" onAction="#copyMenuItemClicked" text="Copy Art" />
+                        <MenuItem fx:id="copyMenuItem" disable="true" onAction="#copyMenuItemClicked" text="Copy Art" />
                     </items>
                   </Menu>
                   <Menu fx:id="modeMenu" mnemonicParsing="false" text="Mode">
@@ -81,7 +81,7 @@
                                     <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
                                  </HBox.margin>
                               </Button>
-                              <TextField fx:id="fontField" alignment="CENTER" onKeyPressed="#fontSizeEntered" prefHeight="30.0" prefWidth="50.0">
+                              <TextField fx:id="fontField" alignment="CENTER" onKeyPressed="#fontHeightEntered" prefHeight="30.0" prefWidth="50.0">
                                  <HBox.margin>
                                     <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
                                  </HBox.margin>

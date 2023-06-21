@@ -93,7 +93,7 @@ public interface AsciiArt {
 	/**
 	 * @return true if shading is inverted, false if not.
 	 */
-	boolean shadingIsInverted();
+	boolean getInvertedShading();
 
 
 	
