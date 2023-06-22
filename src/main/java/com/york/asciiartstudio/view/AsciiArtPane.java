@@ -21,7 +21,7 @@ public class AsciiArtPane extends ScrollPane {
         this.font = font;
         text = new Text();
         setFontSize(8.0);
-        setStyle("-fx-font-size: 30px;");
+        setStyle("-fx-font-size: 30px; -fx-background: #ffffff;");
         setContent(text);
     }
 
@@ -36,11 +36,11 @@ public class AsciiArtPane extends ScrollPane {
         return true;
     }
 
-    public String getText() {
+    public String getArtString() {
         return text.getText();
     }
 
-    public void setText(String newText) {
+    public void updateArtString(String newText) {
         text.setText(newText);
     }
 

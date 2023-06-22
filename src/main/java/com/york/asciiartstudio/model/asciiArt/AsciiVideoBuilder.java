@@ -9,7 +9,7 @@ import com.york.asciiartstudio.model.adapters.VideoSource;
 
 import java.util.Arrays;
 
-public class AsciiVideo implements AsciiArt {
+public class AsciiVideoBuilder implements AsciiArtBuilder {
 
 	private int charWidth;
 
@@ -23,7 +23,7 @@ public class AsciiVideo implements AsciiArt {
 
 	private String name;
 
-	public AsciiVideo(VideoSource videoSource) {
+	public AsciiVideoBuilder(VideoSource videoSource) {
 		this.charWidth = 1;
 		basePalette = DEFAULT_PALETTE;
 		activePalette = DEFAULT_PALETTE;
@@ -88,24 +88,25 @@ public class AsciiVideo implements AsciiArt {
 	}
 
 	/**
-	 * Converts AsciiVideo to an array of Ascii Images.
+	 * Converts AsciiVideo to an array of Strings.
 	 * @return all frames of AsciiVideo as an array of AsciiImages.
 	 */
-	public AsciiImage[] toAsciiImageArray() {
+	public String[] getResult() {
 		ImageSource[] imageSources = videoSource.getImageSourceArray();
 
 		return Arrays.stream(imageSources)
 				.parallel()
-				.map(imageSource -> new AsciiImage(imageSource)
+				.map(imageSource -> new AsciiImageBuilder(imageSource)
 					.setCharWidth(charWidth)
 					.setInvertedShading(getInvertedShading())
 					.setPalette(activePalette)
+						.toString()
 				)
-				.toArray(AsciiImage[]::new);
+				.toArray(String[]::new);
 	}
 
 	@Override
-	public AsciiVideo setCharWidth(int newCharWidth) throws IllegalArgumentException {
+	public AsciiVideoBuilder setCharWidth(int newCharWidth) throws IllegalArgumentException {
 		if (newCharWidth > maxCharWidth()) {
 			throw new IllegalArgumentException("Char width cannot be greater than max char width: " + maxCharWidth());
 		}
@@ -118,7 +119,7 @@ public class AsciiVideo implements AsciiArt {
 	}
 
 	@Override
-	public AsciiVideo setPalette(String newPalette) throws IllegalArgumentException  {
+	public AsciiVideoBuilder setPalette(String newPalette) throws IllegalArgumentException  {
 		if (256 % newPalette.length() != 0) {
 			throw new IllegalArgumentException ("char count in Palette must be divisible by 256.");
 		}
@@ -132,7 +133,7 @@ public class AsciiVideo implements AsciiArt {
 	}
 
 	@Override
-	public AsciiVideo setInvertedShading(boolean invertShading) {
+	public AsciiVideoBuilder setInvertedShading(boolean invertShading) {
 		if (invertShading)
 			activePalette = reverseString(basePalette);
 		else activePalette = basePalette;
@@ -140,7 +141,7 @@ public class AsciiVideo implements AsciiArt {
 	}
 
 	@Override
-	public AsciiVideo setName(String newName) {
+	public AsciiVideoBuilder setName(String newName) {
 		name = newName;
 		return this;
 	}

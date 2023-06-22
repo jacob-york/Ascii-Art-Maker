@@ -5,7 +5,7 @@ import com.york.asciiartstudio.model.adapters.ImageSource;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-public class AsciiImage implements AsciiArt {
+public class AsciiImageBuilder implements AsciiArtBuilder {
 
 	/**
 	 * Outlines a rectangle of pixels to be rendered into a char.
@@ -42,7 +42,7 @@ public class AsciiImage implements AsciiArt {
 
 	private String name;
 
-	public AsciiImage(ImageSource imageSource) {
+	public AsciiImageBuilder(ImageSource imageSource) {
 		charWidth = 1;
 		basePalette = DEFAULT_PALETTE;
 		activePalette = DEFAULT_PALETTE;
@@ -140,7 +140,7 @@ public class AsciiImage implements AsciiArt {
 	}
 
 	@Override
-	public AsciiImage setCharWidth(int newCharWidth) throws IllegalArgumentException  {
+	public AsciiImageBuilder setCharWidth(int newCharWidth) throws IllegalArgumentException  {
 		if (newCharWidth > maxCharWidth()) {
 			throw new IllegalArgumentException("Char width cannot be greater than max char width: " + maxCharWidth());
 		}
@@ -154,7 +154,7 @@ public class AsciiImage implements AsciiArt {
 	}
 
 	@Override
-	public AsciiImage setPalette(String newPalette) throws IllegalArgumentException  {
+	public AsciiImageBuilder setPalette(String newPalette) throws IllegalArgumentException  {
 		if (256 % newPalette.length() != 0) {
 			throw new IllegalArgumentException ("Char count in Palette must be divisible by 256.");
 		}
@@ -167,7 +167,7 @@ public class AsciiImage implements AsciiArt {
 	}
 
 	@Override
-	public AsciiImage setInvertedShading(boolean invertedShading) {
+	public AsciiImageBuilder setInvertedShading(boolean invertedShading) {
 		if (invertedShading)
 			activePalette = reverseString(basePalette);
 		else activePalette = basePalette;
@@ -175,7 +175,7 @@ public class AsciiImage implements AsciiArt {
 	}
 
 	@Override
-	public AsciiImage setName(String newName) {
+	public AsciiImageBuilder setName(String newName) {
 		name = newName;
 		return this;
 	}
@@ -190,6 +190,11 @@ public class AsciiImage implements AsciiArt {
 		return activePalette.equals(reverseString(basePalette));
 	}
 
+	@Override
+	public String[] getResult() {
+		return new String[] {toString()};
+	}
+
 	public String toString() {
 		String[] stringArray = toStringArray();
 		StringBuilder returnVal = new StringBuilder();
@@ -200,8 +205,8 @@ public class AsciiImage implements AsciiArt {
 		}
 		return returnVal.toString();
 	}
-	
-	public String[] toStringArray() {
+
+	private String[] toStringArray() {
 		PixelOutline[][] pixelOutlines = new PixelOutline[getHeight()][getWidth()];
 
 		// populate pixelOutline array

@@ -11,7 +11,7 @@ import java.util.Objects;
 
 public class App extends Application {
 
-    public static final String TITLE = "Ascii Art Studio 1.0.2-alpha";
+    public static final String TITLE = "Ascii Art Studio 1.1.2-alpha";
 
     public static void main(String[] args) {
         launch(args);

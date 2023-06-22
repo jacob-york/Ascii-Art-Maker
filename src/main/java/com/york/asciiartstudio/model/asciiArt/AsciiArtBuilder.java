@@ -3,7 +3,7 @@ package com.york.asciiartstudio.model.asciiArt;
 /**
  * Class representation of AsciiArt.
  */
-public interface AsciiArt {
+public interface AsciiArtBuilder {
 
 	/**
 	 * The characters used in the AsciiArt, organized from darkest to lightest.
@@ -63,27 +63,27 @@ public interface AsciiArt {
 	 * @return a reference to `this` so that setters can be chained together (ex: builder pattern).
 	 * @throws IllegalArgumentException if newCharWidth < 1, newCharWidth is greater than the image width, or if newCharWidth * 2 is greater than the image height.
 	 */
-	AsciiArt setCharWidth(int newCharWidth) throws IllegalArgumentException ;
+	AsciiArtBuilder setCharWidth(int newCharWidth) throws IllegalArgumentException ;
 
 	/**
 	 * @param newPalette A string composed of characters the user wishes to make the art out of. newPalette.length() must be divisible by 256.
 	 * @return a reference to `this` so that setters can be chained together (ex: builder pattern).
 	 * @throws IllegalArgumentException if newPalette is not divisible by 256.
 	 */
-	AsciiArt setPalette(String newPalette) throws IllegalArgumentException ;
+	AsciiArtBuilder setPalette(String newPalette) throws IllegalArgumentException ;
 
 	/**
 	 * @param invertShading
 	 * @return a reference to `this` so that setters can be chained together (ex: builder pattern).
 	 */
-	AsciiArt setInvertedShading(boolean invertShading);
+	AsciiArtBuilder setInvertedShading(boolean invertShading);
 
 	/**
 	 * sets the name of the ascii art object.
 	 * @param newName the new name of the object.
 	 * @return a reference to `this` so that setters can be chained together (ex: builder pattern).
 	 */
-	AsciiArt setName(String newName);
+	AsciiArtBuilder setName(String newName);
 
 	/**
 	 * @return true if the art is using the default palette, false if not.
@@ -95,6 +95,9 @@ public interface AsciiArt {
 	 */
 	boolean getInvertedShading();
 
-
-	
+	/**
+	 *
+	 * @return an array of ascii art strings (length 1 if building an image
+	 */
+	String[] getResult();
 }

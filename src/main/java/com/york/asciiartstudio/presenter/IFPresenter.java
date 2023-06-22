@@ -3,8 +3,12 @@ package com.york.asciiartstudio.presenter;
 import com.york.asciiartstudio.App;
 import com.york.asciiartstudio.model.adapters.ImageFileAdapter;
 import com.york.asciiartstudio.model.adapters.ImageSource;
-import com.york.asciiartstudio.model.asciiArt.AsciiArt;
-import com.york.asciiartstudio.model.asciiArt.AsciiImage;
+import com.york.asciiartstudio.model.adapters.VideoFileAdapter;
+import com.york.asciiartstudio.model.adapters.VideoSource;
+import com.york.asciiartstudio.model.asciiArt.AsciiArtBuilder;
+import com.york.asciiartstudio.model.asciiArt.AsciiImageBuilder;
+import com.york.asciiartstudio.model.asciiArt.AsciiVideoBuilder;
+import com.york.asciiartstudio.model.appState.AppState;
 import com.york.asciiartstudio.view.*;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -29,7 +33,7 @@ import java.nio.charset.StandardCharsets;
 public class IFPresenter {
 
     @FXML
-    public BorderPane body;
+    public BorderPane borderPane;
 
     @FXML
     public ToolBar toolBar;
@@ -41,9 +45,6 @@ public class IFPresenter {
     public Button zoomInBtn;
 
     private AsciiArtPane asciiArtPane;
-
-    @FXML
-    public Button chooseImageBtn;
 
     @FXML
     public TextField charWidthField;
@@ -61,7 +62,10 @@ public class IFPresenter {
     public ColorPicker textColorPicker;
 
     @FXML
-    public MenuItem openMenuItem;
+    public MenuItem openImageItem;
+
+    @FXML
+    public MenuItem openVideoItem;
 
     @FXML
     public MenuItem saveMenuItem;
@@ -69,9 +73,11 @@ public class IFPresenter {
     @FXML
     public MenuItem copyMenuItem;
 
-    private AsciiImage asciiImage;
+    private AsciiArtBuilder asciiArtBuilder;
 
     private TimelineContainer timelines;
+
+    private AppState appState;
 
     private File curChooseDir;
 
@@ -85,14 +91,11 @@ public class IFPresenter {
         timelines = new TimelineContainer(
                 () -> setAppFontHeight(Double.parseDouble(fontField.getText()) + 1),
                 () -> setAppFontHeight(Double.parseDouble(fontField.getText()) - 1),
-                () -> setAppCharWidth(asciiImage.getCharWidth() + 1),
-                () -> setAppCharWidth(asciiImage.getCharWidth() - 1)
+                () -> setAppCharWidth(asciiArtBuilder.getCharWidth() + 1),
+                () -> setAppCharWidth(asciiArtBuilder.getCharWidth() - 1)
         );
 
-        asciiArtPane = new AsciiArtPane(AsciiArt.FONT);
-        openMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN));
-        saveMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN));
-        copyMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN));
+        asciiArtPane = new AsciiArtPane(AsciiArtBuilder.FONT);
 
         for (ColorTheme colorTheme : ColorTheme.values()) {
             colorThemeMenu.getItems().add(new ThemeMenuItem(colorTheme, () -> applyTheme(colorTheme)));
@@ -140,13 +143,17 @@ public class IFPresenter {
     }
 
     @FXML
-    public void chooseImageBtnClicked() {
-        chooseFile();
+    public void openImageItemClicked() {
+        chooseImageFile();
     }
 
     @FXML
-    public void openMenuItemClicked() {
-        chooseFile();
+    public void openVideoItemClicked() {
+        chooseVideoFile();
+    }
+
+    @FXML
+    public void webcamMenuItemClicked() {
     }
 
     @FXML
@@ -156,13 +163,13 @@ public class IFPresenter {
 
     @FXML
     public void clearMenuItemClicked() {
-        asciiImage = null;
-        asciiArtPane.setText("");
+        asciiArtBuilder = null;
+        asciiArtPane.updateArtString("");
         fontField.setText("");
         charWidthField.setText("");
 
         toolBar.setDisable(true);
-        body.setCenter(chooseImageBtn);
+        borderPane.setCenter(new Label("No Media Selected."));
     }
 
     @FXML
@@ -193,7 +200,7 @@ public class IFPresenter {
     @FXML
     public void charWidthEntered(KeyEvent keyEvent) {
         if (!keyEvent.getCode().equals(KeyCode.ENTER)) return;
-        assert asciiImage != null;
+        assert asciiArtBuilder != null;
 
         int newCharWidth;
         try {
@@ -206,8 +213,8 @@ public class IFPresenter {
         if (newCharWidth <= 0) {
             newCharWidth = 1;
         }
-        if (newCharWidth > asciiImage.maxCharWidth()) {
-            newCharWidth = asciiImage.maxCharWidth();
+        if (newCharWidth > asciiArtBuilder.maxCharWidth()) {
+            newCharWidth = asciiArtBuilder.maxCharWidth();
         }
 
         setAppCharWidth(newCharWidth);
@@ -215,8 +222,8 @@ public class IFPresenter {
 
     @FXML
     public void invertedShadingClicked() {
-        asciiImage.setInvertedShading(invertedShadingBtn.isSelected());
-        asciiArtPane.setText(asciiImage.toString());
+        asciiArtBuilder.setInvertedShading(invertedShadingBtn.isSelected());
+        asciiArtPane.updateArtString(asciiArtBuilder.getResult()[0]);
     }
 
     @FXML
@@ -239,6 +246,14 @@ public class IFPresenter {
         saveAsTxt();
     }
 
+    @FXML
+    public void centerBtnPressed() {
+    }
+
+    @FXML
+    public void centerBtnReleased() {
+    }
+
     private boolean setAppFontHeight(double newFontHeight) {
         if (!asciiArtPane.setFontSize(newFontHeight)) return false;
 
@@ -247,16 +262,16 @@ public class IFPresenter {
     }
 
     private boolean setAppCharWidth(int newCharWidth) {
-        assert asciiImage != null;
+        assert asciiArtBuilder != null;
         if (newCharWidth <= 0) return false;
-        if (newCharWidth > asciiImage.maxCharWidth()) return false;
+        if (newCharWidth > asciiArtBuilder.maxCharWidth()) return false;
 
-        final double newFontHeight = calcNewFontHeight(asciiImage.getCharWidth(), newCharWidth);
+        final double newFontHeight = calcNewFontHeight(asciiArtBuilder.getCharWidth(), newCharWidth);
         if (!setAppFontHeight(newFontHeight)) return false;
 
-        asciiImage.setCharWidth(newCharWidth);
-        charWidthField.setText(String.valueOf(asciiImage.getCharWidth()));
-        asciiArtPane.setText(asciiImage.toString());
+        asciiArtBuilder.setCharWidth(newCharWidth);
+        charWidthField.setText(String.valueOf(asciiArtBuilder.getCharWidth()));
+        asciiArtPane.updateArtString(asciiArtBuilder.getResult()[0]);
         return true;
     }
 
@@ -270,7 +285,7 @@ public class IFPresenter {
         textColorPicker.setValue(textColor);
 
         boolean invertedShading = colorTheme.getInvertedShading();
-        asciiArtPane.setText(asciiImage.setInvertedShading(invertedShading).toString());
+        asciiArtPane.updateArtString(asciiArtBuilder.setInvertedShading(invertedShading).getResult()[0]);
         invertedShadingBtn.setSelected(invertedShading);
     }
 
@@ -285,8 +300,14 @@ public class IFPresenter {
         clipboard.clear();
 
         ClipboardContent content = new ClipboardContent();
-        content.putString(asciiArtPane.getText());
+        content.putString(asciiArtPane.getArtString());
         clipboard.setContent(content);
+    }
+
+    private String calculateFileName() {
+        String imageName = asciiArtBuilder.getName() == null ? "asciiArtBuilder" : asciiArtBuilder.getName();
+        String fileName = imageName + "-cw" + asciiArtBuilder.getCharWidth();
+        return asciiArtBuilder.getInvertedShading() ? fileName + "-inv" : fileName;
     }
 
     private static FileChooser initFileChooser(String title, File initDir, FileChooser.ExtensionFilter filter) {
@@ -297,14 +318,19 @@ public class IFPresenter {
         return fileChooser;
     }
 
-    private String calculateFileName() {
-        String imageName = asciiImage.getName() == null ? "asciiImage" : asciiImage.getName();
-        String fileName = imageName + "-cw" + asciiImage.getCharWidth();
-        return asciiImage.getInvertedShading() ? fileName + "-inv" : fileName;
+    /**
+     * uses a FileChooser to select a file.
+     * @param title FileChooser title property.
+     * @param dir FileChooser initialDirectory property.
+     * @param filter A single extension filter for fileChooser.
+     * @return the user-selected file (null if cancelled).
+     */
+    private File selectFile(String title, File dir, FileChooser.ExtensionFilter filter) {
+        return initFileChooser(title, dir, filter).showOpenDialog(new Stage());
     }
 
     private boolean saveAsTxt() {
-        FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("Text Files", "*.txt");
+        final FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("Text Files", "*.txt");
         FileChooser save = initFileChooser("Save As...", curSaveDir, filter);
         save.setInitialFileName(calculateFileName());
 
@@ -316,7 +342,7 @@ public class IFPresenter {
              OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);)
         {
             curSaveDir = new File(output.getParent());
-            osw.write(asciiImage.toString());
+            osw.write(asciiArtBuilder.getResult()[0]);
 
         } catch (IOException e) {
             throw new RuntimeException();
@@ -324,17 +350,54 @@ public class IFPresenter {
         return true;
     }
 
-    private boolean chooseFile() {
-        final boolean viewRequiresInit = asciiImage == null;
-
-        final FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter(
-                "Image Files", "*.png", "*.jpg"
-        );
-        FileChooser fileChooser = initFileChooser("Select an Image...", curChooseDir, filter);
-        File selected = fileChooser.showOpenDialog(new Stage());
+    private boolean chooseVideoFile() {
+        final FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("MP4 Files", "*.mp4");
+        File selected = selectFile("Select an MP4 File...", curChooseDir, filter);
 
         if (selected == null) return false;
 
+        final boolean viewRequiresInit = asciiArtBuilder == null;
+        VideoSource videoSource;
+        try {
+            videoSource = new VideoFileAdapter(selected);
+        }
+        catch (IOException e) {
+            new Alert(Alert.AlertType.ERROR, "UnexpectedError: " + e).showAndWait();
+            return false;
+        }
+
+        if (viewRequiresInit) {
+            toolBar.setDisable(false);
+            copyMenuItem.setDisable(false);
+            saveMenuItem.setDisable(false);
+            borderPane.setCenter(asciiArtPane);
+            fontField.setText(String.valueOf(asciiArtPane.getFontSize()));
+            charWidthField.setText("1");
+        }
+
+        asciiArtBuilder = new AsciiVideoBuilder(videoSource)
+                .setInvertedShading(invertedShadingBtn.isSelected())
+                .setCharWidth(Integer.parseInt(charWidthField.getText()));
+
+        asciiArtPane.updateArtString(asciiArtBuilder.getResult()[0]);
+        charWidthField.setText(String.valueOf(asciiArtBuilder.getCharWidth()));
+        curChooseDir = new File(selected.getParent());
+        asciiArtPane.updateArtString(asciiArtBuilder.getResult()[0]);
+        ((Stage) borderPane.getScene().getWindow()).setTitle(asciiArtBuilder.getName() + " - " + App.TITLE);
+
+        return true;
+
+    }
+
+    private boolean chooseImageFile() {
+        final FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter(
+                "Image Files", "*.png", "*.jpg"
+        );
+        File selected = selectFile("Select an Image...", curChooseDir, filter);
+
+        if (selected == null) return false;
+
+        final boolean viewRequiresInit = asciiArtBuilder == null;
         ImageSource imageSource;
         try {
             imageSource = new ImageFileAdapter(selected);
@@ -348,21 +411,22 @@ public class IFPresenter {
             toolBar.setDisable(false);
             copyMenuItem.setDisable(false);
             saveMenuItem.setDisable(false);
-            body.setCenter(asciiArtPane);
+            borderPane.setCenter(asciiArtPane);
             fontField.setText(String.valueOf(asciiArtPane.getFontSize()));
             charWidthField.setText("1");
         }
 
-        asciiImage = new AsciiImage(imageSource)
+        asciiArtBuilder = new AsciiImageBuilder(imageSource)
                 .setInvertedShading(invertedShadingBtn.isSelected())
                 .setCharWidth(Integer.parseInt(charWidthField.getText()));
 
-        asciiArtPane.setText(asciiImage.toString());
-        charWidthField.setText(String.valueOf(asciiImage.getCharWidth()));
+        asciiArtPane.updateArtString(asciiArtBuilder.getResult()[0]);
+        charWidthField.setText(String.valueOf(asciiArtBuilder.getCharWidth()));
         curChooseDir = new File(selected.getParent());
-        asciiArtPane.setText(asciiImage.toString());
-        ((Stage) body.getScene().getWindow()).setTitle(asciiImage.getName() + " - " + App.TITLE);
+        asciiArtPane.updateArtString(asciiArtBuilder.getResult()[0]);
+        ((Stage) borderPane.getScene().getWindow()).setTitle(asciiArtBuilder.getName() + " - " + App.TITLE);
 
         return true;
     }
+
 }
