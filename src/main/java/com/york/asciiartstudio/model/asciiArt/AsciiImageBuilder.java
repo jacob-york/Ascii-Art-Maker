@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 
 public class AsciiImageBuilder implements AsciiArtBuilder {
 
+	private final String DEFAULT_PALETTE;
+
 	/**
 	 * Outlines a rectangle of pixels to be rendered into a char.
 	 * PixelOutlines, like actual chars, are twice as tall as they are long.
@@ -38,17 +40,27 @@ public class AsciiImageBuilder implements AsciiArtBuilder {
 
 	private String activePalette;
 
-	private final ImageSource imageSource;
+	private ImageSource imageSource;
 
 	private String name;
 
 	public AsciiImageBuilder(ImageSource imageSource) {
+		DEFAULT_PALETTE = "@N#bhyo+s/=-:.  ";
+		reset(imageSource);
+	}
+
+	public String getFont() {
+		return "Consolas";
+	}
+
+	public AsciiImageBuilder reset(ImageSource imageSource) {
 		charWidth = 1;
 		basePalette = DEFAULT_PALETTE;
 		activePalette = DEFAULT_PALETTE;
 		this.imageSource = imageSource;
 		name = imageSource.getName();
 		updateDomainAndRange();
+		return this;
 	}
 
 	private void updateDomainAndRange() {
@@ -104,7 +116,7 @@ public class AsciiImageBuilder implements AsciiArtBuilder {
 	}
 
 	@Override
-	public int maxCharWidth() {
+	public int getMaxCharWidth() {
 		boolean ge2 = imageSource.getHeight() / imageSource.getWidth() >= 2;
 		return ge2 ? imageSource.getWidth() : imageSource.getHeight() / 2;
 	}
@@ -117,11 +129,6 @@ public class AsciiImageBuilder implements AsciiArtBuilder {
 	@Override
 	public int getHeight() {
 		return range / (2 * charWidth);
-	}
-
-	@Override
-	public int getArea() {
-		return getWidth() * getHeight();
 	}
 
 	@Override
@@ -141,8 +148,8 @@ public class AsciiImageBuilder implements AsciiArtBuilder {
 
 	@Override
 	public AsciiImageBuilder setCharWidth(int newCharWidth) throws IllegalArgumentException  {
-		if (newCharWidth > maxCharWidth()) {
-			throw new IllegalArgumentException("Char width cannot be greater than max char width: " + maxCharWidth());
+		if (newCharWidth > getMaxCharWidth()) {
+			throw new IllegalArgumentException("Char width cannot be greater than max char width: " + getMaxCharWidth());
 		}
 		if (newCharWidth < 1) {
 			throw new IllegalArgumentException("Char width must be greater than 0.");

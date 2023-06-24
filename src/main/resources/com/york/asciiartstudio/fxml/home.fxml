@@ -23,7 +23,7 @@
 <?import javafx.scene.paint.Color?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="900.0" prefWidth="1300.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.york.asciiartstudio.presenter.IFPresenter">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="900.0" prefWidth="1300.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.york.asciiartstudio.presenter.homePresenter">
    <children>
       <BorderPane fx:id="borderPane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <top>
@@ -181,11 +181,15 @@
                            </children>
                         </HBox>
                         <Separator orientation="VERTICAL" />
-                        <MenuButton fx:id="colorThemeMenu" mnemonicParsing="false" text="Color Theme">
-                           <font>
-                              <Font name="Consolas" size="15.0" />
-                           </font>
-                        </MenuButton>
+                        <HBox alignment="CENTER">
+                           <children>
+                              <MenuButton fx:id="colorThemeMenu" mnemonicParsing="false" text="Color Theme">
+                                 <font>
+                                    <Font name="Consolas" size="15.0" />
+                                 </font>
+                              </MenuButton>
+                           </children>
+                        </HBox>
                         <VBox fx:id="bGColorBox" alignment="CENTER">
                            <children>
                               <Label text="Background Color">
@@ -214,7 +218,7 @@
                            </children>
                         </VBox>
                         <Separator orientation="VERTICAL" />
-                        <HBox fx:id="videoControlBox" alignment="CENTER">
+                        <HBox fx:id="videoControlBox" alignment="CENTER" disable="true">
                            <children>
                               <Button mnemonicParsing="false" prefHeight="45.0" prefWidth="45.0" text="&lt;&lt;">
                                  <HBox.margin>

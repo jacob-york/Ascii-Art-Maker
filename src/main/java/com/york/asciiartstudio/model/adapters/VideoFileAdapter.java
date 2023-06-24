@@ -34,7 +34,7 @@ public class VideoFileAdapter implements VideoSource {
     }
 
     @Override
-    public int getFPS() {
+    public int getFps() {
         return 0;
     }
 
@@ -44,7 +44,7 @@ public class VideoFileAdapter implements VideoSource {
     }
 
     @Override
-    public ImageSource[] getImageSourceArray() {
+    public ImageSource[] getImageSources() {
         return new ImageSource[0];
     }
 }

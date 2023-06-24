@@ -1,31 +1,26 @@
 package com.york.asciiartstudio;
 
-import com.york.asciiartstudio.view.ImageFileView;
+import com.york.asciiartstudio.view.View;
 import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.image.Image;
+import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
 
 import java.net.URL;
-import java.util.Objects;
 
 public class App extends Application {
 
-    public static final String TITLE = "Ascii Art Studio 1.1.2-alpha";
+    public static final String TITLE = "Ascii Art Studio 1.2.0-alpha";
 
     public static void main(String[] args) {
         launch(args);
     }
 
+    private URL toURL(String path) {
+        return getClass().getResource(path);
+    }
+
     @Override
     public void start(Stage mainStage) {
-        Scene imageFileScene = new Scene(new ImageFileView());
-
-        URL icon = Objects.requireNonNull(getClass().getResource("icons/appIcon.png"));
-        mainStage.getIcons().add(new Image(icon.toString()));
-
-        mainStage.setScene(imageFileScene);
-        mainStage.setTitle(TITLE);
-        mainStage.show();
+        new View(new FXMLLoader(toURL("fxml/home.fxml")), TITLE, toURL("icons/appIcon.ico"));
     }
 }

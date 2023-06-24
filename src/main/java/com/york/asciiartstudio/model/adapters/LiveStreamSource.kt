@@ -1,28 +1,24 @@
-package com.york.asciiartstudio.model.adapters;
+package com.york.asciiartstudio.model.adapters
 
-public interface LiveStreamSource {
+interface LiveStreamSource {
+
     /**
-     *
      * @return the width in pixels of the original video.
      */
-    int getWidth();
+    val width: Int
 
     /**
-     *
      * @return the height in pixels of the original video.
      */
-    int getHeight();
+    val height: Int
 
     /**
-     *
      * @return the frames per second of the original video.
      */
-    int getFPS();
+    val fps: Int
 
     /**
-     *
      * @return the current frame (at call time) of the live steam source as an ImageSource.
      */
-    ImageSource getCurrentFrame();
-
+    val currentFrame: ImageSource
 }

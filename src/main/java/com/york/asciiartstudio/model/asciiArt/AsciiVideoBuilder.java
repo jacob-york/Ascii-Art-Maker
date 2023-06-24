@@ -6,30 +6,43 @@ package com.york.asciiartstudio.model.asciiArt;
 
 import com.york.asciiartstudio.model.adapters.ImageSource;
 import com.york.asciiartstudio.model.adapters.VideoSource;
+import kotlin.contracts.Returns;
 
 import java.util.Arrays;
 
 public class AsciiVideoBuilder implements AsciiArtBuilder {
 
+	private final String DEFAULT_PALETTE;
+
 	private int charWidth;
 
-	private final VideoSource videoSource;
+	private VideoSource videoSource;
 
 	private String basePalette;
 
 	private String activePalette;
 
-	private final double fps;
+	private double fps;
 
 	private String name;
 
 	public AsciiVideoBuilder(VideoSource videoSource) {
+		DEFAULT_PALETTE = "@N#bhyo+s/=-:.  ";
+		reset(videoSource);
+	}
+
+	public AsciiVideoBuilder reset(VideoSource videoSource) {
 		this.charWidth = 1;
 		basePalette = DEFAULT_PALETTE;
 		activePalette = DEFAULT_PALETTE;
-		fps = videoSource.getFPS();
+		fps = videoSource.getFps();
 		name = videoSource.getName();
 		this.videoSource = videoSource;
+		return this;
+	}
+
+	public String getFont() {
+		return "Consolas";
 	}
 
 	/**
@@ -58,12 +71,7 @@ public class AsciiVideoBuilder implements AsciiArtBuilder {
 	}
 
 	@Override
-	public int getArea() {
-		return getWidth() * getHeight();
-	}
-
-	@Override
-	public int maxCharWidth() {
+	public int getMaxCharWidth() {
 		boolean ge2 = videoSource.getHeight() / videoSource.getWidth() >= 2;
 		return ge2 ? videoSource.getWidth() : videoSource.getHeight() / 2;
 	}
@@ -92,7 +100,7 @@ public class AsciiVideoBuilder implements AsciiArtBuilder {
 	 * @return all frames of AsciiVideo as an array of AsciiImages.
 	 */
 	public String[] getResult() {
-		ImageSource[] imageSources = videoSource.getImageSourceArray();
+		ImageSource[] imageSources = videoSource.getImageSources();
 
 		return Arrays.stream(imageSources)
 				.parallel()
@@ -107,8 +115,8 @@ public class AsciiVideoBuilder implements AsciiArtBuilder {
 
 	@Override
 	public AsciiVideoBuilder setCharWidth(int newCharWidth) throws IllegalArgumentException {
-		if (newCharWidth > maxCharWidth()) {
-			throw new IllegalArgumentException("Char width cannot be greater than max char width: " + maxCharWidth());
+		if (newCharWidth > getMaxCharWidth()) {
+			throw new IllegalArgumentException("Char width cannot be greater than max char width: " + getMaxCharWidth());
 		}
 		if (newCharWidth < 1) {
 			throw new IllegalArgumentException("Char width must be greater than 0.");

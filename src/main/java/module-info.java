@@ -2,6 +2,7 @@ module com.york.asciiartstudio {
     requires java.desktop;
     requires javafx.controls;
     requires javafx.fxml;
+    requires kotlin.stdlib;
 
     opens com.york.asciiartstudio to javafx.fxml;
     exports com.york.asciiartstudio;

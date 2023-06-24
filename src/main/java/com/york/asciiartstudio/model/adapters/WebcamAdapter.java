@@ -13,7 +13,7 @@ public class WebcamAdapter implements LiveStreamSource {
     }
 
     @Override
-    public int getFPS() {
+    public int getFps() {
         return 0;
     }
 
