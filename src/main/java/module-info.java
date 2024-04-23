@@ -12,10 +12,10 @@ module com.york.asciiartstudio {
     requires opencv;
     requires java.desktop;
 
-    opens com.york.asciiartstudio to javafx.fxml;
-    exports com.york.asciiartstudio;
-    exports com.york.asciiartstudio.controller;
-    opens com.york.asciiartstudio.controller to javafx.fxml;
-    exports com.york.asciiartstudio.models;
-    opens com.york.asciiartstudio.models to javafx.fxml;
+    opens com.york.asciiArtMaker to javafx.fxml;
+    exports com.york.asciiArtMaker;
+    exports com.york.asciiArtMaker.controller;
+    opens com.york.asciiArtMaker.controller to javafx.fxml;
+    exports com.york.asciiArtMaker.models;
+    opens com.york.asciiArtMaker.models to javafx.fxml;
 }
