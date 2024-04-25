@@ -24,7 +24,6 @@ public class ImageModel implements AppModel {
 
     }
 
-    @Override
     public void configureGUI(Controller presenter) {
         presenter.toolBar.setDisable(false);
         presenter.fontField.setText(String.valueOf(presenter.getAsciiArtPane().getFontSize()));

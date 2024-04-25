@@ -1,9 +1,11 @@
 package com.york.asciiArtMaker.asciiArt;
 
-import com.york.asciiArtMaker.adapters.VideoFileAdapter;
+import com.york.asciiArtMaker.adapters.MatListFactory;
 import com.york.asciiArtMaker.adapters.VideoSource;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 public class AsciiVideoBuilder implements AsciiArtBuilder {
@@ -178,8 +180,8 @@ public class AsciiVideoBuilder implements AsciiArtBuilder {
     }
 
     public void releaseNativeResources() {
-        if (videoSource instanceof VideoFileAdapter) {
-            ((VideoFileAdapter) videoSource).releaseNativeResources();
+        if (videoSource instanceof MatListFactory.VideoFileAdapter vfa) {
+            vfa.releaseNativeResources();
         }
     }
 }

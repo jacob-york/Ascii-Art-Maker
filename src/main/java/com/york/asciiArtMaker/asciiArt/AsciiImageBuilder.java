@@ -26,6 +26,7 @@ public class AsciiImageBuilder implements AsciiArtBuilder {
         this.name = imageSource.getName().orElse(null);
         this.palette = defaultPalette;
         this.activePalette = palette;
+
         updateDomainAndRange();
     }
 
@@ -129,7 +130,6 @@ public class AsciiImageBuilder implements AsciiArtBuilder {
     public String build() {
         return String.join("\n", getRows());
     }
-
 
     private static class PixelOutline {
         int width;

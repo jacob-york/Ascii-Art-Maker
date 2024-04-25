@@ -2,13 +2,16 @@ package com.york.asciiArtMaker.controller;
 
 import com.york.asciiArtMaker.AsciiArtMaker;
 import com.york.asciiArtMaker.adapters.ImageFileAdapter;
-import com.york.asciiArtMaker.adapters.VideoFileAdapter;
+import com.york.asciiArtMaker.adapters.ImageSource;
+import com.york.asciiArtMaker.adapters.MatListFactory;
+import com.york.asciiArtMaker.adapters.VideoSource;
 import com.york.asciiArtMaker.asciiArt.AsciiImageBuilder;
 import com.york.asciiArtMaker.asciiArt.AsciiVideoBuilder;
 import com.york.asciiArtMaker.models.AppModel;
 import com.york.asciiArtMaker.models.ImageModel;
 import com.york.asciiArtMaker.models.NullModel;
 import com.york.asciiArtMaker.models.VideoModel;
+import com.york.asciiArtMaker.observer.LoadingDialog;
 import com.york.asciiArtMaker.view.AsciiArtPane;
 import com.york.asciiArtMaker.view.ColorTheme;
 import com.york.asciiArtMaker.view.ThemeMenuItem;
@@ -325,26 +328,38 @@ public class Controller {
 
     public boolean openFile() {
         File selected = fileManager.selectFile();
+        if (selected == null) return false;
 
-        if (selected != null) {
-            loadNewScene(selected);
-            return true;
-        } else return false;
-    }
-
-    private void loadNewScene(File selected) {
         model.close();
 
         if (FileManager.isVideoFile(selected)) {
-            AsciiVideoBuilder avb = new AsciiVideoBuilder(VideoFileAdapter.buildVideoSource(selected));
-            model = new VideoModel(avb, playVideoBtn, asciiArtPane);
+            model = loadVideoModel(selected);
+            model.configureGUI(this);
         } else if (FileManager.isImageFile(selected)) {
-            AsciiImageBuilder aib = new AsciiImageBuilder(new ImageFileAdapter(selected));
-            model = new ImageModel(aib);
+            model = loadImageModel(selected);
+            model.configureGUI(this);
         } else {
             new Alert(Alert.AlertType.ERROR, "Invalid file type.").showAndWait();
+            return false;
         }
 
-        model.configureGUI(this);
+        return true;
+    }
+
+    private VideoModel loadVideoModel(File selected) {
+        LoadingDialog dialog = new LoadingDialog();
+        MatListFactory mlf = new MatListFactory(dialog);
+
+        VideoSource videoSource = mlf.buildFromFile(selected);
+
+        dialog.close();
+        AsciiVideoBuilder avb = new AsciiVideoBuilder(videoSource);
+        return new VideoModel(avb, playVideoBtn, asciiArtPane);
+    }
+
+    private ImageModel loadImageModel(File selected) {
+        ImageSource imageSource = new ImageFileAdapter(selected);
+        AsciiImageBuilder aib = new AsciiImageBuilder(imageSource);
+        return new ImageModel(aib);
     }
 }
