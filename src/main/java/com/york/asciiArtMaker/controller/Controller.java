@@ -334,8 +334,6 @@ public class Controller implements Observer {
         File selected = fileManager.selectFile();
         if (selected == null) return false;
 
-        model.close();
-
         if (FileManager.isVideoFile(selected)) {
             return beginLoading(selected);
         } else if (FileManager.isImageFile(selected)) {
@@ -347,6 +345,8 @@ public class Controller implements Observer {
     }
 
     public void setArt(VideoSource videoSource) {
+        model.close();
+
         AsciiVideoBuilder avb = new AsciiVideoBuilder(videoSource);
         model = new VideoModel(avb, playVideoBtn, asciiArtPane);
         model.configureGUI(this);
@@ -376,9 +376,11 @@ public class Controller implements Observer {
     private boolean loadImageModel(File selected) {
         ImageSource imageSource = new ImageFileAdapter(selected);
         AsciiImageBuilder aib = new AsciiImageBuilder(imageSource);
-        model =  new ImageModel(aib);
 
+        model.close();
+        model = new ImageModel(aib);
         model.configureGUI(this);
+
         return true;
     }
 }
