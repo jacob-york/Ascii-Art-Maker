@@ -1,6 +1,9 @@
 package com.york.asciiArtMaker.adapters;
 
-import com.york.asciiArtMaker.observer.LoadingDialog;
+import com.york.asciiArtMaker.controller.LoadDialogController;
+import javafx.application.Platform;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
 import org.opencv.core.Mat;
 import org.opencv.videoio.VideoCapture;
 import org.opencv.videoio.Videoio;
@@ -8,7 +11,7 @@ import org.opencv.videoio.Videoio;
 import java.io.File;
 import java.util.*;
 
-public class MatListFactory {
+public class VideoFileConnectionService extends Service<Void> {
 
     public static class VideoFileAdapter implements VideoSource {
 
@@ -100,29 +103,51 @@ public class MatListFactory {
 
     }
 
-    private final LoadingDialog loadingDialog;
-
+    private final List<Mat> matrices;
+    private final File file;
     private int frameInProgress;
+    private final LoadDialogController loadDialogController;
 
-    public MatListFactory(LoadingDialog loadingDialog) {
-        this.loadingDialog = loadingDialog;
+    public VideoFileConnectionService(File file, LoadDialogController controller) {
+        this.matrices = new ArrayList<>();
+        this.file = file;
         frameInProgress = 0;
+        loadDialogController = controller;
     }
 
-    public VideoSource buildFromFile(File file) {
-        VideoCapture vc = new VideoCapture(file.getPath());
-        double fps = vc.get(Videoio.CAP_PROP_FPS);
+    @Override
+    protected Task<Void> createTask() {
+        return new Task<>() {
+            @Override
+            protected Void call() {
+                VideoCapture vc = new VideoCapture(file.getPath());
+                double fps = vc.get(Videoio.CAP_PROP_FPS);
+                int frameCount = (int) vc.get(Videoio.CAP_PROP_FRAME_COUNT);
+                Platform.runLater(() -> loadDialogController.setTotalFrames(frameCount));
 
-        ArrayList<Mat> matrices = new ArrayList<>();
-        Mat mat = new Mat();
-        while (vc.read(mat)) {
-            frameInProgress++;
-            matrices.add(mat.clone());
-            loadingDialog.update(frameInProgress);
-        }
-        vc.release();
-        mat.release();
+                Mat mat = new Mat();
+                boolean aborted = false;
 
-        return new VideoFileAdapter(file.getName(), fps, matrices);
+                while (vc.read(mat)) {
+                    frameInProgress++;
+                    matrices.add(mat.clone());
+                    Platform.runLater(() -> loadDialogController.update(frameInProgress));
+
+                    if (loadDialogController.isCancelled()) {
+                        aborted = true;
+                    }
+                }
+
+                vc.release();
+                mat.release();
+
+                if (!aborted) {
+                    Platform.runLater(() -> loadDialogController.finish(
+                            new VideoFileAdapter(file.getName(), fps, matrices)));
+                }
+                return null;
+            }
+        };
     }
+
 }

@@ -5,6 +5,7 @@ import com.york.asciiArtMaker.controller.Controller;
 
 import java.util.Optional;
 
+// todo: I think I can do better.
 /**
  * The MODEL part of MVC is itself an implementation of the State design pattern, cycling between different models
  * with different behavior when necessary.

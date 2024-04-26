@@ -3,7 +3,7 @@ package com.york.asciiArtMaker.controller;
 import com.york.asciiArtMaker.AsciiArtMaker;
 import com.york.asciiArtMaker.adapters.ImageFileAdapter;
 import com.york.asciiArtMaker.adapters.ImageSource;
-import com.york.asciiArtMaker.adapters.MatListFactory;
+import com.york.asciiArtMaker.adapters.VideoFileConnectionService;
 import com.york.asciiArtMaker.adapters.VideoSource;
 import com.york.asciiArtMaker.asciiArt.AsciiImageBuilder;
 import com.york.asciiArtMaker.asciiArt.AsciiVideoBuilder;
@@ -11,12 +11,14 @@ import com.york.asciiArtMaker.models.AppModel;
 import com.york.asciiArtMaker.models.ImageModel;
 import com.york.asciiArtMaker.models.NullModel;
 import com.york.asciiArtMaker.models.VideoModel;
-import com.york.asciiArtMaker.observer.LoadingDialog;
 import com.york.asciiArtMaker.view.AsciiArtPane;
 import com.york.asciiArtMaker.view.ColorTheme;
 import com.york.asciiArtMaker.view.ThemeMenuItem;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -24,11 +26,13 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 
 import java.io.File;
+import java.io.IOException;
 
 // TODO: This is bloated.
-public class Controller {
+public class Controller implements Observer {
 
     @FXML
     public VBox zoomControls;
@@ -333,33 +337,48 @@ public class Controller {
         model.close();
 
         if (FileManager.isVideoFile(selected)) {
-            model = loadVideoModel(selected);
-            model.configureGUI(this);
+            return beginLoading(selected);
         } else if (FileManager.isImageFile(selected)) {
-            model = loadImageModel(selected);
-            model.configureGUI(this);
+            return loadImageModel(selected);
         } else {
             new Alert(Alert.AlertType.ERROR, "Invalid file type.").showAndWait();
             return false;
         }
+    }
+
+    public void setArt(VideoSource videoSource) {
+        AsciiVideoBuilder avb = new AsciiVideoBuilder(videoSource);
+        model = new VideoModel(avb, playVideoBtn, asciiArtPane);
+        model.configureGUI(this);
+    }
+
+    private boolean beginLoading(File selected) {
+        FXMLLoader loader = new FXMLLoader(AsciiArtMaker.class.getResource("fxml/video_loading_dialog.fxml"));
+        Parent root;
+        Stage loadDialogStage;
+        try {
+            loadDialogStage = new Stage();
+            root = loader.load();
+            Scene loadDialogScene = new Scene(root);
+            loadDialogStage.setScene(loadDialogScene);
+            loadDialogStage.initOwner(AsciiArtMaker.getMainStage());
+        } catch (IOException e) {
+            return false;
+        }
+        LoadDialogController ldController = loader.getController();
+        ldController.setObserver(this);
+        new VideoFileConnectionService(selected, ldController).start();
+        loadDialogStage.show();
 
         return true;
     }
 
-    private VideoModel loadVideoModel(File selected) {
-        LoadingDialog dialog = new LoadingDialog();
-        MatListFactory mlf = new MatListFactory(dialog);
-
-        VideoSource videoSource = mlf.buildFromFile(selected);
-
-        dialog.close();
-        AsciiVideoBuilder avb = new AsciiVideoBuilder(videoSource);
-        return new VideoModel(avb, playVideoBtn, asciiArtPane);
-    }
-
-    private ImageModel loadImageModel(File selected) {
+    private boolean loadImageModel(File selected) {
         ImageSource imageSource = new ImageFileAdapter(selected);
         AsciiImageBuilder aib = new AsciiImageBuilder(imageSource);
-        return new ImageModel(aib);
+        model =  new ImageModel(aib);
+
+        model.configureGUI(this);
+        return true;
     }
 }
