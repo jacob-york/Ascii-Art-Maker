@@ -20,15 +20,15 @@ public class NullModel implements AppModel {
     }
 
     @Override
-    public void configureGUI(Controller presenter) {
-        presenter.toolBar.setDisable(true);
-        presenter.fontField.setText("");
-        presenter.charWidthField.setText("");
+    public void configureGUI(Controller controller) {
+        controller.toolBar.setDisable(true);
+        controller.fontField.setText("");
+        controller.charWidthField.setText("");
 
-        ((Stage) presenter.borderPane.getScene().getWindow())
+        ((Stage) controller.borderPane.getScene().getWindow())
                 .setTitle(AsciiArtMaker.TITLE);
 
-        presenter.borderPane.setCenter(new Text("No Media Selected."));
+        controller.borderPane.setCenter(new Text("No Media Selected."));
     }
 
     @Override

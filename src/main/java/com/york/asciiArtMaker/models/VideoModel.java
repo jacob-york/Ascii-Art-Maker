@@ -32,23 +32,23 @@ public class VideoModel implements AppModel {
     }
 
     @Override
-    public void configureGUI(Controller presenter) {
-        presenter.toolBar.setDisable(false);
-        presenter.fontField.setText(String.valueOf(presenter.getAsciiArtPane().getFontSize()));
-        presenter.charWidthField.setText("1");
+    public void configureGUI(Controller controller) {
+        controller.toolBar.setDisable(false);
+        controller.fontField.setText(String.valueOf(controller.getAsciiArtPane().getFontSize()));
+        controller.charWidthField.setText("1");
 
-        presenter.videoControlBox.setDisable(false);
-        presenter.compileVideoBtn.setDisable(false);
-        presenter.saveAsMp4Btn.setDisable(false);
+        controller.videoControlBox.setDisable(false);
+        controller.compileVideoBtn.setDisable(false);
+        controller.saveAsMp4Btn.setDisable(false);
 
-        setCharWidth(Integer.parseInt(presenter.charWidthField.getText()));
-        setInvertedShading(presenter.invertedShadingBtn.isSelected());
+        setCharWidth(Integer.parseInt(controller.charWidthField.getText()));
+        setInvertedShading(controller.invertedShadingBtn.isSelected());
 
-        presenter.getAsciiArtPane().setText(getCurFrame());
-        ((Stage) presenter.borderPane.getScene().getWindow())
+        controller.getAsciiArtPane().setText(getCurFrame());
+
+        ((Stage) controller.borderPane.getScene().getWindow())
                 .setTitle(getMediaName() + " - " + AsciiArtMaker.TITLE);
-
-        presenter.borderPane.setCenter(presenter.getAsciiArtPane());
+        controller.borderPane.setCenter(controller.getAsciiArtPane());
     }
 
     @Override

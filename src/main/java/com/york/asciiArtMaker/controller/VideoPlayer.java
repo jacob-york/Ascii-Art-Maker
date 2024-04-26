@@ -16,6 +16,7 @@ import javafx.util.Duration;
  * Coordinates the switching of frames on an asciiArtPane.
  */
 public class VideoPlayer {
+
     public enum State {
         VIDEO_PAUSED,
         VIDEO_PLAYING,
@@ -85,11 +86,11 @@ public class VideoPlayer {
     }
 
     public boolean nextFrame(VideoModel model) {
-        if (curFrameInd+1 >= asciiVideoBuilder.getFrameCount()) return false;
+        if (curFrameInd + 1 >= asciiVideoBuilder.getFrameCount()) return false;
         curFrameInd++;
         asciiArtPane.setText(model.getFrameAt(curFrameInd));
 
-        if (curFrameInd+1 == asciiVideoBuilder.getFrameCount()) finishVideo();
+        if (curFrameInd + 1 == asciiVideoBuilder.getFrameCount()) finishVideo();
 
         return true;
     }

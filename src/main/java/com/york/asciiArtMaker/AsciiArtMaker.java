@@ -2,7 +2,6 @@ package com.york.asciiArtMaker;
 
 import com.york.asciiArtMaker.controller.FileManager;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -11,16 +10,16 @@ import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.stage.Stage;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.Objects;
+import java.util.Optional;
 
 public final class AsciiArtMaker extends Application {
 
     private static Stage stage;
     private static FileManager fileManager;
 
-    public static Stage getStage() {
+    public static Stage getMainStage() {
         return stage;
     }
 
@@ -46,7 +45,7 @@ public final class AsciiArtMaker extends Application {
         clipboard.setContent(content);
     }
 
-    static {nu.pattern.OpenCV.loadShared();}
+    static {nu.pattern.OpenCV.loadLocally();}
 
     public static void main(String[] args) {
         launch(args);
@@ -54,25 +53,20 @@ public final class AsciiArtMaker extends Application {
 
     @Override
     public void start(Stage mainStage) {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/home.fxml"));
         URL icon = getClass().getResource("icons/appIcon.png");
 
-        stage = new Stage();
-        Parent root;
-        try {
-            root = loader.load();  // IOException anticipated.
-            Scene scene = new Scene(root);
-
-            stage.setScene(scene);
-            stage.getIcons().add(new Image(icon.toExternalForm()));
-            stage.setTitle(TITLE);
-        }
-        catch (IOException e) {
-            new Alert(Alert.AlertType.ERROR, e.getMessage()).showAndWait();
-            e.printStackTrace();
+        Optional<Parent> maybe = getFileManager().safeLoadFXML("home.fxml");
+        if (maybe.isEmpty()) {
+            new Alert(Alert.AlertType.ERROR, "Unexpected error: There was an issue loading home.fxml.").showAndWait();
             System.exit(-1);
         }
 
+        Parent root = maybe.get();
+
+        stage = new Stage();
+        stage.setScene(new Scene(root));
+        stage.getIcons().add(new Image(icon.toExternalForm()));
+        stage.setTitle(TITLE);
         stage.show();
     }
 

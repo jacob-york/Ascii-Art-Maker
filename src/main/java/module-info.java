@@ -18,4 +18,6 @@ module com.york.asciiartstudio {
     opens com.york.asciiArtMaker.controller to javafx.fxml;
     exports com.york.asciiArtMaker.models;
     opens com.york.asciiArtMaker.models to javafx.fxml;
+    exports com.york.asciiArtMaker.view;
+    opens com.york.asciiArtMaker.view to javafx.fxml;
 }

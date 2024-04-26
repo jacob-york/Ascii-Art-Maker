@@ -1,16 +1,21 @@
 package com.york.asciiArtMaker.controller;
 
 import com.york.asciiArtMaker.AppUtil;
+import com.york.asciiArtMaker.AsciiArtMaker;
 import com.york.asciiArtMaker.models.AppModel;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 
 public class FileManager {
@@ -87,6 +92,16 @@ public class FileManager {
         } else return false;
     }
 
+    public boolean saveImage(BufferedImage content, String name) {
+        File output = getSaveLoc(name, saveTxtFileChooser);
+        if (output == null) return false;
+
+        if (writeJpgFile(content)) {
+            saveTxtFileChooser.setInitialDirectory(output.getParentFile());
+            return true;
+        } else return false;
+    }
+
     private File getSaveLoc(String name, FileChooser fileChooser) {
         fileChooser.setInitialFileName(name);
         return fileChooser.showSaveDialog(new Stage());
@@ -98,14 +113,6 @@ public class FileManager {
         return imageName + "-cw" + model.getCharWidth() + invertedMkr;
     }
 
-    private boolean writeMp4File(String[] content) {
-        // todo:
-        //  > need ordered collection of image files
-        //  > write that collection to saveFileChooser.getInitialDirectory()
-
-        return false;
-    }
-
     private boolean writeTxtFile(String content) {
         try (FileOutputStream fos = new FileOutputStream(saveTxtFileChooser.getInitialDirectory());
              OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8)) {
@@ -114,6 +121,31 @@ public class FileManager {
             return true;
         } catch (IOException e) {
             return false;
+        }
+    }
+
+    private boolean writeMp4File(String[] content) {
+        // todo:
+        //  > need ordered collection of image files
+        //  > write that collection to saveFileChooser.getInitialDirectory()
+
+        return false;
+    }
+
+    private boolean writeJpgFile(BufferedImage content) {
+        // todo:
+
+        return false;
+    }
+
+    public Optional<Parent> safeLoadFXML(String location) {
+        FXMLLoader loader = new FXMLLoader(AsciiArtMaker.class.getResource("fxml/" + location));
+        Parent root;
+        try {
+            root = loader.load();
+            return Optional.of(root);
+        } catch (IOException e) {
+            return Optional.empty();
         }
     }
 }
