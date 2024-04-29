@@ -18,6 +18,8 @@ public class AsciiImageBuilder implements AsciiArtBuilder {
     private int domain;
     private int range;
 
+    private AsciiImage artCache;
+
     public AsciiImageBuilder(ImageSource imageSource) {
         this.imageSource = imageSource;
         this.charWidth = 1;
@@ -26,6 +28,8 @@ public class AsciiImageBuilder implements AsciiArtBuilder {
         this.name = imageSource.getName().orElse(null);
         this.palette = defaultPalette;
         this.activePalette = palette;
+
+        this.artCache = null;
 
         updateDomainAndRange();
     }
@@ -38,6 +42,16 @@ public class AsciiImageBuilder implements AsciiArtBuilder {
     @Override
     public int getHeight() {
         return range / (2 * charWidth);
+    }
+
+    @Override
+    public int getSourceWidth() {
+        return imageSource.getWidth();
+    }
+
+    @Override
+    public int getSourceHeight() {
+        return imageSource.getHeight();
     }
 
     @Override
@@ -59,7 +73,7 @@ public class AsciiImageBuilder implements AsciiArtBuilder {
         this.palette = defaultPalette;
         this.activePalette = palette;
         updateDomainAndRange();
-
+        artCache = null;
         return this;
     }
 
@@ -74,7 +88,7 @@ public class AsciiImageBuilder implements AsciiArtBuilder {
 
         this.charWidth = charWidth;
         updateDomainAndRange();
-
+        artCache = null;
         return this;
     }
 
@@ -92,12 +106,13 @@ public class AsciiImageBuilder implements AsciiArtBuilder {
         this.palette = palette;
         this.activePalette = invertedShading ? new StringBuilder(palette).reverse().toString() : palette;
 
+        artCache = null;
         return this;
     }
 
     @Override
     public Optional<String> getName() {
-        return Optional.of(name);
+        return name == null ? Optional.empty() : Optional.of(name);
     }
 
     @Override
@@ -118,6 +133,7 @@ public class AsciiImageBuilder implements AsciiArtBuilder {
         this.activePalette = new StringBuilder(activePalette).reverse().toString();
         this.invertedShading = invertedShading;
 
+        artCache = null;
         return this;
     }
 
@@ -126,10 +142,6 @@ public class AsciiImageBuilder implements AsciiArtBuilder {
         return palette.equals(defaultPalette);
     }
 
-
-    public String build() {
-        return String.join("\n", getRows());
-    }
 
     private static class PixelOutline {
         int width;
@@ -167,7 +179,17 @@ public class AsciiImageBuilder implements AsciiArtBuilder {
         return activePalette.charAt(charIndex);
     }
 
-    private String[] getRows() {
+    public AsciiImage build() {
+        if (artCache == null) {
+            artCache = new AsciiImage(
+                    String.join("\n", buildRows()), getName().orElse("ascii-image"),
+                    getCharWidth(), getWidth(), getHeight(), invertedShading
+            );
+        }
+        return artCache;
+    }
+
+    private String[] buildRows() {
         PixelOutline[][] pixelOutlines = new PixelOutline[getHeight()][getWidth()];
         for (int y = 0; y < getHeight(); y++) {
             for (int x = 0; x < getWidth(); x++) {

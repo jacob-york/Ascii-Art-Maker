@@ -17,6 +17,18 @@ public interface AsciiArtBuilder {
     int getHeight();
 
     /**
+     * Get the width of the image in pixels.
+     * @return the width of the image in pixels.
+     */
+    int getSourceWidth();
+
+    /**
+     * Get the height of the image in pixels.
+     * @return the height of the image in pixels.
+     */
+    int getSourceHeight();
+
+    /**
      * @return the max char width possible for the given image source.
      */
     int getMaxCharWidth();
