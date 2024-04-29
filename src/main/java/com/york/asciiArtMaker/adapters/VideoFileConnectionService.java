@@ -103,13 +103,13 @@ public class VideoFileConnectionService extends Service<Void> {
 
     }
 
-    private final List<Mat> matrices;
+    private final List<Mat> fcsMatrices;
     private final File file;
     private int frameInProgress;
     private final LoadDialogController loadDialogController;
 
     public VideoFileConnectionService(File file, LoadDialogController controller) {
-        this.matrices = new ArrayList<>();
+        this.fcsMatrices = new ArrayList<>();
         this.file = file;
         frameInProgress = 0;
         loadDialogController = controller;
@@ -130,7 +130,7 @@ public class VideoFileConnectionService extends Service<Void> {
 
                 while (vc.read(mat)) {
                     frameInProgress++;
-                    matrices.add(mat.clone());
+                    fcsMatrices.add(mat.clone());
                     Platform.runLater(() -> loadDialogController.update(frameInProgress));
 
                     if (loadDialogController.isCancelled()) {
@@ -143,7 +143,7 @@ public class VideoFileConnectionService extends Service<Void> {
 
                 if (!aborted) {
                     Platform.runLater(() -> loadDialogController.finish(
-                            new VideoFileAdapter(file.getName(), fps, matrices)));
+                            new VideoFileAdapter(file.getName(), fps, fcsMatrices)));
                 }
                 return null;
             }

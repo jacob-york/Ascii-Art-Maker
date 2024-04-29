@@ -2,11 +2,14 @@ package com.york.asciiArtMaker.models;
 
 import com.york.asciiArtMaker.AsciiArtMaker;
 import com.york.asciiArtMaker.asciiArt.AsciiArtBuilder;
+import com.york.asciiArtMaker.asciiArt.AsciiImage;
+import com.york.asciiArtMaker.asciiArt.AsciiVideo;
 import com.york.asciiArtMaker.controller.Controller;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.Optional;
 
 public class NullModel implements AppModel {
@@ -24,6 +27,9 @@ public class NullModel implements AppModel {
         controller.toolBar.setDisable(true);
         controller.fontField.setText("");
         controller.charWidthField.setText("");
+
+        controller.exportTxtMenuItem.setDisable(true);
+        controller.saveImageMenuItem.setDisable(true);
 
         ((Stage) controller.borderPane.getScene().getWindow())
                 .setTitle(AsciiArtMaker.TITLE);
@@ -67,7 +73,7 @@ public class NullModel implements AppModel {
     }
 
     @Override
-    public String getCurFrame() {
+    public AsciiImage getCurFrame() {
         return null;
     }
 
@@ -95,4 +101,5 @@ public class NullModel implements AppModel {
     public boolean getInvertedShading() {
         return false;
     }
+
 }

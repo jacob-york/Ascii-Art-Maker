@@ -2,6 +2,8 @@ package com.york.asciiArtMaker.models;
 
 import com.york.asciiArtMaker.AsciiArtMaker;
 import com.york.asciiArtMaker.asciiArt.AsciiArtBuilder;
+import com.york.asciiArtMaker.asciiArt.AsciiImage;
+import com.york.asciiArtMaker.asciiArt.AsciiVideo;
 import com.york.asciiArtMaker.asciiArt.AsciiVideoBuilder;
 import com.york.asciiArtMaker.controller.Controller;
 import com.york.asciiArtMaker.controller.VideoPlayer;
@@ -13,22 +15,18 @@ import java.util.Optional;
 
 public class VideoModel implements AppModel {
 
-    private final AsciiVideoBuilder art;
+    private final AsciiVideoBuilder builder;
     private final VideoPlayer videoPlayer;
 
-    private String[] artCache;
-
     public VideoModel(AsciiVideoBuilder art, Button playButton, AsciiArtPane asciiArtPane) {
-        this.art = art;
+        this.builder = art;
         this.videoPlayer = new VideoPlayer(playButton, asciiArtPane, this);
-
-        artCache = new String[art.getFrameCount()];
     }
 
     @Override
     public void close() {
         videoPlayer.pause();
-        art.releaseNativeResources();
+        builder.releaseNativeResources();
     }
 
     @Override
@@ -41,13 +39,16 @@ public class VideoModel implements AppModel {
         controller.compileVideoBtn.setDisable(false);
         controller.saveAsMp4Btn.setDisable(false);
 
+        controller.exportTxtMenuItem.setDisable(false);
+        controller.saveImageMenuItem.setDisable(false);
+
         setCharWidth(Integer.parseInt(controller.charWidthField.getText()));
         setInvertedShading(controller.invertedShadingBtn.isSelected());
 
         controller.getAsciiArtPane().setText(getCurFrame());
 
         ((Stage) controller.borderPane.getScene().getWindow())
-                .setTitle(getMediaName() + " - " + AsciiArtMaker.TITLE);
+                .setTitle(getMediaName().orElse("untitled") + " - " + AsciiArtMaker.TITLE);
         controller.borderPane.setCenter(controller.getAsciiArtPane());
     }
 
@@ -73,79 +74,60 @@ public class VideoModel implements AppModel {
 
     @Override
     public double calcNewFontHeight(int newCharWidth, double curFontHeight) {
-        final double charWidthChange = ((double) newCharWidth / (double) art.getCharWidth());
+        final double charWidthChange = ((double) newCharWidth / (double) builder.getCharWidth());
         return curFontHeight * charWidthChange;
     }
 
     @Override
     public int getFrameCount() {
-        return art.getFrameCount();
+        return builder.getFrameCount();
     }
 
     @Override
     public AsciiArtBuilder getArtBuilder() {
-        return art;
+        return builder;
     }
 
     @Override
-    public String getCurFrame() {
+    public AsciiImage getCurFrame() {
         return getFrameAt(videoPlayer.getCurFrameInd());
     }
 
     @Override
     public Optional<String> getMediaName() {
-        return art.getName();
+        return builder.getName();
     }
 
     @Override
     public int getCharWidth() {
-        return art.getCharWidth();
+        return builder.getCharWidth();
     }
 
     @Override
     public boolean getInvertedShading() {
-        return art.getInvertedShading();
+        return builder.getInvertedShading();
     }
 
     @Override
     public int setCharWidth(int newCharWidth) {
-        newCharWidth = (int) AppModel.ensureInRange(newCharWidth, 1, art.getMaxCharWidth());
-        art.setCharWidth(newCharWidth);
+        newCharWidth = (int) AppModel.ensureInRange(newCharWidth, 1, builder.getMaxCharWidth());
+        builder.setCharWidth(newCharWidth);
 
-        artCache = new String[getFrameCount()];
         return newCharWidth;
     }
 
     @Override
     public void setInvertedShading(boolean newVal) {
-        art.setInvertedShading(newVal);
-        artCache = new String[getFrameCount()];
+        builder.setInvertedShading(newVal);
     }
 
-    public String getFrameAt(int i) {
+    public AsciiImage getFrameAt(int i) {
         if (i < 0 || i >= getFrameCount()) return null;
 
-        if (artCache[i] == null) {
-            artCache[i] = art.buildFrame(i);
-        }
-
-        return artCache[i];
+        return builder.buildFrame(i);
     }
 
-    public String[] getCompiledArt() {
-        for (int i = 0; i < artCache.length; i++) {
-            if (artCache[i] == null) {
-                artCache[i] = art.buildFrame(i);
-            }
-        }
-        return artCache.clone();
-    }
-
-    public void compileArtFrom(int i) {
-        if (i < 0 || i >= getFrameCount()) return;
-
-        for (int j = i; j < getFrameCount(); j++) {
-            artCache[j] = art.buildFrame(i);
-        }
+    public AsciiVideo getCompiledArt() {
+        return builder.build();
     }
 }

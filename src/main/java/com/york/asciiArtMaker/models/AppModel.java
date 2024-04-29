@@ -1,8 +1,10 @@
 package com.york.asciiArtMaker.models;
 
 import com.york.asciiArtMaker.asciiArt.AsciiArtBuilder;
+import com.york.asciiArtMaker.asciiArt.AsciiImage;
 import com.york.asciiArtMaker.controller.Controller;
 
+import java.awt.image.BufferedImage;
 import java.util.Optional;
 
 // todo: I think I can do better.
@@ -23,34 +25,20 @@ public interface AppModel {
     static double ensureInRange(double value, double min, double max) {
         return Math.min(Math.max(value, min), max);
     }
-
     void close();
-
     void configureGUI(Controller presenter);
-
     void toggleVideoPlayerState();
-
     void prevFrame();
-
     void nextFrame();
-
     void pauseVideoPlayer();
-
     double calcNewFontHeight(int newCharWidth, double curFontHeight);
-
     int getFrameCount();
-
     AsciiArtBuilder getArtBuilder();
-
-    String getCurFrame();
-
+    AsciiImage getCurFrame();
     Optional<String> getMediaName();
-
     int getCharWidth();
-
     int setCharWidth(int newCharWidth);
-
     void setInvertedShading(boolean newVal);
-
     boolean getInvertedShading();
+
 }

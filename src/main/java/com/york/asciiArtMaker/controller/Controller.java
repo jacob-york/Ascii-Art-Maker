@@ -82,11 +82,17 @@ public class Controller implements Observer {
     @FXML
     public Button compileVideoBtn;
     @FXML
-    public MenuItem saveMenuItem;
+    public MenuItem exportTxtMenuItem;
+    @FXML
+    public MenuItem saveImageMenuItem;
     @FXML
     public MenuItem copyMenuItem;
     @FXML
     public Button saveAsMp4Btn;
+
+    @FXML
+    public Button saveImageBtn;
+
 
     private AsciiArtPane asciiArtPane;
     private AppModel model;
@@ -166,8 +172,21 @@ public class Controller implements Observer {
     }
 
     @FXML
-    public void saveMenuItemClicked() {
-        fileManager.saveTxtFile(model.getCurFrame(), FileManager.formatFileName(model));
+    public void exportTxtMenuItemClicked() {
+        model.pauseVideoPlayer();
+        fileManager.saveTxtFile(model.getCurFrame());
+    }
+
+    @FXML
+    public void saveImageMenuItemClicked() {
+        model.pauseVideoPlayer();
+        fileManager.saveImage(model.getCurFrame(), new ImageRenderer(asciiArtPane.getFontSize(),
+                AsciiArtPane.getDefaultFont(),
+                (int) Math.round(asciiArtPane.getWidth()),
+                (int) Math.round(asciiArtPane.getHeight()),
+                bgColorPicker.getValue(),
+                textColorPicker.getValue()
+                ));
     }
 
     @FXML
@@ -184,6 +203,7 @@ public class Controller implements Observer {
 
     @FXML
     public void copyMenuItemClicked() {
+        model.pauseVideoPlayer();
         AsciiArtMaker.copyToClipboard(asciiArtPane.getCurText());
     }
 
@@ -216,15 +236,12 @@ public class Controller implements Observer {
 
     @FXML
     public void copyBtnPressed() {
-        model.pauseVideoPlayer();
-        AsciiArtMaker.copyToClipboard(asciiArtPane.getCurText());
+        copyMenuItemClicked();
     }
 
     @FXML
     public void saveBtnPressed() {
-        model.pauseVideoPlayer();
-
-        fileManager.saveTxtFile(model.getCurFrame(), FileManager.formatFileName(model));
+        saveImageMenuItemClicked();
     }
 
     @FXML
@@ -253,16 +270,26 @@ public class Controller implements Observer {
     }
 
     @FXML
-    public void screenshotBtnClicked() {
-        // if (videoPlayer != null) videoPlayer.pause();
-        // ...
+    public void saveImageBtnClicked() {
+        saveImageMenuItemClicked();
+    }
+
+    @FXML
+    public void exportTxtBtnClicked() {
+        exportTxtMenuItemClicked();
     }
 
     @FXML
     public void saveAsMp4BtnClicked() {
         model.pauseVideoPlayer();
         if (model instanceof VideoModel videoModel) {
-            fileManager.saveVideo(videoModel.getCompiledArt(), FileManager.formatFileName(model));
+            fileManager.saveVideo(videoModel.getCompiledArt(), new ImageRenderer(20,
+                    AsciiArtPane.getDefaultFont(),
+                    (int) Math.round(asciiArtPane.getWidth()),
+                    (int) Math.round(asciiArtPane.getHeight()),
+                    bgColorPicker.getValue(),
+                    textColorPicker.getValue()
+            ));
         }
     }
 
@@ -334,8 +361,6 @@ public class Controller implements Observer {
         File selected = fileManager.selectFile();
         if (selected == null) return false;
 
-        model.close();
-
         if (FileManager.isVideoFile(selected)) {
             return beginLoading(selected);
         } else if (FileManager.isImageFile(selected)) {
@@ -347,6 +372,8 @@ public class Controller implements Observer {
     }
 
     public void setArt(VideoSource videoSource) {
+        model.close();
+
         AsciiVideoBuilder avb = new AsciiVideoBuilder(videoSource);
         model = new VideoModel(avb, playVideoBtn, asciiArtPane);
         model.configureGUI(this);
@@ -376,9 +403,11 @@ public class Controller implements Observer {
     private boolean loadImageModel(File selected) {
         ImageSource imageSource = new ImageFileAdapter(selected);
         AsciiImageBuilder aib = new AsciiImageBuilder(imageSource);
-        model =  new ImageModel(aib);
 
+        model.close();
+        model = new ImageModel(aib);
         model.configureGUI(this);
+
         return true;
     }
 }

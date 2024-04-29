@@ -2,6 +2,7 @@ package com.york.asciiArtMaker.models;
 
 import com.york.asciiArtMaker.AsciiArtMaker;
 import com.york.asciiArtMaker.asciiArt.AsciiArtBuilder;
+import com.york.asciiArtMaker.asciiArt.AsciiImage;
 import com.york.asciiArtMaker.asciiArt.AsciiImageBuilder;
 import com.york.asciiArtMaker.controller.Controller;
 import javafx.stage.Stage;
@@ -10,13 +11,12 @@ import java.util.Optional;
 
 public class ImageModel implements AppModel {
 
-    private final AsciiImageBuilder art;
-    private String artCache;
+    private final AsciiImageBuilder builder;
+
 
     public ImageModel(AsciiImageBuilder art) {
         super();
-        this.art = art;
-        artCache = null;
+        this.builder = art;
     }
 
     @Override
@@ -33,13 +33,16 @@ public class ImageModel implements AppModel {
         controller.compileVideoBtn.setDisable(true);
         controller.saveAsMp4Btn.setDisable(true);
 
+        controller.exportTxtMenuItem.setDisable(false);
+        controller.saveImageMenuItem.setDisable(false);
+
         setCharWidth(Integer.parseInt(controller.charWidthField.getText()));
         setInvertedShading(controller.invertedShadingBtn.isSelected());
 
         controller.getAsciiArtPane().setText(getCurFrame());
 
         ((Stage) controller.borderPane.getScene().getWindow())
-                .setTitle(getMediaName() + " - " + AsciiArtMaker.TITLE);
+                .setTitle(getMediaName().orElse("untitled") + " - " + AsciiArtMaker.TITLE);
         controller.borderPane.setCenter(controller.getAsciiArtPane());
     }
 
@@ -65,7 +68,7 @@ public class ImageModel implements AppModel {
 
     @Override
     public double calcNewFontHeight(int newCharWidth, double curFontHeight) {
-        final double charWidthChange = ((double) newCharWidth / (double) art.getCharWidth());
+        final double charWidthChange = ((double) newCharWidth / (double) builder.getCharWidth());
         return curFontHeight * charWidthChange;
     }
 
@@ -76,44 +79,39 @@ public class ImageModel implements AppModel {
 
     @Override
     public AsciiArtBuilder getArtBuilder() {
-        return art;
+        return builder;
     }
 
     @Override
-    public String getCurFrame() {
-        if (artCache == null) {
-            artCache = art.build();
-        }
-        return artCache;
+    public AsciiImage getCurFrame() {
+        return builder.build();
     }
 
     @Override
     public Optional<String> getMediaName() {
-        return art.getName();
+        return builder.getName();
     }
 
     @Override
     public int getCharWidth() {
-        return art.getCharWidth();
+        return builder.getCharWidth();
     }
 
     @Override
     public boolean getInvertedShading() {
-        return art.getInvertedShading();
+        return builder.getInvertedShading();
     }
 
     @Override
     public int setCharWidth(int newCharWidth) {
-        newCharWidth = (int) AppModel.ensureInRange(newCharWidth, 1, art.getMaxCharWidth());
-        art.setCharWidth(newCharWidth);
+        newCharWidth = (int) AppModel.ensureInRange(newCharWidth, 1, builder.getMaxCharWidth());
+        builder.setCharWidth(newCharWidth);
 
-        artCache = null;
         return newCharWidth;
     }
 
     @Override
     public void setInvertedShading(boolean newVal) {
-        art.setInvertedShading(newVal);
-        artCache = null;
+        builder.setInvertedShading(newVal);
     }
 }

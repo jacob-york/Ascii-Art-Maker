@@ -17,6 +17,7 @@ public class AsciiVideoBuilder implements AsciiArtBuilder {
     private boolean invertedShading;
     private final int frameCount;
     private final double fps;
+    private String[] artCache;
 
     public AsciiVideoBuilder(VideoSource videoSource) {
         this.videoSource = videoSource;
@@ -27,6 +28,8 @@ public class AsciiVideoBuilder implements AsciiArtBuilder {
         this.activePalette = palette;
         this.frameCount = videoSource.getFrameCount();
         this.fps = videoSource.getFps();
+
+        artCache = new String[frameCount];
     }
 
     @Override
@@ -37,6 +40,16 @@ public class AsciiVideoBuilder implements AsciiArtBuilder {
     @Override
     public int getHeight() {
         return (videoSource.getHeight() - videoSource.getHeight() % (2 * charWidth)) / (2 * charWidth);
+    }
+
+    @Override
+    public int getSourceWidth() {
+        return videoSource.getWidth();
+    }
+
+    @Override
+    public int getSourceHeight() {
+        return videoSource.getHeight();
     }
 
     @Override
@@ -57,6 +70,7 @@ public class AsciiVideoBuilder implements AsciiArtBuilder {
         this.palette = defaultPalette;
         this.activePalette = palette;
 
+        artCache = new String[getFrameCount()];
         return this;
     }
 
@@ -70,7 +84,7 @@ public class AsciiVideoBuilder implements AsciiArtBuilder {
         }
 
         this.charWidth = charWidth;
-
+        artCache = new String[getFrameCount()];
         return this;
     }
 
@@ -87,7 +101,7 @@ public class AsciiVideoBuilder implements AsciiArtBuilder {
 
         this.palette = palette;
         this.activePalette = invertedShading ? new StringBuilder(palette).reverse().toString() : palette;
-
+        artCache = new String[getFrameCount()];
         return this;
     }
 
@@ -113,6 +127,7 @@ public class AsciiVideoBuilder implements AsciiArtBuilder {
 
         this.activePalette = new StringBuilder(activePalette).reverse().toString();
         this.invertedShading = invertedShading;
+        artCache = new String[getFrameCount()];
         return this;
     }
 
@@ -125,14 +140,24 @@ public class AsciiVideoBuilder implements AsciiArtBuilder {
      * @return the ith frame of the art.
      * @throws IndexOutOfBoundsException if the index i is out of bounds
      */
-    public String buildFrame(int i) throws IndexOutOfBoundsException {
-        if (i < 0 || i >= videoSource.getFrameCount()) throw new IndexOutOfBoundsException();
+    public AsciiImage buildFrame(int i) throws IndexOutOfBoundsException {
+        if (i < 0 || i >= frameCount) throw new IndexOutOfBoundsException();
 
-        return new AsciiImageBuilder(videoSource.getImageSource(i))
-                .setCharWidth(charWidth)
-                .setInvertedShading(invertedShading)
-                .setPalette(palette)
-                .build();
+        return new AsciiImage(getStr(i), getName().orElse("ascii-video") + ":" + i,
+                getCharWidth(), getWidth(), getHeight(), getInvertedShading());
+    }
+
+    private String getStr(int i) {
+        assert i < 0 || i >= frameCount;
+
+        if (artCache[i] == null) {
+            artCache[i] = new AsciiImageBuilder(videoSource.getImageSource(i))
+                    .setCharWidth(charWidth)
+                    .setInvertedShading(invertedShading)
+                    .setPalette(palette)
+                    .build().toStr();
+        }
+        return artCache[i];
     }
 
     public int getFrameCount() {
@@ -140,37 +165,36 @@ public class AsciiVideoBuilder implements AsciiArtBuilder {
     }
 
     /**
-     * @return compiles the entire video into an array of ascii art strings (frames).
+     * @return compiles the entire video into an array of ascii Images (frames).
      */
-    public String[] build() {
+    public AsciiVideo build() {
         return build(0, frameCount);
     }
 
     /**
-     *
      * @param startInd start of frame range (inclusive)
      * @return all frames from startInd to the end of the imageSources.
      */
-    public String[] build(int startInd) {
+    public AsciiVideo build(int startInd) throws IndexOutOfBoundsException {
         return build(startInd, frameCount);
     }
 
     /**
-     *
      * @param startInd start of frame range (inclusive)
      * @param endInd end of frame range (exclusive)
      * @return all frames from startInd -> endInd
      */
-    public String[] build(int startInd, int endInd) {
-        return Arrays.stream(videoSource.getImageSources(startInd, endInd))
-                .parallel()
-                .map(imageSource -> new AsciiImageBuilder(imageSource)
-                        .setCharWidth(charWidth)
-                        .setInvertedShading(invertedShading)
-                        .setPalette(palette)
-                        .build()
-                )
-                .toArray(String[]::new);
+    public AsciiVideo build(int startInd, int endInd) throws IndexOutOfBoundsException {
+        if (startInd < 0 || startInd >= frameCount) throw new IndexOutOfBoundsException();
+        if (endInd < 0 || endInd >= frameCount || endInd < startInd) throw new IndexOutOfBoundsException();
+
+        for (int i = 0; i < frameCount; i++) {
+            if (artCache[i] == null) {
+                artCache[i] = getStr(i);
+            }
+        }
+        return new AsciiVideo(artCache.clone(), getName().orElse("ascii-video"),
+                getCharWidth(), getWidth(), getHeight(), getInvertedShading(), getFps());
     }
 
     public double getFps() {
