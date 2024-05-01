@@ -5,6 +5,7 @@ import com.york.asciiArtMaker.adapters.VideoSource;
 
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.IntStream;
 
 public class AsciiVideoBuilder implements AsciiArtBuilder {
 
@@ -155,7 +156,8 @@ public class AsciiVideoBuilder implements AsciiArtBuilder {
                     .setCharWidth(charWidth)
                     .setInvertedShading(invertedShading)
                     .setPalette(palette)
-                    .build().toStr();
+                    .build()
+                    .toStr();
         }
         return artCache[i];
     }
@@ -189,11 +191,11 @@ public class AsciiVideoBuilder implements AsciiArtBuilder {
         if (endInd < 0 || endInd > frameCount) throw new IndexOutOfBoundsException();
         if (endInd < startInd) throw new IndexOutOfBoundsException();
 
-        for (int i = startInd; i < endInd; i++) {
-            if (artCache[i] == null) {
-                artCache[i] = getStr(i);
-            }
-        }
+        // parallelism!
+        IntStream.range(startInd, endInd)
+                .parallel()
+                .forEach(i -> artCache[i] = getStr(i));
+
         return new AsciiVideo(artCache.clone(), getName().orElse("ascii-video"),
                 getCharWidth(), getWidth(), getHeight(), getInvertedShading(), getFps());
     }

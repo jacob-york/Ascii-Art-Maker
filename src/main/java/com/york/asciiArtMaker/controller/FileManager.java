@@ -94,7 +94,8 @@ public class FileManager {
     }
 
     public boolean saveVideo(AsciiVideo video, ImageRenderer imageRenderer) {
-        File output = getSaveLoc(video.getFileName(), videoFileSaver);
+        File output = getSaveLoc(video.getFileName(imageRenderer.getBgColor(), imageRenderer.getTextColor()),
+                videoFileSaver);
         System.out.println(output);
         if (output == null) return false;
 
@@ -109,7 +110,8 @@ public class FileManager {
     }
 
     public boolean saveImage(AsciiImage asciiImage, ImageRenderer imageRenderer) {
-        File output = getSaveLoc(asciiImage.getFileName(), imageFileSaver);
+        File output = getSaveLoc(asciiImage.getFileName(imageRenderer.getBgColor(), imageRenderer.getTextColor()),
+                imageFileSaver);
         if (output == null) return false;
 
         BufferedImage image = imageRenderer.render(asciiImage.toStr(), BufferedImage.TYPE_3BYTE_BGR);

@@ -181,15 +181,14 @@ public class AsciiImageBuilder implements AsciiArtBuilder {
 
     public AsciiImage build() {
         if (artCache == null) {
-            artCache = new AsciiImage(
-                    String.join("\n", buildRows()), getName().orElse("ascii-image"),
+            artCache = new AsciiImage(generateArtStr(), getName().orElse("ascii-image"),
                     getCharWidth(), getWidth(), getHeight(), invertedShading
             );
         }
         return artCache;
     }
 
-    private String[] buildRows() {
+    private String generateArtStr() {
         PixelOutline[][] pixelOutlines = new PixelOutline[getHeight()][getWidth()];
         for (int y = 0; y < getHeight(); y++) {
             for (int x = 0; x < getWidth(); x++) {
@@ -203,7 +202,7 @@ public class AsciiImageBuilder implements AsciiArtBuilder {
                         .parallel()
                         .map(pixelOutline -> String.valueOf(matchChar(pixelOutline)))
                         .collect(Collectors.joining()))
-                .toArray(String[]::new);
+                .collect(Collectors.joining("\n"));
     }
 
     private void updateDomainAndRange() {

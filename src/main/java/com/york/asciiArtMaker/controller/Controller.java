@@ -82,6 +82,8 @@ public class Controller implements Observer {
     @FXML
     public MenuItem saveImageMenuItem;
     @FXML
+    public MenuItem compileFramesMenuItem;
+    @FXML
     public MenuItem copyMenuItem;
     @FXML
     public Button saveAsMp4Btn;
@@ -166,7 +168,16 @@ public class Controller implements Observer {
     }
 
     @FXML
+    public void compileFramesClicked() {
+        String oldTitle = getTitle();
+        setTitle("loading...");
+        compileFrames();
+        setTitle(oldTitle);
+    }
+
+    @FXML
     public void webcamMenuItemClicked() {
+
     }
 
     @FXML
@@ -288,6 +299,22 @@ public class Controller implements Observer {
                     bgColorPicker.getValue(),
                     textColorPicker.getValue()
             ));
+        }
+    }
+
+    public String getTitle() {
+        return ((Stage) borderPane.getScene().getWindow())
+                .getTitle();
+    }
+
+    public void setTitle(String newTitle) {
+        ((Stage) borderPane.getScene().getWindow())
+                .setTitle(newTitle);
+    }
+
+    private void compileFrames() {
+        if (model instanceof VideoModel videoModel) {
+            videoModel.getCompiledArt();
         }
     }
 

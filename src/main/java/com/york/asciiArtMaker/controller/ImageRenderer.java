@@ -28,9 +28,28 @@ public class ImageRenderer {
         this.textColor = textColor;
     }
 
-    private static int charUnitToFontPoint(int chUnit) {
-        final double chHeightPixels = chUnit * 1.3;
-        return (int) Math.round((4.0 * chHeightPixels) / 3.0);
+    public double getFontPoint() {
+        return fontPoint;
+    }
+
+    public String getFont() {
+        return font;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public Color getBgColor() {
+        return bgColor;
+    }
+
+    public Color getTextColor() {
+        return textColor;
     }
 
     public BufferedImage render(String content, int imgType) {
@@ -47,6 +66,7 @@ public class ImageRenderer {
         for (int i = 0; i < lines.length; i++) {
             g2.drawString(lines[i], 0, (g2.getFontMetrics().getHeight() * (i+1)));
         }
+
         g2.dispose();
         return image;
     }
