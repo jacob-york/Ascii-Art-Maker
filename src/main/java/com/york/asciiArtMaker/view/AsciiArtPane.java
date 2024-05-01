@@ -64,12 +64,10 @@ public class AsciiArtPane extends ScrollPane {
     }
 
     public int getTextAreaWidth() {
-        System.out.println(textPane.getWidth());
         return (int) Math.round(textPane.getWidth());
     }
 
     public int getTextAreaHeight() {
-        System.out.println(textPane.getHeight());
         return (int) Math.round(textPane.getHeight());
     }
 

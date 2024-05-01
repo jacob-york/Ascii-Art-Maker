@@ -40,14 +40,14 @@ public class VideoModel implements AppModel {
 
         controller.exportTxtMenuItem.setDisable(false);
         controller.saveImageMenuItem.setDisable(false);
+        controller.compileFramesMenuItem.setDisable(false);
 
         setCharWidth(Integer.parseInt(controller.charWidthField.getText()));
         setInvertedShading(controller.invertedShadingBtn.isSelected());
 
         controller.getAsciiArtPane().setText(getCurFrame());
 
-        ((Stage) controller.borderPane.getScene().getWindow())
-                .setTitle(getMediaName().orElse("untitled") + " - " + AsciiArtMaker.TITLE);
+        controller.setTitle(getMediaName().orElse("untitled") + " - " + AsciiArtMaker.TITLE);
         controller.borderPane.setCenter(controller.getAsciiArtPane());
     }
 

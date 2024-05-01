@@ -74,6 +74,11 @@
                               </MenuItem>
                            </items>
                         </Menu>
+                        <Menu mnemonicParsing="false" text="Build">
+                          <items>
+                            <MenuItem fx:id="compileFramesMenuItem" disable="true" mnemonicParsing="false" onAction="#compileFramesClicked" text="Compile Frames" />
+                          </items>
+                        </Menu>
                      </menus>
                   </MenuBar>
                   <ToolBar fx:id="toolBar" disable="true" prefHeight="40.0" prefWidth="200.0">

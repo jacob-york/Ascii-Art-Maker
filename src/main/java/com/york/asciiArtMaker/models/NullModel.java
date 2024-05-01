@@ -30,6 +30,7 @@ public class NullModel implements AppModel {
 
         controller.exportTxtMenuItem.setDisable(true);
         controller.saveImageMenuItem.setDisable(true);
+        controller.compileFramesMenuItem.setDisable(true);
 
         ((Stage) controller.borderPane.getScene().getWindow())
                 .setTitle(AsciiArtMaker.TITLE);
