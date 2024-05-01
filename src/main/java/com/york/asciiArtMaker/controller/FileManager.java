@@ -10,6 +10,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.opencv.core.Mat;
+import org.opencv.core.Size;
+import org.opencv.videoio.VideoWriter;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -31,15 +34,20 @@ public class FileManager {
     private final FileChooser videoFileSaver;
 
     public FileManager() {
-        selectFileChooser = initFileChooser("Select a File...", AppUtil.union(imageFileFormats, videoFileFormats));
+        selectFileChooser = new FileChooser();
+        selectFileChooser.setTitle("Select a File...");
+        selectFileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image or Video Files.",
+                AppUtil.union(imageFileFormats, videoFileFormats).stream().map(str -> "*" + str).toList()));
+
         txtFileSaver = initFileChooser("Save As...", Set.of("txt"));
         imageFileSaver = initFileChooser("Save As...",  Set.of("jpg"));
-        videoFileSaver = initFileChooser("Save As...", videoFileFormats);
+        videoFileSaver = initFileChooser("Save As...", Set.of("mp4"));
     }
 
     private static FileChooser initFileChooser(String title, Collection<String> fileTypes) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle(title);
+
 
         fileTypes.stream()
                 .map(str -> new FileChooser.ExtensionFilter(str.toUpperCase(), "*" + str))
@@ -87,6 +95,7 @@ public class FileManager {
 
     public boolean saveVideo(AsciiVideo video, ImageRenderer imageRenderer) {
         File output = getSaveLoc(video.getFileName(), videoFileSaver);
+        System.out.println(output);
         if (output == null) return false;
 
         List<BufferedImage> images = Arrays.stream(video.frames())
@@ -134,11 +143,18 @@ public class FileManager {
     }
 
     private boolean writeMp4File(List<BufferedImage> images, double fps, File output) {
-        // todo:
-        //  > need ordered collection of image files
-        //  > write that collection to saveTxtFileChooser.getInitialDirectory()
+        int fourcc = VideoWriter.fourcc('m', 'p', '4', 'v');
+        List<Mat> mats = images.stream().map(AppUtil::matify).toList();
+        Size frameSize = new Size(mats.get(0).width(), mats.get(0).height());
+        VideoWriter writer = new VideoWriter();
+        writer.open(output.toString(), fourcc, fps, frameSize, true);
 
-        return false;
+        for (Mat img : mats) {
+            writer.write(img);
+        }
+
+        writer.release();
+        return true;
     }
 
     private boolean writeImageFile(BufferedImage image, File output) {

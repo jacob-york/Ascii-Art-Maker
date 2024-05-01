@@ -1,8 +1,10 @@
 package com.york.asciiArtMaker.view;
 
 import com.york.asciiArtMaker.asciiArt.AsciiImage;
+import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -16,7 +18,7 @@ public class AsciiArtPane extends ScrollPane {
     private final String font;
 
     private final Text text;
-    private final StackPane stackPane;
+    private final StackPane textPane;
 
     private static final double MIN_FONT_SIZE = 1;
 
@@ -25,9 +27,10 @@ public class AsciiArtPane extends ScrollPane {
         this.font = getDefaultFont();
         text = new Text();
         setStyle("-fx-font-size: 30px; -fx-background: #ffffff;");
-        setContent(new Group(text));
-        stackPane = new StackPane();
-        getChildren().add(stackPane);
+        textPane = new StackPane(text);
+        textPane.setPrefSize(USE_COMPUTED_SIZE, USE_COMPUTED_SIZE);
+
+        setContent(textPane);
     }
 
     public static String getDefaultFont() {
@@ -61,11 +64,13 @@ public class AsciiArtPane extends ScrollPane {
     }
 
     public int getTextAreaWidth() {
-        return 0;
+        System.out.println(textPane.getWidth());
+        return (int) Math.round(textPane.getWidth());
     }
 
     public int getTextAreaHeight() {
-        return 0;
+        System.out.println(textPane.getHeight());
+        return (int) Math.round(textPane.getHeight());
     }
 
     public String getFont() {

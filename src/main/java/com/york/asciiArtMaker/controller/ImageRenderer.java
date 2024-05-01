@@ -37,8 +37,8 @@ public class ImageRenderer {
         BufferedImage image = new BufferedImage(width, height, imgType);
         Graphics2D g2 = image.createGraphics();
 
-        g2.setPaint(JFXColorToJavaColor(bgColor));
-        g2.drawRect(0, 0, image.getWidth(), image.getHeight());
+        g2.setColor(JFXColorToJavaColor(bgColor));
+        g2.fillRect(0, 0, image.getWidth(), image.getHeight());
 
         g2.setPaint(JFXColorToJavaColor(textColor));
         g2.setFont(new Font(AsciiArtPane.getDefaultFont(), Font.PLAIN, (int) Math.round(fontPoint)));

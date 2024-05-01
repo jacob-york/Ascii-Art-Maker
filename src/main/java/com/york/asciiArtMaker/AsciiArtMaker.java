@@ -65,6 +65,7 @@ public final class AsciiArtMaker extends Application {
 
         stage = new Stage();
         stage.setScene(new Scene(root));
+        assert icon != null;
         stage.getIcons().add(new Image(icon.toExternalForm()));
         stage.setTitle(TITLE);
         stage.show();
