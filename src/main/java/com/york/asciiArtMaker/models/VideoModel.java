@@ -36,7 +36,6 @@ public class VideoModel implements AppModel {
         controller.charWidthField.setText("1");
 
         controller.videoControlBox.setDisable(false);
-        controller.compileVideoBtn.setDisable(false);
         controller.saveAsMp4Btn.setDisable(false);
 
         controller.exportTxtMenuItem.setDisable(false);

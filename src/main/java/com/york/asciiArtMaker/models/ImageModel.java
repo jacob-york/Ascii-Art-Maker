@@ -30,7 +30,6 @@ public class ImageModel implements AppModel {
         controller.charWidthField.setText("1");
 
         controller.videoControlBox.setDisable(true);
-        controller.compileVideoBtn.setDisable(true);
         controller.saveAsMp4Btn.setDisable(true);
 
         controller.exportTxtMenuItem.setDisable(false);

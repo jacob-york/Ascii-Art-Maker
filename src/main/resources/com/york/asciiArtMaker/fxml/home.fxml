@@ -82,41 +82,36 @@
                            <children>
                               <HBox fx:id="zoomBox" alignment="CENTER">
                                  <children>
-                                    <Button fx:id="zoomInBtn" mnemonicParsing="false" onMousePressed="#zoomInPressed" onMouseReleased="#zoomInReleased" prefHeight="40.0" prefWidth="40.0" text="+">
-                                       <tooltip>
-                                          <Tooltip text="Zoom In" />
-                                       </tooltip>
-                                       <font>
-                                          <Font name="Consolas" size="15.0" />
-                                       </font>
+                                    <TextField fx:id="fontField" alignment="CENTER" onKeyPressed="#fontHeightEntered" prefHeight="50.0" prefWidth="50.0">
                                        <HBox.margin>
                                           <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
                                        </HBox.margin>
-                                    </Button>
-                                    <TextField fx:id="fontField" alignment="CENTER" onKeyPressed="#fontHeightEntered" prefHeight="30.0" prefWidth="50.0">
-                                       <HBox.margin>
-                                          <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
-                                       </HBox.margin>
-                                       <font>
-                                          <Font name="Consolas" size="12.0" />
-                                       </font>
                                     </TextField>
-                                    <Button fx:id="zoomOutBtn" mnemonicParsing="false" onMousePressed="#zoomOutPressed" onMouseReleased="#zoomOutReleased" prefHeight="40.0" prefWidth="40.0" text="-">
-                                       <tooltip>
-                                          <Tooltip text="Zoom Out" />
-                                       </tooltip>
-                                       <font>
-                                          <Font name="Consolas" size="15.0" />
-                                       </font>
-                                       <HBox.margin>
-                                          <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
-                                       </HBox.margin>
-                                    </Button>
+                                    <VBox>
+                                       <children>
+                                          <Button fx:id="zoomInBtn" mnemonicParsing="false" onMousePressed="#zoomInPressed" onMouseReleased="#zoomInReleased" prefHeight="20.0" prefWidth="40.0" text="+">
+                                             <tooltip>
+                                                <Tooltip text="Zoom In" />
+                                             </tooltip>
+                                             <font>
+                                                <Font name="Consolas" size="15.0" />
+                                             </font>
+                                          </Button>
+                                          <Button fx:id="zoomOutBtn" mnemonicParsing="false" onMousePressed="#zoomOutPressed" onMouseReleased="#zoomOutReleased" prefHeight="20.0" prefWidth="40.0" text="-">
+                                             <tooltip>
+                                                <Tooltip text="Zoom Out" />
+                                             </tooltip>
+                                             <font>
+                                                <Font name="Consolas" size="15.0" />
+                                             </font>
+                                          </Button>
+                                       </children>
+                                    </VBox>
                                  </children>
                               </HBox>
-                              <Label text="Zoom (font size)">
+                              <Label text="Font Size">
                                  <font>
-                                    <Font name="Consolas" size="15.0" />
+                                    <Font size="15.0" />
                                  </font>
                               </Label>
                            </children>
@@ -126,41 +121,36 @@
                            <children>
                               <HBox fx:id="characterWidthBox" alignment="CENTER">
                                  <children>
-                                    <Button fx:id="charWidthUpBtn" mnemonicParsing="false" onMousePressed="#charWidthUpPressed" onMouseReleased="#charWidthUpReleased" prefHeight="40.0" prefWidth="40.0" text="+">
-                                       <font>
-                                          <Font name="Consolas" size="15.0" />
-                                       </font>
+                                    <TextField fx:id="charWidthField" alignment="CENTER" onKeyPressed="#charWidthEntered" prefHeight="50.0" prefWidth="50.0">
                                        <HBox.margin>
                                           <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
                                        </HBox.margin>
-                                       <tooltip>
-                                          <Tooltip text="Increase character width" />
-                                       </tooltip>
-                                    </Button>
-                                    <TextField fx:id="charWidthField" alignment="CENTER" onKeyPressed="#charWidthEntered" prefHeight="30.0" prefWidth="50.0">
-                                       <HBox.margin>
-                                          <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
-                                       </HBox.margin>
-                                       <font>
-                                          <Font name="Consolas" size="12.0" />
-                                       </font>
                                     </TextField>
-                                    <Button fx:id="charWidthDownBtn" mnemonicParsing="false" onMousePressed="#charWidthDownPressed" onMouseReleased="#charWidthDownReleased" prefHeight="40.0" prefWidth="40.0" text="-">
-                                       <font>
-                                          <Font name="Consolas" size="15.0" />
-                                       </font>
-                                       <HBox.margin>
-                                          <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
-                                       </HBox.margin>
-                                       <tooltip>
-                                          <Tooltip text="Decrease character width" />
-                                       </tooltip>
-                                    </Button>
+                                    <VBox>
+                                       <children>
+                                          <Button fx:id="charWidthUpBtn" mnemonicParsing="false" onMousePressed="#charWidthUpPressed" onMouseReleased="#charWidthUpReleased" prefHeight="20.0" prefWidth="40.0" text="+">
+                                             <font>
+                                                <Font name="Consolas" size="15.0" />
+                                             </font>
+                                             <tooltip>
+                                                <Tooltip text="Increase character width" />
+                                             </tooltip>
+                                          </Button>
+                                          <Button fx:id="charWidthDownBtn" mnemonicParsing="false" onMousePressed="#charWidthDownPressed" onMouseReleased="#charWidthDownReleased" prefHeight="20.0" prefWidth="40.0" text="-">
+                                             <font>
+                                                <Font name="Consolas" size="15.0" />
+                                             </font>
+                                             <tooltip>
+                                                <Tooltip text="Decrease character width" />
+                                             </tooltip>
+                                          </Button>
+                                       </children>
+                                    </VBox>
                                  </children>
                               </HBox>
                               <Label text="Character Width (?)">
                                  <font>
-                                    <Font name="Consolas" size="15.0" />
+                                    <Font size="15.0" />
                                  </font>
                                  <tooltip>
                                     <Tooltip text="The width of each character in pixels (the lower the value, the higher the resolution)" />
@@ -169,33 +159,43 @@
                            </children>
                         </VBox>
                         <Separator orientation="VERTICAL" />
-                        <HBox fx:id="shadingControls" alignment="CENTER">
-                           <children>
-                              <RadioButton fx:id="invertedShadingBtn" contentDisplay="BOTTOM" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#invertedShadingClicked" text="Inverted Shading">
-                                 <font>
-                                    <Font name="Consolas" size="15.0" />
-                                 </font>
-                              </RadioButton>
-                           </children>
-                        </HBox>
-                        <Separator orientation="VERTICAL" />
-                        <HBox fx:id="cThemeControls" alignment="CENTER">
+                        <VBox alignment="CENTER">
                            <children>
                               <MenuButton fx:id="colorThemeMenu" mnemonicParsing="false" text="Color Theme">
                                  <font>
-                                    <Font name="Consolas" size="15.0" />
+                                    <Font size="15.0" />
                                  </font>
+                                 <VBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </VBox.margin>
                               </MenuButton>
+                              <RadioButton fx:id="invertedShadingBtn" contentDisplay="CENTER" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#invertedShadingClicked" text="Inverted Shading">
+                                 <font>
+                                    <Font size="15.0" />
+                                 </font>
+                                 <VBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </VBox.margin>
+                              </RadioButton>
                            </children>
-                        </HBox>
+                        </VBox>
+                        <HBox fx:id="shadingControls" alignment="CENTER" />
+                        <Separator orientation="VERTICAL" />
                         <VBox fx:id="bGColorControls" alignment="CENTER">
                            <children>
-                              <Label text="Background Color">
+                              <ColorPicker fx:id="bgColorPicker" editable="true" onAction="#bgColorSelected" promptText="Background Color">
+                                 <VBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </VBox.margin>
+                              </ColorPicker>
+                              <Label text="Background">
                                  <font>
-                                    <Font name="Consolas" size="15.0" />
+                                    <Font size="15.0" />
                                  </font>
+                                 <VBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </VBox.margin>
                               </Label>
-                              <ColorPicker fx:id="bgColorPicker" onAction="#bgColorSelected" promptText="Background Color" />
                            </children>
                            <padding>
                               <Insets top="3.0" />
@@ -203,16 +203,22 @@
                         </VBox>
                         <VBox fx:id="textColorControls" alignment="CENTER">
                            <children>
-                              <Label text="Text Color">
-                                 <font>
-                                    <Font name="Consolas" size="15.0" />
-                                 </font>
-                              </Label>
-                              <ColorPicker fx:id="textColorPicker" onAction="#textColorSelected" promptText="Text Color">
+                              <ColorPicker fx:id="textColorPicker" editable="true" onAction="#textColorSelected" promptText="Text Color">
                                  <value>
                                     <Color />
                                  </value>
+                                 <VBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </VBox.margin>
                               </ColorPicker>
+                              <Label text="Text">
+                                 <font>
+                                    <Font size="15.0" />
+                                 </font>
+                                 <VBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </VBox.margin>
+                              </Label>
                            </children>
                         </VBox>
                         <Separator orientation="VERTICAL" />
@@ -259,17 +265,11 @@
                                     </Button>
                                  </children>
                               </HBox>
-                              <Button fx:id="compileVideoBtn" alignment="CENTER" contentDisplay="CENTER" disable="true" mnemonicParsing="false" text="Compile Frames">
+                              <Label text="Video Controls">
                                  <font>
-                                    <Font name="Consolas" size="15.0" />
+                                    <Font size="15.0" />
                                  </font>
-                                 <tooltip>
-                                    <Tooltip text="Fixes video play speed if it's taking too long for you, but takes some time to load." />
-                                 </tooltip>
-                                 <VBox.margin>
-                                    <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
-                                 </VBox.margin>
-                              </Button>
+                              </Label>
                            </children>
                         </VBox>
                         <Separator orientation="VERTICAL" />
@@ -339,6 +339,13 @@
                                  <tooltip>
                                     <Tooltip text="Save Video as MP4..." />
                                  </tooltip>
+                                 <graphic>
+                                    <ImageView fitHeight="30.0" fitWidth="30.0" opacity="0.6" pickOnBounds="true" preserveRatio="true" smooth="false">
+                                       <image>
+                                          <Image url="@../icons/video.png" />
+                                       </image>
+                                    </ImageView>
+                                 </graphic>
                               </Button>
                               <Separator orientation="VERTICAL" />
                               <Button fx:id="exitBtn" mnemonicParsing="false" onAction="#exitMenuItemClicked" prefHeight="45.0" prefWidth="45.0">

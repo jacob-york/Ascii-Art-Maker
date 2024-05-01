@@ -186,9 +186,10 @@ public class AsciiVideoBuilder implements AsciiArtBuilder {
      */
     public AsciiVideo build(int startInd, int endInd) throws IndexOutOfBoundsException {
         if (startInd < 0 || startInd >= frameCount) throw new IndexOutOfBoundsException();
-        if (endInd < 0 || endInd >= frameCount || endInd < startInd) throw new IndexOutOfBoundsException();
+        if (endInd < 0 || endInd > frameCount) throw new IndexOutOfBoundsException();
+        if (endInd < startInd) throw new IndexOutOfBoundsException();
 
-        for (int i = 0; i < frameCount; i++) {
+        for (int i = startInd; i < endInd; i++) {
             if (artCache[i] == null) {
                 artCache[i] = getStr(i);
             }

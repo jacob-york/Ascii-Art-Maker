@@ -41,8 +41,6 @@ public class Controller implements Observer {
     @FXML
     public HBox shadingControls;
     @FXML
-    public HBox cThemeControls;
-    @FXML
     public VBox bGColorControls;
     @FXML
     public VBox textColorControls;
@@ -80,8 +78,6 @@ public class Controller implements Observer {
     @FXML
     public Button nextFrameBtn;
     @FXML
-    public Button compileVideoBtn;
-    @FXML
     public MenuItem exportTxtMenuItem;
     @FXML
     public MenuItem saveImageMenuItem;
@@ -90,6 +86,8 @@ public class Controller implements Observer {
     @FXML
     public Button saveAsMp4Btn;
 
+    @FXML
+    public Button exportTxtBtn;
     @FXML
     public Button saveImageBtn;
 
@@ -182,8 +180,8 @@ public class Controller implements Observer {
         model.pauseVideoPlayer();
         fileManager.saveImage(model.getCurFrame(), new ImageRenderer(asciiArtPane.getFontSize(),
                 AsciiArtPane.getDefaultFont(),
-                (int) Math.round(asciiArtPane.getWidth()),
-                (int) Math.round(asciiArtPane.getHeight()),
+                asciiArtPane.getTextAreaWidth(),
+                asciiArtPane.getTextAreaHeight(),
                 bgColorPicker.getValue(),
                 textColorPicker.getValue()
                 ));
@@ -283,10 +281,10 @@ public class Controller implements Observer {
     public void saveAsMp4BtnClicked() {
         model.pauseVideoPlayer();
         if (model instanceof VideoModel videoModel) {
-            fileManager.saveVideo(videoModel.getCompiledArt(), new ImageRenderer(20,
+            fileManager.saveVideo(videoModel.getCompiledArt(), new ImageRenderer(asciiArtPane.getFontSize(),
                     AsciiArtPane.getDefaultFont(),
-                    (int) Math.round(asciiArtPane.getWidth()),
-                    (int) Math.round(asciiArtPane.getHeight()),
+                    asciiArtPane.getTextAreaWidth(),
+                    asciiArtPane.getTextAreaHeight(),
                     bgColorPicker.getValue(),
                     textColorPicker.getValue()
             ));
