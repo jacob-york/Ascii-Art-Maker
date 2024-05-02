@@ -11,8 +11,25 @@ import org.opencv.videoio.Videoio;
 import java.io.File;
 import java.util.*;
 
+/**
+ * <p>Abstraction for a thread that reads frame data from a video file.</p>
+ *
+ * <p>For each frame, VideoFileConnectionService extracts the bare minimum data that's necessary to compute an asciiImage.
+ *  The actual algorithm that computes ascii art will later run this data.</p>
+ *
+ *  <p>Due to API limitations regarding OpenCV, the process is slow and must be done linearly from frame 0
+ *  to the last frame, hence the motivation to abstract it into a Service that can run on a separate thread.</p>
+ */
 public class VideoFileConnectionService extends Service<Void> {
 
+    /**
+     * Nested class with a private constructor for representing a VideoSource that was created with a
+     * VideoFileConnectionService.
+     *
+     * Since, in AsciiArtMaker, you need a VFCS to read and work with a video file source,
+     * the class is nested in VFCS and has a private constructor. VFCS is the only one that can instantiate this type
+     * of video source.
+     */
     public static class VideoFileAdapter implements VideoSource {
 
         private final String name;
@@ -92,7 +109,13 @@ public class VideoFileConnectionService extends Service<Void> {
             return subArray;
         }
 
-        public void releaseNativeResources() {
+        /**
+         * In OpenCV, many objects need to be manually freed/released. This method releases all of your VideoFileAdapter's
+         * attributes that need releasing.
+         *
+         * DO NOT CALL until you're done with your VideoFileAdapter.
+         */
+        public void release() {
             matrices.forEach(mat -> {
                 if (mat.getNativeObjAddr() != 0) mat.release();
             });

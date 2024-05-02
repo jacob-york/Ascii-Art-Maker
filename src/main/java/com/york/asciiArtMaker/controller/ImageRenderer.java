@@ -10,6 +10,7 @@ import static com.york.asciiArtMaker.AppUtil.JFXColorToJavaColor;
 
 public class ImageRenderer {
 
+    // todo: getters w/ no setters. Practically a record.
     private static double ADJ_CONSTANT = 1.5;
     private double fontPoint;
     private String font;

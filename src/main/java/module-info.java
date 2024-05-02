@@ -12,8 +12,12 @@ module com.york.asciiartstudio {
     requires opencv;
     requires java.desktop;
 
-    opens com.york.asciiArtMaker to javafx.fxml;
     exports com.york.asciiArtMaker;
+    opens com.york.asciiArtMaker to javafx.fxml;
+    exports com.york.asciiArtMaker.adapters;
+    opens com.york.asciiArtMaker.adapters to javafx.fxml;
+    exports com.york.asciiArtMaker.asciiArt;
+    opens com.york.asciiArtMaker.asciiArt to javafx.fxml;
     exports com.york.asciiArtMaker.controller;
     opens com.york.asciiArtMaker.controller to javafx.fxml;
     exports com.york.asciiArtMaker.models;

@@ -5,6 +5,7 @@ import com.york.asciiArtMaker.adapters.ImageSource;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class AsciiImageBuilder implements AsciiArtBuilder {
 
@@ -188,19 +189,17 @@ public class AsciiImageBuilder implements AsciiArtBuilder {
         return artCache;
     }
 
+    /**
+     * @return the actual string of ascii art for the given image source. build() calls this method then wraps it
+     * as an AsciiImage object.
+     */
     private String generateArtStr() {
-        PixelOutline[][] pixelOutlines = new PixelOutline[getHeight()][getWidth()];
-        for (int y = 0; y < getHeight(); y++) {
-            for (int x = 0; x < getWidth(); x++) {
-                pixelOutlines[y][x] = new PixelOutline(charWidth, x * charWidth, y * 2 * charWidth);
-            }
-        }
-
-        return Arrays.stream(pixelOutlines)
+        return IntStream.range(0, getHeight())
                 .parallel()
-                .map(row -> Arrays.stream(row)
+                .mapToObj(rowInd -> IntStream.range(0, getWidth())
                         .parallel()
-                        .map(pixelOutline -> String.valueOf(matchChar(pixelOutline)))
+                        .mapToObj(colInd -> String.valueOf(matchChar(
+                                new PixelOutline(charWidth, colInd * charWidth, rowInd * 2 * charWidth))))
                         .collect(Collectors.joining()))
                 .collect(Collectors.joining("\n"));
     }

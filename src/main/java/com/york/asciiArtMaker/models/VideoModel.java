@@ -9,7 +9,6 @@ import com.york.asciiArtMaker.controller.Controller;
 import com.york.asciiArtMaker.controller.VideoPlayer;
 import com.york.asciiArtMaker.view.AsciiArtPane;
 import javafx.scene.control.Button;
-import javafx.stage.Stage;
 
 import java.util.Optional;
 
@@ -26,7 +25,7 @@ public class VideoModel implements AppModel {
     @Override
     public void close() {
         videoPlayer.pause();
-        builder.releaseNativeResources();
+        builder.releaseVideoSource();
     }
 
     @Override
