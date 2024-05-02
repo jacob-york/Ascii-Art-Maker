@@ -3,7 +3,6 @@ package com.york.asciiArtMaker.asciiArt;
 import com.york.asciiArtMaker.adapters.VideoFileConnectionService;
 import com.york.asciiArtMaker.adapters.VideoSource;
 
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
@@ -204,9 +203,12 @@ public class AsciiVideoBuilder implements AsciiArtBuilder {
         return fps;
     }
 
-    public void releaseNativeResources() {
+    /**
+     * calls release on this builder's VideoSource. DO NOT CALL until you're done with your builder.
+     */
+    public void releaseVideoSource() {
         if (videoSource instanceof VideoFileConnectionService.VideoFileAdapter vfa) {
-            vfa.releaseNativeResources();
+            vfa.release();
         }
     }
 }

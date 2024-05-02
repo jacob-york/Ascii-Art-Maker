@@ -2,6 +2,10 @@ package com.york.asciiArtMaker.asciiArt;
 
 import java.util.Optional;
 
+/**
+ * Ascii art generation is implemented with the Builder design pattern. Images and Videos each get their own builder,
+ * but since they share most of their methods, they both implement this shared AsciiArtBuilder interface.
+ */
 public interface AsciiArtBuilder {
 
     /**
