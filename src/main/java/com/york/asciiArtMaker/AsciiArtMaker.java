@@ -31,7 +31,7 @@ public final class AsciiArtMaker extends Application {
         return fileManager;
     }
 
-    public static final String TITLE = "Ascii Art Studio";
+    public static final String TITLE = "Ascii Art Maker";
 
     public static String getResourcePath(String relativePath) {
         return Objects.requireNonNull(AsciiArtMaker.class.getResource(relativePath)).toExternalForm();
