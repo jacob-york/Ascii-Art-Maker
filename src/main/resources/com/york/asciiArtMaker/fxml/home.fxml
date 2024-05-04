@@ -353,14 +353,6 @@
                                  </graphic>
                               </Button>
                               <Separator orientation="VERTICAL" />
-                              <Button fx:id="exitBtn" mnemonicParsing="false" onAction="#exitMenuItemClicked" prefHeight="45.0" prefWidth="45.0">
-                                 <font>
-                                    <Font name="Consolas" size="15.0" />
-                                 </font>
-                                 <tooltip>
-                                    <Tooltip text="Exit" />
-                                 </tooltip>
-                              </Button>
                            </children>
                         </HBox>
                      </items>

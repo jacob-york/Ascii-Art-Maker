@@ -5,7 +5,6 @@ import com.york.asciiArtMaker.asciiArt.AsciiArtBuilder;
 import com.york.asciiArtMaker.asciiArt.AsciiImage;
 import com.york.asciiArtMaker.asciiArt.AsciiImageBuilder;
 import com.york.asciiArtMaker.controller.Controller;
-import javafx.stage.Stage;
 
 import java.util.Optional;
 

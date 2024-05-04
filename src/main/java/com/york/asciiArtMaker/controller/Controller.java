@@ -419,6 +419,7 @@ public class Controller implements Observer {
         }
         LoadDialogController ldController = loader.getController();
         ldController.setObserver(this);
+        ldController.setDisplayText("Gathering frame data");
         new VideoFileConnectionService(selected, ldController).start();
         loadDialogStage.show();
 

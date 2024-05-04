@@ -3,13 +3,10 @@ package com.york.asciiArtMaker.models;
 import com.york.asciiArtMaker.AsciiArtMaker;
 import com.york.asciiArtMaker.asciiArt.AsciiArtBuilder;
 import com.york.asciiArtMaker.asciiArt.AsciiImage;
-import com.york.asciiArtMaker.asciiArt.AsciiVideo;
 import com.york.asciiArtMaker.controller.Controller;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.util.Optional;
 
 public class NullModel implements AppModel {

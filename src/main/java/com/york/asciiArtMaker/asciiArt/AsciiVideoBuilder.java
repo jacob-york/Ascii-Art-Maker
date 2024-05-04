@@ -17,7 +17,7 @@ public class AsciiVideoBuilder implements AsciiArtBuilder {
     private boolean invertedShading;
     private final int frameCount;
     private final double fps;
-    private String[] artCache;
+    private AsciiImage[] artCache;
 
     public AsciiVideoBuilder(VideoSource videoSource) {
         this.videoSource = videoSource;
@@ -29,7 +29,7 @@ public class AsciiVideoBuilder implements AsciiArtBuilder {
         this.frameCount = videoSource.getFrameCount();
         this.fps = videoSource.getFps();
 
-        artCache = new String[frameCount];
+        artCache = new AsciiImage[frameCount];
     }
 
     @Override
@@ -70,7 +70,7 @@ public class AsciiVideoBuilder implements AsciiArtBuilder {
         this.palette = defaultPalette;
         this.activePalette = palette;
 
-        artCache = new String[getFrameCount()];
+        artCache = new AsciiImage[getFrameCount()];
         return this;
     }
 
@@ -84,7 +84,7 @@ public class AsciiVideoBuilder implements AsciiArtBuilder {
         }
 
         this.charWidth = charWidth;
-        artCache = new String[getFrameCount()];
+        artCache = new AsciiImage[getFrameCount()];
         return this;
     }
 
@@ -101,7 +101,7 @@ public class AsciiVideoBuilder implements AsciiArtBuilder {
 
         this.palette = palette;
         this.activePalette = invertedShading ? new StringBuilder(palette).reverse().toString() : palette;
-        artCache = new String[getFrameCount()];
+        artCache = new AsciiImage[getFrameCount()];
         return this;
     }
 
@@ -127,7 +127,7 @@ public class AsciiVideoBuilder implements AsciiArtBuilder {
 
         this.activePalette = new StringBuilder(activePalette).reverse().toString();
         this.invertedShading = invertedShading;
-        artCache = new String[getFrameCount()];
+        artCache = new AsciiImage[getFrameCount()];
         return this;
     }
 
@@ -143,21 +143,15 @@ public class AsciiVideoBuilder implements AsciiArtBuilder {
     public AsciiImage buildFrame(int i) throws IndexOutOfBoundsException {
         if (i < 0 || i >= frameCount) throw new IndexOutOfBoundsException();
 
-        return new AsciiImage(getStr(i), getName().orElse("ascii-video") + ":" + i,
-                getCharWidth(), getWidth(), getHeight(), getInvertedShading());
-    }
-
-    private String getStr(int i) {
-        assert i < 0 || i >= frameCount;
-
         if (artCache[i] == null) {
             artCache[i] = new AsciiImageBuilder(videoSource.getImageSource(i))
+                    .setName(getName().orElse("ascii-video") + "-" + i)
                     .setCharWidth(charWidth)
                     .setInvertedShading(invertedShading)
                     .setPalette(palette)
-                    .build()
-                    .toStr();
+                    .build();
         }
+
         return artCache[i];
     }
 
@@ -190,13 +184,11 @@ public class AsciiVideoBuilder implements AsciiArtBuilder {
         if (endInd < 0 || endInd > frameCount) throw new IndexOutOfBoundsException();
         if (endInd < startInd) throw new IndexOutOfBoundsException();
 
-        // parallelism!
         IntStream.range(startInd, endInd)
                 .parallel()
-                .forEach(i -> artCache[i] = getStr(i));
+                .forEach(this::buildFrame);
 
-        return new AsciiVideo(artCache.clone(), getName().orElse("ascii-video"),
-                getCharWidth(), getWidth(), getHeight(), getInvertedShading(), getFps());
+        return new AsciiVideo(artCache.clone(), getName().orElse("ascii-video"), getFps());
     }
 
     public double getFps() {

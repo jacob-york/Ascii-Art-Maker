@@ -4,7 +4,6 @@ import com.york.asciiArtMaker.asciiArt.AsciiArtBuilder;
 import com.york.asciiArtMaker.asciiArt.AsciiImage;
 import com.york.asciiArtMaker.controller.Controller;
 
-import java.awt.image.BufferedImage;
 import java.util.Optional;
 
 // todo: I think I can do better.

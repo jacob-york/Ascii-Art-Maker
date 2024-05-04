@@ -18,10 +18,12 @@ public class LoadDialogController implements Observer {
     private boolean userInterrupt;
     private int totalFrames;
     private Controller observer;
+    private String text;
 
     @FXML
     public void initialize() {
         totalFrames = 0;
+        text = "Loading";
     }
 
     @FXML
@@ -42,14 +44,17 @@ public class LoadDialogController implements Observer {
         observer = controller;
     }
 
+    public void setDisplayText(String text) {
+        this.text = text;
+    }
+
     public void finish(VideoSource videoSource) {
         ((Stage) info.getScene().getWindow()).close();
         observer.setArt(videoSource);
     }
 
     public void update(int curFrame) {
-        info.setText(String.format("Generating frame stubs...(%d/%d)",
-                curFrame, totalFrames));
+        info.setText(String.format("%s...(%d/%d)", text, curFrame, totalFrames));
         ((Stage) info.getScene().getWindow()).setTitle(String.format("Progress Dialog - %d/%d",
                 curFrame, totalFrames));
         progressBar.setProgress(((double) curFrame) / ((double) totalFrames));
