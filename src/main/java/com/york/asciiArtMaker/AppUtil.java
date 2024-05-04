@@ -2,16 +2,11 @@ package com.york.asciiArtMaker;
 
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfByte;
-import org.opencv.imgcodecs.Imgcodecs;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
 import java.awt.image.DataBufferInt;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -40,6 +35,10 @@ public final class AppUtil {
                 (float) fx.getOpacity());
     }
 
+    /**
+     * @author Javanaut
+     * (<a href="https://answers.opencv.org/question/28348/converting-bufferedimage-to-mat-in-java/">...</a>)
+     */
     public static Mat matify(BufferedImage sourceImg) {
 
         DataBuffer dataBuffer = sourceImg.getRaster().getDataBuffer();

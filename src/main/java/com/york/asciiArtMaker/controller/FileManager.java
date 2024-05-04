@@ -96,11 +96,10 @@ public class FileManager {
     public boolean saveVideo(AsciiVideo video, ImageRenderer imageRenderer) {
         File output = getSaveLoc(video.getFileName(imageRenderer.getBgColor(), imageRenderer.getTextColor()),
                 videoFileSaver);
-        System.out.println(output);
         if (output == null) return false;
 
         List<BufferedImage> images = Arrays.stream(video.frames())
-                .map(str -> imageRenderer.render(str, BufferedImage.TYPE_3BYTE_BGR))
+                .map(asciiImage -> imageRenderer.render(asciiImage.toStr(), BufferedImage.TYPE_3BYTE_BGR))
                 .toList();
 
         if (writeMp4File(images, video.fps(), output)) {

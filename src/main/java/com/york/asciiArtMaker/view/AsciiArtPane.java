@@ -1,10 +1,7 @@
 package com.york.asciiArtMaker.view;
 
 import com.york.asciiArtMaker.asciiArt.AsciiImage;
-import javafx.application.Platform;
-import javafx.scene.Group;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;

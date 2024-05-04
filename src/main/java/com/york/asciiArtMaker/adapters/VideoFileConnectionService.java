@@ -123,7 +123,6 @@ public class VideoFileConnectionService extends Service<Void> {
             matrices = null;
             System.gc();
         }
-
     }
 
     private final List<Mat> fcsMatrices;
@@ -149,22 +148,17 @@ public class VideoFileConnectionService extends Service<Void> {
                 Platform.runLater(() -> loadDialogController.setTotalFrames(frameCount));
 
                 Mat mat = new Mat();
-                boolean aborted = false;
 
-                while (vc.read(mat)) {
+                while (!loadDialogController.isCancelled() && vc.read(mat)) {
                     frameInProgress++;
                     fcsMatrices.add(mat.clone());
                     Platform.runLater(() -> loadDialogController.update(frameInProgress));
-
-                    if (loadDialogController.isCancelled()) {
-                        aborted = true;
-                    }
                 }
 
                 vc.release();
                 mat.release();
 
-                if (!aborted) {
+                if (!loadDialogController.isCancelled()) {
                     Platform.runLater(() -> loadDialogController.finish(
                             new VideoFileAdapter(file.getName(), fps, fcsMatrices)));
                 }
