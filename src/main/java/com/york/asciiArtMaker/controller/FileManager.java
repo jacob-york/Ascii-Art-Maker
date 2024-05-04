@@ -98,8 +98,10 @@ public class FileManager {
                 videoFileSaver);
         if (output == null) return false;
 
+        imageRenderer.setImageType(BufferedImage.TYPE_3BYTE_BGR);
+
         List<BufferedImage> images = Arrays.stream(video.frames())
-                .map(asciiImage -> imageRenderer.render(asciiImage.toStr(), BufferedImage.TYPE_3BYTE_BGR))
+                .map(imageRenderer::render)
                 .toList();
 
         if (writeMp4File(images, video.fps(), output)) {
@@ -113,7 +115,7 @@ public class FileManager {
                 imageFileSaver);
         if (output == null) return false;
 
-        BufferedImage image = imageRenderer.render(asciiImage.toStr(), BufferedImage.TYPE_3BYTE_BGR);
+        BufferedImage image = imageRenderer.render(asciiImage);
 
         if (writeImageFile(image, output)) {
             imageFileSaver.setInitialDirectory(output.getParentFile());

@@ -189,13 +189,13 @@ public class Controller implements Observer {
     @FXML
     public void saveImageMenuItemClicked() {
         model.pauseVideoPlayer();
-        fileManager.saveImage(model.getCurFrame(), new ImageRenderer(asciiArtPane.getFontSize(),
-                AsciiArtPane.getDefaultFont(),
-                asciiArtPane.getTextAreaWidth(),
-                asciiArtPane.getTextAreaHeight(),
-                bgColorPicker.getValue(),
-                textColorPicker.getValue()
-                ));
+
+        ImageRenderer imageRender = new ImageRenderer(asciiArtPane.getFontSize(),
+                asciiArtPane.getTextAreaWidth(), asciiArtPane.getTextAreaHeight(), AsciiArtPane.getDefaultFont())
+                .setBgColor(bgColorPicker.getValue())
+                .setTextColor(textColorPicker.getValue());
+
+        fileManager.saveImage(model.getCurFrame(), imageRender);
     }
 
     @FXML
@@ -292,13 +292,13 @@ public class Controller implements Observer {
     public void saveAsMp4BtnClicked() {
         model.pauseVideoPlayer();
         if (model instanceof VideoModel videoModel) {
-            fileManager.saveVideo(videoModel.getCompiledArt(), new ImageRenderer(asciiArtPane.getFontSize(),
-                    AsciiArtPane.getDefaultFont(),
-                    asciiArtPane.getTextAreaWidth(),
-                    asciiArtPane.getTextAreaHeight(),
-                    bgColorPicker.getValue(),
-                    textColorPicker.getValue()
-            ));
+
+            ImageRenderer imageRender = new ImageRenderer(asciiArtPane.getFontSize(),
+                    asciiArtPane.getTextAreaWidth(), asciiArtPane.getTextAreaHeight(), AsciiArtPane.getDefaultFont())
+                    .setBgColor(bgColorPicker.getValue())
+                    .setTextColor(textColorPicker.getValue());
+
+            fileManager.saveVideo(videoModel.getCompiledArt(), imageRender);
         }
     }
 
