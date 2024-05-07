@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public final class AppUtil {
     private AppUtil() {}
 
-    // why tf do I have to write these myself, java?
+    // why do I have to write these myself, java?
     public static <T> Set<T> union(Set<T> coll1, Set<T> coll2) {
         Set<T> returnVal = new HashSet<>(coll1);
         returnVal.addAll(coll2);
@@ -74,10 +74,4 @@ public final class AppUtil {
         return imgMat;
     }
 
-    public static Mat bufferedImageToMat(BufferedImage image) {
-        byte[] pixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
-        Mat mat = new Mat(image.getWidth(), image.getHeight(), CvType.CV_8UC3);
-        mat.put(0, 0, pixels);
-        return mat;
-    }
 }

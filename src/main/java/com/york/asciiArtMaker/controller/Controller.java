@@ -195,7 +195,31 @@ public class Controller implements Observer {
                 .setBgColor(bgColorPicker.getValue())
                 .setTextColor(textColorPicker.getValue());
 
-        fileManager.saveImage(model.getCurFrame(), imageRender);
+        int saveImageResult = fileManager.saveImage(model.getCurFrame(), imageRender);
+        if (saveImageResult == fileManager.OUT_OF_MEMORY) {
+            new Alert(Alert.AlertType.ERROR, "File is too large: Download was aborted.").showAndWait();
+        } else if (saveImageResult == fileManager.GENERIC_FAIL) {
+            new Alert(Alert.AlertType.ERROR, "Unexpected Error: Download was aborted.").showAndWait();
+        }
+    }
+
+    @FXML
+    public void saveAsMp4BtnClicked() {
+        model.pauseVideoPlayer();
+        if (model instanceof VideoModel videoModel) {
+
+            ImageRenderer imageRender = new ImageRenderer(asciiArtPane.getFontSize(),
+                    asciiArtPane.getTextAreaWidth(), asciiArtPane.getTextAreaHeight(), AsciiArtPane.getDefaultFont())
+                    .setBgColor(bgColorPicker.getValue())
+                    .setTextColor(textColorPicker.getValue());
+
+            int saveVideoResult = fileManager.saveVideo(videoModel.getCompiledArt(), imageRender);
+            if (saveVideoResult == fileManager.OUT_OF_MEMORY) {
+                new Alert(Alert.AlertType.ERROR, "File is too large: Download was aborted.").showAndWait();
+            } else if (saveVideoResult == fileManager.GENERIC_FAIL) {
+                new Alert(Alert.AlertType.ERROR, "Unexpected Error: Download was aborted.").showAndWait();
+            }
+        }
     }
 
     @FXML
@@ -286,20 +310,6 @@ public class Controller implements Observer {
     @FXML
     public void exportTxtBtnClicked() {
         exportTxtMenuItemClicked();
-    }
-
-    @FXML
-    public void saveAsMp4BtnClicked() {
-        model.pauseVideoPlayer();
-        if (model instanceof VideoModel videoModel) {
-
-            ImageRenderer imageRender = new ImageRenderer(asciiArtPane.getFontSize(),
-                    asciiArtPane.getTextAreaWidth(), asciiArtPane.getTextAreaHeight(), AsciiArtPane.getDefaultFont())
-                    .setBgColor(bgColorPicker.getValue())
-                    .setTextColor(textColorPicker.getValue());
-
-            fileManager.saveVideo(videoModel.getCompiledArt(), imageRender);
-        }
     }
 
     public String getTitle() {
