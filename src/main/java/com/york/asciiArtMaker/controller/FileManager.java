@@ -4,8 +4,6 @@ import com.york.asciiArtMaker.AppUtil;
 import com.york.asciiArtMaker.AsciiArtMaker;
 import com.york.asciiArtMaker.asciiArt.AsciiImage;
 import com.york.asciiArtMaker.asciiArt.AsciiVideo;
-import com.york.asciiArtMaker.models.AppModel;
-import com.york.asciiArtMaker.models.VideoModel;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.stage.FileChooser;
@@ -24,6 +22,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class FileManager {
+
+    public final int SUCCESS = 0;
+    public final int GENERIC_FAIL = 1;
+    public final int OUT_OF_MEMORY = 2;
+    public final int USER_CANCEL = 3;
 
     public static final Set<String> imageFileFormats = Set.of("png", "jpg");
     public static final Set<String> videoFileFormats = Set.of("mp4");
@@ -83,44 +86,49 @@ public class FileManager {
         return selected;
     }
 
-    public boolean saveTxtFile(AsciiImage asciiImage) {
+    public int saveTxtFile(AsciiImage asciiImage) {
         File output = getSaveLoc(asciiImage.getFileName(), txtFileSaver);
-        if (output == null) return false;
+        if (output == null) return USER_CANCEL;
 
         if (writeTxtFile(asciiImage.toStr(), output)) {
             txtFileSaver.setInitialDirectory(output.getParentFile());
-            return true;
-        } else return false;
+            return SUCCESS;
+        } else return GENERIC_FAIL;
     }
 
-    public boolean saveVideo(AsciiVideo video, ImageRenderer imageRenderer) {
+    public int saveVideo(AsciiVideo video, ImageRenderer imageRenderer) {
         File output = getSaveLoc(video.getFileName(imageRenderer.getBgColor(), imageRenderer.getTextColor()),
                 videoFileSaver);
-        if (output == null) return false;
+        if (output == null) return USER_CANCEL;
 
         imageRenderer.setImageType(BufferedImage.TYPE_3BYTE_BGR);
 
-        List<BufferedImage> images = Arrays.stream(video.frames())
-                .map(imageRenderer::render)
-                .toList();
+        try {
+            List<BufferedImage> images = Arrays.stream(video.frames())
+                    .map(imageRenderer::render)
+                    .toList();
 
-        if (writeMp4File(images, video.fps(), output)) {
-            videoFileSaver.setInitialDirectory(output.getParentFile());
-            return true;
-        } else return false;
+            if (writeMp4File(images, video.fps(), output)) {
+                videoFileSaver.setInitialDirectory(output.getParentFile());
+                return SUCCESS;
+            } else return GENERIC_FAIL;
+
+        } catch (OutOfMemoryError e) {
+            return OUT_OF_MEMORY;
+        }
     }
 
-    public boolean saveImage(AsciiImage asciiImage, ImageRenderer imageRenderer) {
+    public int saveImage(AsciiImage asciiImage, ImageRenderer imageRenderer) {
         File output = getSaveLoc(asciiImage.getFileName(imageRenderer.getBgColor(), imageRenderer.getTextColor()),
                 imageFileSaver);
-        if (output == null) return false;
+        if (output == null) return USER_CANCEL;
 
         BufferedImage image = imageRenderer.render(asciiImage);
 
         if (writeImageFile(image, output)) {
             imageFileSaver.setInitialDirectory(output.getParentFile());
-            return true;
-        } else return false;
+            return SUCCESS;
+        } else return GENERIC_FAIL;
     }
 
     private File getSaveLoc(String name, FileChooser fileChooser) {

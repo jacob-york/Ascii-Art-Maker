@@ -11,7 +11,9 @@ import static com.york.asciiArtMaker.AppUtil.JFXColorToJavaColor;
 
 public class ImageRenderer {
 
-    // todo: getters w/ no setters. Practically a record.
+    // todo:
+    //  adjustable resolution
+    //  try and refactor this into a proper builder
     private static double ADJ_CONSTANT = 1.5;
     private double fontPoint;
     private String font;
@@ -59,7 +61,6 @@ public class ImageRenderer {
         textColor = newTextColor;
         return this;
     }
-
 
     public double getFontPoint() {
         return fontPoint;
