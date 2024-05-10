@@ -23,11 +23,6 @@ import java.util.*;
 
 public class FileManager {
 
-    public final int SUCCESS = 0;
-    public final int GENERIC_FAIL = 1;
-    public final int OUT_OF_MEMORY = 2;
-    public final int USER_CANCEL = 3;
-
     public static final Set<String> imageFileFormats = Set.of("png", "jpg");
     public static final Set<String> videoFileFormats = Set.of("mp4");
 
@@ -50,7 +45,6 @@ public class FileManager {
     private static FileChooser initFileChooser(String title, Collection<String> fileTypes) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle(title);
-
 
         fileTypes.stream()
                 .map(str -> new FileChooser.ExtensionFilter(str.toUpperCase(), "*" + str))
@@ -77,58 +71,46 @@ public class FileManager {
      * uses a FileChooser to select a file.
      * @return the user-selected file (null if cancelled).
      */
-    public File selectFile() {
+    public Optional<File> selectFile() {
         File selected = selectFileChooser.showOpenDialog(new Stage());
-        if (selected != null) {
-            selectFileChooser.setInitialDirectory(selected.getParentFile());
-        }
+        if (selected == null) return Optional.empty();
 
-        return selected;
+        selectFileChooser.setInitialDirectory(selected.getParentFile());
+        return Optional.of(selected);
     }
 
-    public int saveTxtFile(AsciiImage asciiImage) {
+    public boolean saveTxtFile(AsciiImage asciiImage) throws IOException {
         File output = getSaveLoc(asciiImage.getFileName(), txtFileSaver);
-        if (output == null) return USER_CANCEL;
+        if (output == null) return false;
 
-        if (writeTxtFile(asciiImage.toStr(), output)) {
-            txtFileSaver.setInitialDirectory(output.getParentFile());
-            return SUCCESS;
-        } else return GENERIC_FAIL;
+        if (!writeTxtFile(asciiImage.toStr(), output)) return false;
+        txtFileSaver.setInitialDirectory(output.getParentFile());
+        return true;
     }
 
-    public int saveVideo(AsciiVideo video, ImageRenderer imageRenderer) {
+    public boolean saveVideo(AsciiVideo video, ImageRenderer imageRenderer) throws OutOfMemoryError {
         File output = getSaveLoc(video.getFileName(imageRenderer.getBgColor(), imageRenderer.getTextColor()),
                 videoFileSaver);
-        if (output == null) return USER_CANCEL;
+        if (output == null) return false;
 
-        imageRenderer.setImageType(BufferedImage.TYPE_3BYTE_BGR);
-
-        try {
-            List<BufferedImage> images = Arrays.stream(video.frames())
+        // OutOfMemoryError expected
+        List<BufferedImage> images = Arrays.stream(video.frames())
                     .map(imageRenderer::render)
                     .toList();
 
-            if (writeMp4File(images, video.fps(), output)) {
-                videoFileSaver.setInitialDirectory(output.getParentFile());
-                return SUCCESS;
-            } else return GENERIC_FAIL;
-
-        } catch (OutOfMemoryError e) {
-            return OUT_OF_MEMORY;
-        }
+        writeMp4File(images, video.fps(), output);
+        videoFileSaver.setInitialDirectory(output.getParentFile());
+        return true;
     }
 
-    public int saveImage(AsciiImage asciiImage, ImageRenderer imageRenderer) {
+    public boolean saveImage(AsciiImage asciiImage, ImageRenderer imageRenderer) throws OutOfMemoryError, IOException {
         File output = getSaveLoc(asciiImage.getFileName(imageRenderer.getBgColor(), imageRenderer.getTextColor()),
                 imageFileSaver);
-        if (output == null) return USER_CANCEL;
+        if (output == null) return false;
 
-        BufferedImage image = imageRenderer.render(asciiImage);
-
-        if (writeImageFile(image, output)) {
-            imageFileSaver.setInitialDirectory(output.getParentFile());
-            return SUCCESS;
-        } else return GENERIC_FAIL;
+        ImageIO.write(imageRenderer.render(asciiImage), readFileExtension(output), output);
+        imageFileSaver.setInitialDirectory(output.getParentFile());
+        return true;
     }
 
     private File getSaveLoc(String name, FileChooser fileChooser) {
@@ -153,7 +135,7 @@ public class FileManager {
         }
     }
 
-    private boolean writeMp4File(List<BufferedImage> images, double fps, File output) {
+    private void writeMp4File(List<BufferedImage> images, double fps, File output) {
         int fourcc = VideoWriter.fourcc('m', 'p', '4', 'v');
         List<Mat> mats = images.stream().map(AppUtil::matify).toList();
         Size frameSize = new Size(mats.get(0).width(), mats.get(0).height());
@@ -165,16 +147,6 @@ public class FileManager {
         }
 
         writer.release();
-        return true;
-    }
-
-    private boolean writeImageFile(BufferedImage image, File output) {
-        try {
-            ImageIO.write(image, readFileExtension(output), output);
-            return true;
-        } catch (IOException e) {
-            return false;
-        }
     }
 
     public Optional<Parent> safeLoadFXML(String location) {

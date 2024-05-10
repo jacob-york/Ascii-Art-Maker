@@ -28,8 +28,10 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 
 // TODO: This is bloated.
 public class Controller implements Observer {
@@ -183,23 +185,27 @@ public class Controller implements Observer {
     @FXML
     public void exportTxtMenuItemClicked() {
         model.pauseVideoPlayer();
-        fileManager.saveTxtFile(model.getCurFrame());
+
+        try {
+            fileManager.saveTxtFile(model.getCurFrame());
+        } catch (Exception e) {
+            new Alert(Alert.AlertType.ERROR, e.getMessage()).showAndWait();
+        }
     }
 
     @FXML
     public void saveImageMenuItemClicked() {
         model.pauseVideoPlayer();
 
-        ImageRenderer imageRender = new ImageRenderer(asciiArtPane.getFontSize(),
+        ImageRenderer imageRenderer = new ImageRenderer(asciiArtPane.getFontSize(),
                 asciiArtPane.getTextAreaWidth(), asciiArtPane.getTextAreaHeight(), AsciiArtPane.getDefaultFont())
                 .setBgColor(bgColorPicker.getValue())
                 .setTextColor(textColorPicker.getValue());
 
-        int saveImageResult = fileManager.saveImage(model.getCurFrame(), imageRender);
-        if (saveImageResult == fileManager.OUT_OF_MEMORY) {
-            new Alert(Alert.AlertType.ERROR, "File is too large: Download was aborted.").showAndWait();
-        } else if (saveImageResult == fileManager.GENERIC_FAIL) {
-            new Alert(Alert.AlertType.ERROR, "Unexpected Error: Download was aborted.").showAndWait();
+        try {
+            fileManager.saveImage(model.getCurFrame(), imageRenderer);
+        } catch (Exception e) {
+            new Alert(Alert.AlertType.ERROR, e.getMessage()).showAndWait();
         }
     }
 
@@ -211,13 +217,13 @@ public class Controller implements Observer {
             ImageRenderer imageRender = new ImageRenderer(asciiArtPane.getFontSize(),
                     asciiArtPane.getTextAreaWidth(), asciiArtPane.getTextAreaHeight(), AsciiArtPane.getDefaultFont())
                     .setBgColor(bgColorPicker.getValue())
-                    .setTextColor(textColorPicker.getValue());
+                    .setTextColor(textColorPicker.getValue())
+                    .setImageType(BufferedImage.TYPE_3BYTE_BGR);;
 
-            int saveVideoResult = fileManager.saveVideo(videoModel.getCompiledArt(), imageRender);
-            if (saveVideoResult == fileManager.OUT_OF_MEMORY) {
-                new Alert(Alert.AlertType.ERROR, "File is too large: Download was aborted.").showAndWait();
-            } else if (saveVideoResult == fileManager.GENERIC_FAIL) {
-                new Alert(Alert.AlertType.ERROR, "Unexpected Error: Download was aborted.").showAndWait();
+            try {
+                fileManager.saveVideo(videoModel.getCompiledArt(), imageRender);
+            } catch (Exception e) {
+                new Alert(Alert.AlertType.ERROR, e.getMessage()).showAndWait();
             }
         }
     }
@@ -393,8 +399,9 @@ public class Controller implements Observer {
     }
 
     public boolean openFile() {
-        File selected = fileManager.selectFile();
-        if (selected == null) return false;
+        Optional<File> maybeFile = fileManager.selectFile();
+        if (maybeFile.isEmpty()) return false;
+        File selected = maybeFile.get();
 
         if (FileManager.isVideoFile(selected)) {
             return beginLoading(selected);
