@@ -5,7 +5,7 @@ import com.york.asciiArtMaker.asciiArt.AsciiArtBuilder;
 import com.york.asciiArtMaker.asciiArt.AsciiImage;
 import com.york.asciiArtMaker.asciiArt.AsciiVideo;
 import com.york.asciiArtMaker.asciiArt.AsciiVideoBuilder;
-import com.york.asciiArtMaker.controller.Controller;
+import com.york.asciiArtMaker.controller.MainController;
 import com.york.asciiArtMaker.controller.VideoPlayer;
 import com.york.asciiArtMaker.view.AsciiArtPane;
 import javafx.scene.control.Button;
@@ -29,25 +29,25 @@ public class VideoModel implements AppModel {
     }
 
     @Override
-    public void configureGUI(Controller controller) {
-        controller.toolBar.setDisable(false);
-        controller.fontField.setText(String.valueOf(controller.getAsciiArtPane().getFontSize()));
-        controller.charWidthField.setText("1");
+    public void configureGUI(MainController mainController) {
+        mainController.toolBar.setDisable(false);
+        mainController.fontField.setText(String.valueOf(mainController.getAsciiArtPane().getFontSize()));
+        mainController.charWidthField.setText("1");
 
-        controller.videoControlBox.setDisable(false);
-        controller.saveAsMp4Btn.setDisable(false);
+        mainController.videoControlBox.setDisable(false);
+        mainController.saveAsMp4Btn.setDisable(false);
 
-        controller.exportTxtMenuItem.setDisable(false);
-        controller.saveImageMenuItem.setDisable(false);
-        controller.compileFramesMenuItem.setDisable(false);
+        mainController.exportTxtMenuItem.setDisable(false);
+        mainController.saveImageMenuItem.setDisable(false);
+        mainController.compileFramesMenuItem.setDisable(false);
 
-        setCharWidth(Integer.parseInt(controller.charWidthField.getText()));
-        setInvertedShading(controller.invertedShadingBtn.isSelected());
+        setCharWidth(Integer.parseInt(mainController.charWidthField.getText()));
+        setInvertedShading(mainController.invertedShadingBtn.isSelected());
 
-        controller.getAsciiArtPane().setText(getCurFrame());
+        mainController.getAsciiArtPane().setText(getCurFrame());
 
-        controller.setTitle(getMediaName().orElse("untitled") + " - " + AsciiArtMaker.TITLE);
-        controller.borderPane.setCenter(controller.getAsciiArtPane());
+        mainController.setTitle(getMediaName().orElse("untitled") + " - " + AsciiArtMaker.TITLE);
+        mainController.borderPane.setCenter(mainController.getAsciiArtPane());
     }
 
     @Override

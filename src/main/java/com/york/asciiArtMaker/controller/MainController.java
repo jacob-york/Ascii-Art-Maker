@@ -1,10 +1,7 @@
 package com.york.asciiArtMaker.controller;
 
 import com.york.asciiArtMaker.AsciiArtMaker;
-import com.york.asciiArtMaker.adapters.ImageFileAdapter;
-import com.york.asciiArtMaker.adapters.ImageSource;
-import com.york.asciiArtMaker.adapters.VideoFileConnectionService;
-import com.york.asciiArtMaker.adapters.VideoSource;
+import com.york.asciiArtMaker.adapters.*;
 import com.york.asciiArtMaker.asciiArt.AsciiImageBuilder;
 import com.york.asciiArtMaker.asciiArt.AsciiVideoBuilder;
 import com.york.asciiArtMaker.models.AppModel;
@@ -34,7 +31,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 // TODO: This is bloated.
-public class Controller implements Observer {
+public class MainController implements VFCSObserver {
 
     @FXML
     public VBox zoomControls;
@@ -413,14 +410,6 @@ public class Controller implements Observer {
         }
     }
 
-    public void setArt(VideoSource videoSource) {
-        model.close();
-
-        AsciiVideoBuilder avb = new AsciiVideoBuilder(videoSource);
-        model = new VideoModel(avb, playVideoBtn, asciiArtPane);
-        model.configureGUI(this);
-    }
-
     private boolean beginLoading(File selected) {
         FXMLLoader loader = new FXMLLoader(AsciiArtMaker.class.getResource("fxml/video_loading_dialog.fxml"));
         Parent root;
@@ -434,10 +423,16 @@ public class Controller implements Observer {
         } catch (IOException e) {
             return false;
         }
-        LoadDialogController ldController = loader.getController();
-        ldController.setObserver(this);
+
+        VideoFileConnectionService vfcs = new VideoFileConnectionService(selected);
+
+        LoadingDialogController ldController = loader.getController();
+        ldController.addObserver(vfcs);
         ldController.setDisplayText("Gathering frame data");
-        new VideoFileConnectionService(selected, ldController).start();
+
+        vfcs.addObserver(this);
+        vfcs.addObserver(ldController);
+        vfcs.start();
         loadDialogStage.show();
 
         return true;
@@ -452,5 +447,27 @@ public class Controller implements Observer {
         model.configureGUI(this);
 
         return true;
+    }
+
+    @Override
+    public void setTotalFrames(int totalFrames) {}
+
+    @Override
+    public void userCancel() {
+        String errorMsg = "There was an error opening your video file.";
+
+        new Alert(Alert.AlertType.ERROR, errorMsg).showAndWait();
+    }
+
+    @Override
+    public void setCurFrame(int curFrame) {}
+
+    @Override
+    public void success(VideoSource videoSource) {
+        model.close();
+
+        AsciiVideoBuilder avb = new AsciiVideoBuilder(videoSource);
+        model = new VideoModel(avb, playVideoBtn, asciiArtPane);
+        model.configureGUI(this);
     }
 }

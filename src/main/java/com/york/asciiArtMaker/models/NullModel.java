@@ -3,7 +3,7 @@ package com.york.asciiArtMaker.models;
 import com.york.asciiArtMaker.AsciiArtMaker;
 import com.york.asciiArtMaker.asciiArt.AsciiArtBuilder;
 import com.york.asciiArtMaker.asciiArt.AsciiImage;
-import com.york.asciiArtMaker.controller.Controller;
+import com.york.asciiArtMaker.controller.MainController;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -20,19 +20,19 @@ public class NullModel implements AppModel {
     }
 
     @Override
-    public void configureGUI(Controller controller) {
-        controller.toolBar.setDisable(true);
-        controller.fontField.setText("");
-        controller.charWidthField.setText("");
+    public void configureGUI(MainController mainController) {
+        mainController.toolBar.setDisable(true);
+        mainController.fontField.setText("");
+        mainController.charWidthField.setText("");
 
-        controller.exportTxtMenuItem.setDisable(true);
-        controller.saveImageMenuItem.setDisable(true);
-        controller.compileFramesMenuItem.setDisable(true);
+        mainController.exportTxtMenuItem.setDisable(true);
+        mainController.saveImageMenuItem.setDisable(true);
+        mainController.compileFramesMenuItem.setDisable(true);
 
-        ((Stage) controller.borderPane.getScene().getWindow())
+        ((Stage) mainController.borderPane.getScene().getWindow())
                 .setTitle(AsciiArtMaker.TITLE);
 
-        controller.borderPane.setCenter(new Text("No Media Selected."));
+        mainController.borderPane.setCenter(new Text("No Media Selected."));
     }
 
     @Override

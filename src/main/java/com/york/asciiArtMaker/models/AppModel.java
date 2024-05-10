@@ -2,7 +2,7 @@ package com.york.asciiArtMaker.models;
 
 import com.york.asciiArtMaker.asciiArt.AsciiArtBuilder;
 import com.york.asciiArtMaker.asciiArt.AsciiImage;
-import com.york.asciiArtMaker.controller.Controller;
+import com.york.asciiArtMaker.controller.MainController;
 
 import java.util.Optional;
 
@@ -25,7 +25,7 @@ public interface AppModel {
         return Math.min(Math.max(value, min), max);
     }
     void close();
-    void configureGUI(Controller presenter);
+    void configureGUI(MainController presenter);
     void toggleVideoPlayerState();
     void prevFrame();
     void nextFrame();
