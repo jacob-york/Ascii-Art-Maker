@@ -35,10 +35,11 @@ public class VideoModel implements AppModel {
         mainController.charWidthField.setText("1");
 
         mainController.videoControlBox.setDisable(false);
-        mainController.saveAsMp4Btn.setDisable(false);
+        mainController.saveMp4Btn.setDisable(false);
 
         mainController.exportTxtMenuItem.setDisable(false);
         mainController.saveImageMenuItem.setDisable(false);
+        mainController.saveMp4MenuItem.setDisable(false);
         mainController.compileFramesMenuItem.setDisable(false);
 
         setCharWidth(Integer.parseInt(mainController.charWidthField.getText()));

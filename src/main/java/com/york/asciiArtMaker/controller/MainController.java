@@ -83,9 +83,12 @@ public class MainController implements VFCSObserver {
     @FXML
     public MenuItem compileFramesMenuItem;
     @FXML
+    public MenuItem saveMp4MenuItem;
+
+    @FXML
     public MenuItem copyMenuItem;
     @FXML
-    public Button saveAsMp4Btn;
+    public Button saveMp4Btn;
 
     @FXML
     public Button exportTxtBtn;
@@ -175,17 +178,12 @@ public class MainController implements VFCSObserver {
     }
 
     @FXML
-    public void webcamMenuItemClicked() {
-
-    }
-
-    @FXML
     public void exportTxtMenuItemClicked() {
         model.pauseVideoPlayer();
 
         try {
             fileManager.saveTxtFile(model.getCurFrame());
-        } catch (Exception e) {
+        } catch (Throwable e) {
             new Alert(Alert.AlertType.ERROR, e.getMessage()).showAndWait();
         }
     }
@@ -201,28 +199,33 @@ public class MainController implements VFCSObserver {
 
         try {
             fileManager.saveImage(model.getCurFrame(), imageRenderer);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             new Alert(Alert.AlertType.ERROR, e.getMessage()).showAndWait();
         }
     }
 
     @FXML
-    public void saveAsMp4BtnClicked() {
+    public void saveMp4MenuItemClicked() {
         model.pauseVideoPlayer();
-        if (model instanceof VideoModel videoModel) {
 
+        if (model instanceof VideoModel videoModel) {
             ImageRenderer imageRender = new ImageRenderer(asciiArtPane.getFontSize(),
                     asciiArtPane.getTextAreaWidth(), asciiArtPane.getTextAreaHeight(), AsciiArtPane.getDefaultFont())
                     .setBgColor(bgColorPicker.getValue())
                     .setTextColor(textColorPicker.getValue())
-                    .setImageType(BufferedImage.TYPE_3BYTE_BGR);;
+                    .setImageType(BufferedImage.TYPE_3BYTE_BGR);
 
             try {
                 fileManager.saveVideo(videoModel.getCompiledArt(), imageRender);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 new Alert(Alert.AlertType.ERROR, e.getMessage()).showAndWait();
             }
         }
+    }
+
+    @FXML
+    public void saveMp4BtnClicked() {
+        saveMp4MenuItemClicked();
     }
 
     @FXML
@@ -307,12 +310,20 @@ public class MainController implements VFCSObserver {
 
     @FXML
     public void saveImageBtnClicked() {
-        saveImageMenuItemClicked();
+        try {
+            saveImageMenuItemClicked();
+        } catch (Throwable e) {
+            new Alert(Alert.AlertType.ERROR, e.getMessage()).showAndWait();
+        }
     }
 
     @FXML
     public void exportTxtBtnClicked() {
-        exportTxtMenuItemClicked();
+        try {
+            exportTxtMenuItemClicked();
+        } catch (Throwable e) {
+            new Alert(Alert.AlertType.ERROR, e.getMessage()).showAndWait();
+        }
     }
 
     public String getTitle() {

@@ -46,9 +46,18 @@
                               </MenuItem>
                               <MenuItem fx:id="saveImageMenuItem" disable="true" mnemonicParsing="false" onAction="#saveImageMenuItemClicked" text="Save as Image...">
                                  <graphic>
-                                    <ImageView fitHeight="30.0" fitWidth="30.0" opacity="0.6" pickOnBounds="true" preserveRatio="true" smooth="false">
+                                    <ImageView fitHeight="15.0" fitWidth="15.0" opacity="0.6" pickOnBounds="true" preserveRatio="true" smooth="false">
                                        <image>
                                           <Image url="@../icons/image.png" />
+                                       </image>
+                                    </ImageView>
+                                 </graphic>
+                              </MenuItem>
+                              <MenuItem fx:id="saveMp4MenuItem" disable="true" mnemonicParsing="false" onAction="#saveMp4MenuItemClicked" text="Save as Mp4...">
+                                 <graphic>
+                                    <ImageView fitHeight="15.0" fitWidth="15.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@../icons/video.png" />
                                        </image>
                                     </ImageView>
                                  </graphic>
@@ -334,7 +343,7 @@
                                     </ImageView>
                                  </graphic>
                               </Button>
-                              <Button fx:id="saveAsMp4Btn" mnemonicParsing="false" onAction="#saveAsMp4BtnClicked" prefHeight="45.0" prefWidth="45.0">
+                              <Button fx:id="saveMp4Btn" mnemonicParsing="false" onAction="#saveMp4BtnClicked" prefHeight="45.0" prefWidth="45.0">
                                  <font>
                                     <Font name="Consolas" size="15.0" />
                                  </font>

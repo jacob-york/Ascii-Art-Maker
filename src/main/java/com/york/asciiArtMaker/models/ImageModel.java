@@ -29,10 +29,11 @@ public class ImageModel implements AppModel {
         mainController.charWidthField.setText("1");
 
         mainController.videoControlBox.setDisable(true);
-        mainController.saveAsMp4Btn.setDisable(true);
+        mainController.saveMp4Btn.setDisable(true);
 
         mainController.exportTxtMenuItem.setDisable(false);
         mainController.saveImageMenuItem.setDisable(false);
+        mainController.saveMp4MenuItem.setDisable(true);
         mainController.compileFramesMenuItem.setDisable(true);
 
         setCharWidth(Integer.parseInt(mainController.charWidthField.getText()));
