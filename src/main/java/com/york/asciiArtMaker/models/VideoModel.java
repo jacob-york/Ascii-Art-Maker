@@ -126,7 +126,7 @@ public class VideoModel implements AppModel {
         return builder.buildFrame(i);
     }
 
-    public AsciiVideo getCompiledArt() {
+    public AsciiVideo compileArt() {
         return builder.build();
     }
 }

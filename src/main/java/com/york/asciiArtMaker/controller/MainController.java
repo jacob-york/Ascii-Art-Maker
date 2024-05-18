@@ -14,8 +14,6 @@ import com.york.asciiArtMaker.view.ThemeMenuItem;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -31,7 +29,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 // TODO: This is bloated.
-public class MainController implements VFCSObserver {
+public class MainController implements ReturnLocation<VideoSource> {
 
     @FXML
     public VBox zoomControls;
@@ -216,7 +214,7 @@ public class MainController implements VFCSObserver {
                     .setImageType(BufferedImage.TYPE_3BYTE_BGR);
 
             try {
-                fileManager.saveVideo(videoModel.getCompiledArt(), imageRender);
+                fileManager.saveVideo(videoModel.compileArt(), imageRender);
             } catch (Throwable e) {
                 new Alert(Alert.AlertType.ERROR, e.getMessage()).showAndWait();
             }
@@ -338,7 +336,7 @@ public class MainController implements VFCSObserver {
 
     private void compileFrames() {
         if (model instanceof VideoModel videoModel) {
-            videoModel.getCompiledArt();
+            videoModel.compileArt();
         }
     }
 
@@ -422,28 +420,25 @@ public class MainController implements VFCSObserver {
     }
 
     private boolean beginLoading(File selected) {
-        FXMLLoader loader = new FXMLLoader(AsciiArtMaker.class.getResource("fxml/video_loading_dialog.fxml"));
-        Parent root;
+        FXMLLoader loader = new FXMLLoader(AsciiArtMaker.class.getResource("fxml/loading_dialog.fxml"));
         Stage loadDialogStage;
+
         try {
-            loadDialogStage = new Stage();
-            root = loader.load();
-            Scene loadDialogScene = new Scene(root);
-            loadDialogStage.setScene(loadDialogScene);
+            loadDialogStage = loader.load();
             loadDialogStage.initOwner(AsciiArtMaker.getMainStage());
         } catch (IOException e) {
+            new Alert(Alert.AlertType.ERROR, e.getMessage()).showAndWait();
             return false;
         }
 
-        VideoFileConnectionService vfcs = new VideoFileConnectionService(selected);
+        VideoFileConnectionService vfcs = new VideoFileConnectionService(selected, this);
 
         LoadingDialogController ldController = loader.getController();
-        ldController.addObserver(vfcs);
-        ldController.setDisplayText("Gathering frame data");
+        ldController.setCancellable(vfcs);
+        ldController.setDisplayText("Gathering frame data...");
 
-        vfcs.addObserver(this);
-        vfcs.addObserver(ldController);
-        vfcs.start();
+        vfcs.addProgressMonitor(ldController);
+        vfcs.run();
         loadDialogStage.show();
 
         return true;
@@ -461,23 +456,10 @@ public class MainController implements VFCSObserver {
     }
 
     @Override
-    public void setTotalFrames(int totalFrames) {}
-
-    @Override
-    public void userCancel() {
-        String errorMsg = "There was an error opening your video file.";
-
-        new Alert(Alert.AlertType.ERROR, errorMsg).showAndWait();
-    }
-
-    @Override
-    public void setCurFrame(int curFrame) {}
-
-    @Override
-    public void success(VideoSource videoSource) {
+    public void acceptResult(VideoSource result) {
         model.close();
 
-        AsciiVideoBuilder avb = new AsciiVideoBuilder(videoSource);
+        AsciiVideoBuilder avb = new AsciiVideoBuilder(result);
         model = new VideoModel(avb, playVideoBtn, asciiArtPane);
         model.configureGUI(this);
     }

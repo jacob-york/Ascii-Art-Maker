@@ -1,9 +1,9 @@
 package com.york.asciiArtMaker.adapters;
 
-import com.york.asciiArtMaker.controller.LoadingDialogObserver;
+import com.york.asciiArtMaker.controller.Cancellable;
+import com.york.asciiArtMaker.controller.ProgressMonitor;
+import com.york.asciiArtMaker.controller.ReturnLocation;
 import javafx.application.Platform;
-import javafx.concurrent.Service;
-import javafx.concurrent.Task;
 import org.opencv.core.Mat;
 import org.opencv.videoio.VideoCapture;
 import org.opencv.videoio.Videoio;
@@ -20,7 +20,7 @@ import java.util.*;
  *  <p>Due to API limitations regarding OpenCV, the process is slow and must be done linearly from frame 0
  *  to the last frame, hence the motivation to abstract it into a Service that can run on a separate thread.</p>
  */
-public class VideoFileConnectionService extends Service<Void> implements LoadingDialogObserver {
+public class VideoFileConnectionService implements Cancellable, Runnable {
 
     /**
      * Nested class with a private constructor for representing a VideoSource that was created with a
@@ -125,71 +125,64 @@ public class VideoFileConnectionService extends Service<Void> implements Loading
         }
     }
 
-    public record Packet(int status, VideoSource videoSource, int frameInProgress, int totalFrames) {
-    }
-
-    public static final int INIT = 0;
-    public static final int IN_PROGRESS = 1;
-    public static final int USER_CANCEL = 2;
-    public static final int FINISHED = 3;
-    public static final int FAILED_TO_OPEN = 4;
-
-    private final List<Mat> fcsMatrices;
     private final File file;
     private int frameInProgress;
-    private final List<VFCSObserver> observers;
-    private boolean userCancelled;
+    private boolean cancelled;
+    private final List<ProgressMonitor> observers;
+    private final ReturnLocation<VideoSource> returnLocation;
+    private final VideoCapture vc;
+    private final Mat buffer;  // holds data for a frame
 
-    public VideoFileConnectionService(File file) {
-        this.fcsMatrices = new ArrayList<>();
+    public VideoFileConnectionService(File file, ReturnLocation<VideoSource> returnLocation) {
         this.file = file;
+        this.returnLocation = returnLocation;
         frameInProgress = 0;
-        userCancelled = false;
 
+        vc = new VideoCapture(file.getPath());
+        buffer = new Mat();
         observers = new ArrayList<>();
     }
 
-    public void onUserCancel() {
-        userCancelled = true;
-    }
+    @Override
+    public void run() {
+        if (!vc.isOpened()) {
+            Platform.runLater(() -> observers.forEach(ProgressMonitor::cancel));
+            return;
+        }
 
-    public void addObserver(VFCSObserver observer) {
-        observers.add(observer);
+        double fps = vc.get(Videoio.CAP_PROP_FPS);
+        double estFrameCount = vc.get(Videoio.CAP_PROP_FRAME_COUNT);
+        List<Mat> matrices = new ArrayList<>();
+
+        while (!cancelled && vc.read(buffer)) {
+            frameInProgress++;
+            matrices.add(buffer.clone());
+            Platform.runLater(() -> observers.forEach(observer ->
+                    observer.setProgress((double) frameInProgress / estFrameCount)));
+        }
+
+        vc.release();
+        buffer.release();
+
+        if (!cancelled) {
+            VideoSource videoSource = new VideoFileAdapter(file.getName(), fps, matrices);
+            Platform.runLater(() -> {
+                observers.forEach(ProgressMonitor::finish);
+                returnLocation.acceptResult(videoSource);
+            });
+        }
     }
 
     @Override
-    protected Task<Void> createTask() {
+    public boolean cancel() {
+        cancelled = true;
+        vc.release();
+        buffer.release();
+        return true;
+    }
 
-        return new Task<>() {
-            @Override
-            protected Void call() {
-                VideoCapture vc = new VideoCapture(file.getPath());
-                if (!vc.isOpened()) {
-                    Platform.runLater(() -> observers.forEach(VFCSObserver::userCancel));
-                    return null;
-                }
-                double fps = vc.get(Videoio.CAP_PROP_FPS);
-                int frameCount = (int) vc.get(Videoio.CAP_PROP_FRAME_COUNT);
-                Platform.runLater(() -> observers.forEach(observer -> observer.setTotalFrames(frameCount)));
-
-                Mat mat = new Mat();
-
-                while (!userCancelled && vc.read(mat)) {
-                    frameInProgress++;
-                    fcsMatrices.add(mat.clone());
-                    Platform.runLater(() -> observers.forEach(observer -> observer.setCurFrame(frameInProgress)));
-                }
-
-                vc.release();
-                mat.release();
-
-                if (!userCancelled) {
-                    VideoSource videoSource = new VideoFileAdapter(file.getName(), fps, fcsMatrices);
-                    Platform.runLater(() -> observers.forEach(observer -> observer.success(videoSource)));
-                }
-                return null;
-            }
-        };
+    public void addProgressMonitor(ProgressMonitor observer) {
+        observers.add(observer);
     }
 
 }
