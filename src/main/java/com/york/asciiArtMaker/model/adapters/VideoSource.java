@@ -1,4 +1,4 @@
-package com.york.asciiArtMaker.adapters;
+package com.york.asciiArtMaker.model.adapters;
 
 import java.util.Optional;
 

@@ -2,8 +2,8 @@ package com.york.asciiArtMaker.controller;
 
 import com.york.asciiArtMaker.AppUtil;
 import com.york.asciiArtMaker.AsciiArtMaker;
-import com.york.asciiArtMaker.asciiArt.AsciiImage;
-import com.york.asciiArtMaker.asciiArt.AsciiVideo;
+import com.york.asciiArtMaker.model.asciiArt.AsciiImage;
+import com.york.asciiArtMaker.model.asciiArt.AsciiVideo;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.stage.FileChooser;

@@ -1,23 +1,14 @@
-package com.york.asciiArtMaker.adapters;
+package com.york.asciiArtMaker.model.adapters;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.Optional;
 
-public class ImageFileAdapter implements ImageSource {
+public class BufferedImageAdapter implements ImageSource {
 
     private final BufferedImage bufferedImage;
-    private final String name;
 
-    public ImageFileAdapter(File file) {
-        try {
-            this.bufferedImage = ImageIO.read(file);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        this.name = file.getName();
+    public BufferedImageAdapter(BufferedImage bufferedImage) {
+        this.bufferedImage = bufferedImage;
     }
 
     @Override
@@ -32,7 +23,7 @@ public class ImageFileAdapter implements ImageSource {
 
     @Override
     public Optional<String> getName() {
-        return Optional.of(name);
+        return Optional.empty();
     }
 
     @Override
@@ -45,5 +36,4 @@ public class ImageFileAdapter implements ImageSource {
 
         return ImageSource.desaturate(a, r, g, b);
     }
-
 }

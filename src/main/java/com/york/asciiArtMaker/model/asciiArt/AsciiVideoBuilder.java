@@ -1,7 +1,7 @@
-package com.york.asciiArtMaker.asciiArt;
+package com.york.asciiArtMaker.model.asciiArt;
 
-import com.york.asciiArtMaker.adapters.VideoFileConnectionService;
-import com.york.asciiArtMaker.adapters.VideoSource;
+import com.york.asciiArtMaker.model.adapters.VideoFileConnectionService;
+import com.york.asciiArtMaker.model.adapters.VideoSource;
 
 import java.util.Optional;
 import java.util.stream.IntStream;

@@ -1,4 +1,4 @@
-package com.york.asciiArtMaker.asciiArt;
+package com.york.asciiArtMaker.model.asciiArt;
 
 import javafx.scene.paint.Color;
 
