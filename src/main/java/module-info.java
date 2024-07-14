@@ -14,14 +14,14 @@ module com.york.asciiartstudio {
 
     exports com.york.asciiArtMaker;
     opens com.york.asciiArtMaker to javafx.fxml;
-    exports com.york.asciiArtMaker.adapters;
-    opens com.york.asciiArtMaker.adapters to javafx.fxml;
-    exports com.york.asciiArtMaker.asciiArt;
-    opens com.york.asciiArtMaker.asciiArt to javafx.fxml;
+    exports com.york.asciiArtMaker.model.adapters;
+    opens com.york.asciiArtMaker.model.adapters to javafx.fxml;
+    exports com.york.asciiArtMaker.model.asciiArt;
+    opens com.york.asciiArtMaker.model.asciiArt to javafx.fxml;
     exports com.york.asciiArtMaker.controller;
     opens com.york.asciiArtMaker.controller to javafx.fxml;
-    exports com.york.asciiArtMaker.models;
-    opens com.york.asciiArtMaker.models to javafx.fxml;
+    exports com.york.asciiArtMaker.model.models;
+    opens com.york.asciiArtMaker.model.models to javafx.fxml;
     exports com.york.asciiArtMaker.view;
     opens com.york.asciiArtMaker.view to javafx.fxml;
 }

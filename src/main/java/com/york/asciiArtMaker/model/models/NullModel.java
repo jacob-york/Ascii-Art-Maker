@@ -1,8 +1,8 @@
-package com.york.asciiArtMaker.models;
+package com.york.asciiArtMaker.model.models;
 
 import com.york.asciiArtMaker.AsciiArtMaker;
-import com.york.asciiArtMaker.asciiArt.AsciiArtBuilder;
-import com.york.asciiArtMaker.asciiArt.AsciiImage;
+import com.york.asciiArtMaker.model.asciiArt.AsciiArtBuilder;
+import com.york.asciiArtMaker.model.asciiArt.AsciiImage;
 import com.york.asciiArtMaker.controller.MainController;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;

@@ -1,8 +1,8 @@
 package com.york.asciiArtMaker.controller;
 
 import com.york.asciiArtMaker.AsciiArtMaker;
-import com.york.asciiArtMaker.asciiArt.AsciiVideoBuilder;
-import com.york.asciiArtMaker.models.VideoModel;
+import com.york.asciiArtMaker.model.asciiArt.AsciiVideoBuilder;
+import com.york.asciiArtMaker.model.models.VideoModel;
 import com.york.asciiArtMaker.view.AsciiArtPane;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;

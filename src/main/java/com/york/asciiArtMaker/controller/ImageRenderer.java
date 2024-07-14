@@ -1,6 +1,6 @@
 package com.york.asciiArtMaker.controller;
 
-import com.york.asciiArtMaker.asciiArt.AsciiImage;
+import com.york.asciiArtMaker.model.asciiArt.AsciiImage;
 import com.york.asciiArtMaker.view.AsciiArtPane;
 import javafx.scene.paint.Color;
 

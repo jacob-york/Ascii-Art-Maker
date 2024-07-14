@@ -1,46 +1,40 @@
-package com.york.asciiArtMaker.models;
+package com.york.asciiArtMaker.model.models;
 
 import com.york.asciiArtMaker.AsciiArtMaker;
-import com.york.asciiArtMaker.asciiArt.AsciiArtBuilder;
-import com.york.asciiArtMaker.asciiArt.AsciiImage;
-import com.york.asciiArtMaker.asciiArt.AsciiVideo;
-import com.york.asciiArtMaker.asciiArt.AsciiVideoBuilder;
+import com.york.asciiArtMaker.model.asciiArt.AsciiArtBuilder;
+import com.york.asciiArtMaker.model.asciiArt.AsciiImage;
+import com.york.asciiArtMaker.model.asciiArt.AsciiImageBuilder;
 import com.york.asciiArtMaker.controller.MainController;
-import com.york.asciiArtMaker.controller.VideoPlayer;
-import com.york.asciiArtMaker.view.AsciiArtPane;
-import javafx.scene.control.Button;
 
 import java.util.Optional;
 
-public class VideoModel implements AppModel {
+public class ImageModel implements AppModel {
 
-    private final AsciiVideoBuilder builder;
-    private final VideoPlayer videoPlayer;
+    private final AsciiImageBuilder builder;
 
-    public VideoModel(AsciiVideoBuilder art, Button playButton, AsciiArtPane asciiArtPane) {
+
+    public ImageModel(AsciiImageBuilder art) {
+        super();
         this.builder = art;
-        this.videoPlayer = new VideoPlayer(playButton, asciiArtPane, this);
     }
 
     @Override
     public void close() {
-        videoPlayer.pause();
-        builder.releaseVideoSource();
+
     }
 
-    @Override
     public void configureGUI(MainController mainController) {
         mainController.toolBar.setDisable(false);
         mainController.fontField.setText(String.valueOf(mainController.getAsciiArtPane().getFontSize()));
         mainController.charWidthField.setText("1");
 
-        mainController.videoControlBox.setDisable(false);
-        mainController.saveMp4Btn.setDisable(false);
+        mainController.videoControlBox.setDisable(true);
+        mainController.saveMp4Btn.setDisable(true);
 
         mainController.exportTxtMenuItem.setDisable(false);
         mainController.saveImageMenuItem.setDisable(false);
-        mainController.saveMp4MenuItem.setDisable(false);
-        mainController.compileFramesMenuItem.setDisable(false);
+        mainController.saveMp4MenuItem.setDisable(true);
+        mainController.compileFramesMenuItem.setDisable(true);
 
         setCharWidth(Integer.parseInt(mainController.charWidthField.getText()));
         setInvertedShading(mainController.invertedShadingBtn.isSelected());
@@ -53,22 +47,22 @@ public class VideoModel implements AppModel {
 
     @Override
     public void toggleVideoPlayerState() {
-        videoPlayer.toggleState();
+
     }
 
     @Override
     public void prevFrame() {
-        videoPlayer.prevFrame(this);
+
     }
 
     @Override
     public void nextFrame() {
-        videoPlayer.nextFrame(this);
+
     }
 
     @Override
     public void pauseVideoPlayer() {
-        videoPlayer.pause();
+
     }
 
     @Override
@@ -79,7 +73,7 @@ public class VideoModel implements AppModel {
 
     @Override
     public int getFrameCount() {
-        return builder.getFrameCount();
+        return 1;
     }
 
     @Override
@@ -89,7 +83,7 @@ public class VideoModel implements AppModel {
 
     @Override
     public AsciiImage getCurFrame() {
-        return getFrameAt(videoPlayer.getCurFrameInd());
+        return builder.build();
     }
 
     @Override
@@ -118,15 +112,5 @@ public class VideoModel implements AppModel {
     @Override
     public void setInvertedShading(boolean newVal) {
         builder.setInvertedShading(newVal);
-    }
-
-    public AsciiImage getFrameAt(int i) {
-        if (i < 0 || i >= getFrameCount()) return null;
-
-        return builder.buildFrame(i);
-    }
-
-    public AsciiVideo compileArt() {
-        return builder.build();
     }
 }

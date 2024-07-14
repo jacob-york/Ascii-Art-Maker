@@ -1,8 +1,7 @@
-package com.york.asciiArtMaker.asciiArt;
+package com.york.asciiArtMaker.model.asciiArt;
 
-import com.york.asciiArtMaker.adapters.ImageSource;
+import com.york.asciiArtMaker.model.adapters.ImageSource;
 
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;

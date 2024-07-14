@@ -1,13 +1,13 @@
 package com.york.asciiArtMaker.controller;
 
 import com.york.asciiArtMaker.AsciiArtMaker;
-import com.york.asciiArtMaker.adapters.*;
-import com.york.asciiArtMaker.asciiArt.AsciiImageBuilder;
-import com.york.asciiArtMaker.asciiArt.AsciiVideoBuilder;
-import com.york.asciiArtMaker.models.AppModel;
-import com.york.asciiArtMaker.models.ImageModel;
-import com.york.asciiArtMaker.models.NullModel;
-import com.york.asciiArtMaker.models.VideoModel;
+import com.york.asciiArtMaker.model.adapters.*;
+import com.york.asciiArtMaker.model.asciiArt.AsciiImageBuilder;
+import com.york.asciiArtMaker.model.asciiArt.AsciiVideoBuilder;
+import com.york.asciiArtMaker.model.models.AppModel;
+import com.york.asciiArtMaker.model.models.ImageModel;
+import com.york.asciiArtMaker.model.models.NullModel;
+import com.york.asciiArtMaker.model.models.VideoModel;
 import com.york.asciiArtMaker.view.AsciiArtPane;
 import com.york.asciiArtMaker.view.ColorTheme;
 import com.york.asciiArtMaker.view.ThemeMenuItem;
@@ -438,7 +438,8 @@ public class MainController implements ReturnLocation<VideoSource> {
         ldController.setDisplayText("Gathering frame data...");
 
         vfcs.addProgressMonitor(ldController);
-        vfcs.run();
+        Thread videoLoadingThread = new Thread(vfcs);
+        videoLoadingThread.start();
         loadDialogStage.show();
 
         return true;
