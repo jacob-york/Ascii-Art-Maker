@@ -28,9 +28,9 @@ public class MatAdapter implements ImageSource {
     }
 
     @Override
-    public int getDesaturatedPixel(int x, int y) {
-        double[] rgb = mat.get(y, x);
-        return ImageSource.desaturate(1, (int) rgb[2], (int) rgb[1], (int) rgb[0]);
+    public int getPixelLuminance(int col, int row) {
+        double[] rgb = mat.get(row, col);
+        return ImageSource.desaturateARGB(1, (int) rgb[2], (int) rgb[1], (int) rgb[0]);
     }
 
 }

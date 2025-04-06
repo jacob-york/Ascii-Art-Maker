@@ -9,16 +9,16 @@ import javafx.scene.text.Font;
 
 public class ThemeMenuItem extends MenuItem {
 
-    private static final Font FONT = new Font("Consolas", 20.0);
-    private final ColorTheme colorTheme;
+    public static final Font FONT = new Font("Consolas", 20.0);
+    public final ColorTheme colorTheme;
 
     public ThemeMenuItem(ColorTheme colorTheme, Runnable runnable) {
         this.colorTheme = colorTheme;
 
-        Label nameLabel = new Label(colorTheme.getName());
+        Label nameLabel = new Label(colorTheme.name);
         nameLabel.setFont(FONT);
-        nameLabel.setTextFill(colorTheme.getTextColor());
-        nameLabel.setStyle("-fx-background-color: #" + colorToHexCode(colorTheme.getBGColor()) + ";");
+        nameLabel.setTextFill(colorTheme.textColor);
+        nameLabel.setStyle("-fx-background-color: #" + colorToHexCode(colorTheme.bgColor) + ";");
 
         this.setGraphic(nameLabel);
 
@@ -27,9 +27,5 @@ public class ThemeMenuItem extends MenuItem {
 
     public static String colorToHexCode(Color color) {
         return color.toString().substring(2, 8);
-    }
-
-    public ColorTheme getColorTheme() {
-        return colorTheme;
     }
 }

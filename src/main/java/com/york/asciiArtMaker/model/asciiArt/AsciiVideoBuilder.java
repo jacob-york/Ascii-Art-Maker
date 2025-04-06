@@ -33,12 +33,12 @@ public class AsciiVideoBuilder implements AsciiArtBuilder {
     }
 
     @Override
-    public int getWidth() {
+    public int getArtWidth() {
         return (videoSource.getWidth() - videoSource.getWidth() % charWidth) / charWidth;
     }
 
     @Override
-    public int getHeight() {
+    public int getArtHeight() {
         return (videoSource.getHeight() - videoSource.getHeight() % (2 * charWidth)) / (2 * charWidth);
     }
 
@@ -106,12 +106,12 @@ public class AsciiVideoBuilder implements AsciiArtBuilder {
     }
 
     @Override
-    public Optional<String> getName() {
+    public Optional<String> getArtName() {
         return Optional.of(name);
     }
 
     @Override
-    public AsciiVideoBuilder setName(String name) {
+    public AsciiVideoBuilder setArtName(String name) {
         this.name = name;
         return this;
     }
@@ -145,7 +145,7 @@ public class AsciiVideoBuilder implements AsciiArtBuilder {
 
         if (artCache[i] == null) {
             artCache[i] = new AsciiImageBuilder(videoSource.getImageSource(i))
-                    .setName(getName().orElse("ascii-video") + "-" + i)
+                    .setArtName(getArtName().orElse("ascii-video") + "-" + i)
                     .setCharWidth(charWidth)
                     .setInvertedShading(invertedShading)
                     .setPalette(palette)
@@ -177,7 +177,7 @@ public class AsciiVideoBuilder implements AsciiArtBuilder {
     /**
      * @param startInd start of frame range (inclusive)
      * @param endInd end of frame range (exclusive)
-     * @return all frames from startInd -> endInd
+     * @return all frames from startInd to endInd
      */
     public AsciiVideo build(int startInd, int endInd) throws IndexOutOfBoundsException {
         if (startInd < 0 || startInd >= frameCount) throw new IndexOutOfBoundsException();
@@ -188,7 +188,7 @@ public class AsciiVideoBuilder implements AsciiArtBuilder {
                 .parallel()
                 .forEach(this::buildFrame);
 
-        return new AsciiVideo(artCache.clone(), getName().orElse("ascii-video"), getFps());
+        return new AsciiVideo(artCache.clone(), getArtName().orElse("ascii-video"), getFps());
     }
 
     public double getFps() {

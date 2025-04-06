@@ -9,8 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Container for Timeliness, each with a unique string id, that are ran in a loop which can be toggled on or off
- * with start(id) or stop(id).
+ * Container for Timeliness, each with a unique string menuName, that are ran in a loop which can be toggled on or off
+ * with start(menuName) or stop(menuName).
  */
 public class LongClickManager {
 

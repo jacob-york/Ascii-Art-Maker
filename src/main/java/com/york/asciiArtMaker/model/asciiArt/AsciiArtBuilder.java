@@ -12,13 +12,13 @@ public interface AsciiArtBuilder {
      * Get the width of the art in characters.
      * @return the width of the art in characters.
      */
-    int getWidth();
+    int getArtWidth();
 
     /**
      * Get the height of the image in characters.
      * @return the height of the image in characters.
      */
-    int getHeight();
+    int getArtHeight();
 
     /**
      * Get the width of the image in pixels.
@@ -66,15 +66,15 @@ public interface AsciiArtBuilder {
     AsciiArtBuilder setPalette(String palette);
 
     /**
-     * @return the art's name if it has one.
+     * @return the art's menuName if it has one.
      */
-    Optional<String> getName();
+    Optional<String> getArtName();
 
     /**
-     * Set the name of the image.
-     * @param name The new name of the image
+     * Set the menuName of the image.
+     * @param name The new menuName of the image
      */
-    AsciiArtBuilder setName(String name);
+    AsciiArtBuilder setArtName(String name);
 
     /**
      * @return true if shading is inverted, false if not.

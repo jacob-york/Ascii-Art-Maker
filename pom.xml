@@ -132,7 +132,7 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <id>make-assembly</id>
+                        <menuName>make-assembly</menuName>
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>
@@ -156,7 +156,7 @@
                 <executions>
                     <execution>
                         <!-- Default configuration for running with: mvn clean javafx:run -->
-                        <id>default-cli</id>
+                        <menuName>default-cli</menuName>
                         <configuration>
                             <mainClass>com.york.asciiArtMaker.JarApp</mainClass>
                             <launcher>app</launcher>

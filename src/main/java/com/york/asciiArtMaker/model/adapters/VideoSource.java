@@ -5,17 +5,17 @@ import java.util.Optional;
 public interface VideoSource {
 
     /**
-     * @return the width in pixels of the video stream.
+     * @return the width in pixels of the video.
      */
     int getWidth();
 
     /**
-     * @return the height in pixels of the video stream.
+     * @return the height in pixels of the video.
      */
     int getHeight();
 
     /**
-     * @return the name of the video file, or null if not applicable.
+     * @return an Optional with the name of the video if it has one, otherwise it's empty.
      */
     Optional<String> getName();
 

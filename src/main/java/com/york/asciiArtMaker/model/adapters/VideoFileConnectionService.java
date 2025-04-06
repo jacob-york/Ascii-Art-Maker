@@ -14,40 +14,41 @@ import java.util.*;
 /**
  * <p>Abstraction for a thread that reads frame data from a video file.</p>
  *
- * <p>For each frame, VideoFileConnectionService extracts the bare minimum data that's necessary to compute an asciiImage.
- *  The actual algorithm that computes ascii art will later run this data.</p>
+ * <p>For each frame, VideoFileConnectionService extracts the bare minimum data that's necessary to compute an asciiImage.</p>
  *
- *  <p>Due to API limitations regarding OpenCV, the process is slow and must be done linearly from frame 0
- *  to the last frame, hence the motivation to abstract it into a Service that can run on a separate thread.</p>
+ *  <p>The algorithm which computes ascii images from image data will be run lazily on this frame data later,
+ *  once each frame has been extracted.</p>
+ *
+ *  <p>Due to API limitations with OpenCV, the process of reading frame data is slow and must be done linearly from frame 0
+ *  to the last frame, hence the motivation to abstract this process into a Runnable which can be ran on its own thread.</p>
  */
 public class VideoFileConnectionService implements Cancellable, Runnable {
 
     /**
-     * Nested class with a private constructor for representing a VideoSource that was created with a
-     * VideoFileConnectionService.
+     * <p>Nested class with a private constructor, for representing VideoSources created via a
+     * VideoFileConnectionService.</p>
      *
-     * Since, in AsciiArtMaker, you need a VFCS to read and work with a video file source,
-     * the class is nested in VFCS and has a private constructor. VFCS is the only one that can instantiate this type
-     * of video source.
+     * <p>Since you need a VFCS to read and work with any video file source in AsciiArtMaker,
+     * the VideoFileAdapter is nested within VFCS and has a private constructor.</p>
      */
     public static class VideoFileAdapter implements VideoSource {
 
         private final String name;
         private final double fps;
-        private List<Mat> matrices;
+        private List<Mat> frameData;
         private final ImageSource[] imageSources;
         private final int width;
         private final int height;
         private final int frameCount;
 
-        private VideoFileAdapter(String name, double fps, List<Mat> matrices) {
+        private VideoFileAdapter(String name, double fps, List<Mat> frameData) {
             this.name = name;
             this.fps = fps;
-            this.matrices = matrices;
+            this.frameData = frameData;
 
-            this.width = matrices.get(0).cols();
-            this.height = matrices.get(0).rows();
-            this.frameCount = matrices.size();
+            this.width = frameData.get(0).cols();
+            this.height = frameData.get(0).rows();
+            this.frameCount = frameData.size();
 
             this.imageSources = new ImageSource[frameCount];
         }
@@ -81,7 +82,7 @@ public class VideoFileConnectionService implements Cancellable, Runnable {
         public ImageSource getImageSource(int i) {
             if (i < 0 || i >= getFrameCount()) return null;
             if (imageSources[i] == null) {
-                imageSources[i] = new MatAdapter(matrices.get(i));
+                imageSources[i] = new MatAdapter(frameData.get(i));
             }
             return imageSources[i];
         }
@@ -111,20 +112,24 @@ public class VideoFileConnectionService implements Cancellable, Runnable {
 
         /**
          * In OpenCV, many objects need to be manually freed/released. This method releases all of your VideoFileAdapter's
-         * attributes that need releasing.
-         *
-         * DO NOT CALL until you're done with your VideoFileAdapter.
+         * attributes which need releasing.
+         * Treat it somewhat like free() in C/C++, i.e. DO NOT CALL until you're done with your VideoFileAdapter.
          */
         public void release() {
-            matrices.forEach(mat -> {
+            frameData.forEach(mat -> {
                 if (mat.getNativeObjAddr() != 0) mat.release();
             });
 
-            matrices = null;
+            frameData = null;
             System.gc();
         }
     }
 
+    // *theoretically*, updating our observers every FRAME_BUFFER frames instead of per frame
+    // will reduce interruptions from the GUI thread and improve speed.
+    // I've seen /minimal/ improvement in my own testing, but I'm keeping this feature anyway, at least
+    // for aesthetic reasons since it doesn't hurt anything.
+    public static final int FRAME_BUFFER = 100;
     private final File file;
     private int frameInProgress;
     private boolean cancelled;
@@ -154,17 +159,24 @@ public class VideoFileConnectionService implements Cancellable, Runnable {
         double estFrameCount = vc.get(Videoio.CAP_PROP_FRAME_COUNT);
         List<Mat> matrices = new ArrayList<>();
 
+        long start = System.currentTimeMillis();
         while (!cancelled && vc.read(buffer)) {
             frameInProgress++;
             matrices.add(buffer.clone());
-            Platform.runLater(() -> observers.forEach(observer ->
-                    observer.setProgress((double) frameInProgress / estFrameCount)));
+
+            if (matrices.size() % FRAME_BUFFER == 0) {
+                Platform.runLater(() -> observers.forEach(observer ->
+                        observer.setProgress((double) frameInProgress / estFrameCount)));
+            }
         }
 
         vc.release();
         buffer.release();
 
         if (!cancelled) {
+            long end = System.currentTimeMillis();
+            System.out.printf("%d millis run time.", end - start);
+
             VideoSource videoSource = new VideoFileAdapter(file.getName(), fps, matrices);
             Platform.runLater(() -> {
                 observers.forEach(ProgressMonitor::finish);

@@ -1,13 +1,11 @@
-package com.york.asciiArtMaker.controller;
+package com.york.asciiArtMaker.model;
 
 import com.york.asciiArtMaker.model.asciiArt.AsciiImage;
-import com.york.asciiArtMaker.view.AsciiArtPane;
+import com.york.asciiArtMaker.view.AsciiViewportPane;
 import javafx.scene.paint.Color;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-
-import static com.york.asciiArtMaker.AppUtil.JFXColorToJavaColor;
 
 public class ImageRenderer {
 
@@ -74,6 +72,13 @@ public class ImageRenderer {
         return heightPixels;
     }
 
+    public static java.awt.Color JFXColorToJavaColor(javafx.scene.paint.Color fx) {
+        return new java.awt.Color((float) fx.getRed(),
+                (float) fx.getGreen(),
+                (float) fx.getBlue(),
+                (float) fx.getOpacity());
+    }
+
     public BufferedImage render(AsciiImage art) {
         return render(art, imageType);
     }
@@ -85,7 +90,7 @@ public class ImageRenderer {
         g2.fillRect(0, 0, image.getWidth(), image.getHeight());
 
         g2.setPaint(JFXColorToJavaColor(textColor));
-        g2.setFont(new Font(AsciiArtPane.getDefaultFont(), Font.PLAIN, (int) Math.round(fontPoint)));
+        g2.setFont(new Font(AsciiViewportPane.getDefaultFontName(), Font.PLAIN, (int) Math.round(fontPoint)));
         String[] lines = art.toStr().split("\n");
 
         for (int i = 0; i < lines.length; i++) {

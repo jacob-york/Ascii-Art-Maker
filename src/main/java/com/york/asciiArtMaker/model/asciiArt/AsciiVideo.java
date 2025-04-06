@@ -5,14 +5,14 @@ import javafx.scene.paint.Color;
 public record AsciiVideo(AsciiImage[] frames, String name, double fps) {
 
     /**
-     * @return the video's file name for writing to memory WITH the text and background color (not including file extension, which is assigned later).
+     * @return the video's file menuName for writing to memory WITH the text and background color (not including file extension, which is assigned later).
      */
     public String getFileName(Color bgColor, Color textColor) {
         return String.format("%s-bg%s-txt%s", getFileName(), bgColor.toString(), textColor.toString());
     }
 
     /**
-     * @return the video's file name for writing to memory (not including file extension, which is assigned later).
+     * @return the video's file menuName for writing to memory (not including file extension, which is assigned later).
      */
     public String getFileName() {
         final String invertedMkr = invertedShading() ? "-inv" : "";

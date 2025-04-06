@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Scene?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ColorPicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.input.KeyCodeCombination?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.text.Font?>
+<?import javafx.stage.Stage?>
+
+<Stage title="Image Editor - Ascii Art Maker" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.york.asciiArtMaker.controller.ImageEditorController">
+    <scene>
+        <Scene>
+            <AnchorPane prefHeight="900.0" prefWidth="1400.0">
+            <children>
+               <BorderPane fx:id="borderPane" prefHeight="900.0" prefWidth="1400.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <top>
+                     <VBox BorderPane.alignment="CENTER">
+                        <children>
+                           <MenuBar>
+                              <menus>
+                                 <Menu mnemonicParsing="false" text="File">
+                                    <items>
+                                       <Menu mnemonicParsing="false" text="New Ascii Image...">
+                                          <items>
+                                             <MenuItem mnemonicParsing="false" onAction="#newAsciiImageFromFileChosen" text="Choose File..." />
+                                             <MenuItem disable="true" mnemonicParsing="false" text="Camera..." />
+                                             <MenuItem disable="true" mnemonicParsing="false" text="Screen Share..." />
+                                             <MenuItem disable="true" mnemonicParsing="false" text="Paste Link..." />
+                                          </items>
+                                       </Menu>
+                                       <Menu mnemonicParsing="false" text="New Ascii Video...">
+                                          <items>
+                                             <MenuItem mnemonicParsing="false" onAction="#newAsciiVideoFromFileChosen" text="Choose File..." />
+                                             <MenuItem disable="true" mnemonicParsing="false" text="Camera..." />
+                                             <MenuItem disable="true" mnemonicParsing="false" text="Screen Share..." />
+                                             <MenuItem disable="true" mnemonicParsing="false" text="Paste Link..." />
+                                          </items>
+                                       </Menu>
+                                       <Menu disable="true" mnemonicParsing="false" text="Live Render...">
+                                          <items>
+                                             <MenuItem disable="true" mnemonicParsing="false" text="Camera..." />
+                                             <MenuItem disable="true" mnemonicParsing="false" text="Screen Share..." />
+                                             <MenuItem disable="true" mnemonicParsing="false" text="Paste Link..." />
+                                          </items>
+                                       </Menu>
+                                       <SeparatorMenuItem mnemonicParsing="false" />
+                                       <MenuItem onAction="#copyToClipboardAction" text="Copy to Clipboard">
+                                          <graphic>
+                                             <ImageView fitHeight="20.0" fitWidth="20.0" opacity="0.6" pickOnBounds="true" preserveRatio="true" smooth="false">
+                                                <image>
+                                                   <Image url="@../icons/copy.png" />
+                                                </image>
+                                             </ImageView>
+                                          </graphic>
+                                          <accelerator>
+                                             <KeyCodeCombination alt="UP" code="C" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                                          </accelerator>
+                                       </MenuItem>
+                                       <MenuItem mnemonicParsing="false" onAction="#openInTextEditorAction" text="Open in Text Editor">
+                                          <graphic>
+                                             <ImageView fitHeight="20.0" fitWidth="20.0" opacity="0.6" pickOnBounds="true" preserveRatio="true" smooth="false">
+                                                <image>
+                                                   <Image url="@../icons/text_editor.png" />
+                                                </image>
+                                             </ImageView>
+                                          </graphic></MenuItem>
+                                       <MenuItem disable="true" mnemonicParsing="false" text="Save as Image...">
+                                          <graphic>
+                                             <ImageView fitHeight="15.0" fitWidth="15.0" opacity="0.6" pickOnBounds="true" preserveRatio="true" smooth="false">
+                                                <image>
+                                                   <Image url="@../icons/image.png" />
+                                                </image>
+                                             </ImageView>
+                                          </graphic>
+                                       </MenuItem>
+                                       <MenuItem mnemonicParsing="false" text="Clear" />
+                                       <SeparatorMenuItem mnemonicParsing="false" />
+                                       <MenuItem mnemonicParsing="false" text="Exit" />
+                                    </items>
+                                 </Menu>
+                                 <Menu mnemonicParsing="false" text="Edit">
+                                    <items>
+                                       <MenuItem disable="true" mnemonicParsing="false" text="Undo" />
+                                       <MenuItem disable="true" mnemonicParsing="false" text="Redo" />
+                                       <SeparatorMenuItem mnemonicParsing="false" />
+                                       <MenuItem disable="true" text="Copy Art">
+                                          <graphic>
+                                             <ImageView fitHeight="20.0" fitWidth="20.0" opacity="0.6" pickOnBounds="true" preserveRatio="true" smooth="false">
+                                                <image>
+                                                   <Image url="@../icons/copy.png" />
+                                                </image>
+                                             </ImageView>
+                                          </graphic>
+                                       </MenuItem>
+                                    </items>
+                                 </Menu>
+                                 <Menu mnemonicParsing="false" text="View">
+                                   <items>
+                                     <MenuItem mnemonicParsing="false" onAction="#zoomInAction" text="Zoom In">
+                                          <accelerator>
+                                             <KeyCodeCombination alt="UP" code="EQUALS" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                                          </accelerator></MenuItem>
+                                       <MenuItem mnemonicParsing="false" onAction="#zoomOutAction" text="Zoom Out">
+                                          <accelerator>
+                                             <KeyCodeCombination alt="UP" code="MINUS" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                                          </accelerator></MenuItem>
+                                       <MenuItem mnemonicParsing="false" onAction="#centerContentAction" text="Center Content" />
+                                   </items>
+                                 </Menu>
+                              </menus>
+                           </MenuBar>
+                           <ToolBar prefHeight="40.0" prefWidth="200.0">
+                              <items>
+                                 <VBox alignment="CENTER">
+                                    <children>
+                                       <Label text="Character Width 🛈" textFill="#9a9a9a">
+                                          <tooltip>
+                                             <Tooltip text="The width of each character in pixels (the lower the value, the higher the resolution)" />
+                                          </tooltip>
+                                          <VBox.margin>
+                                             <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                                          </VBox.margin>
+                                       </Label>
+                                       <HBox alignment="CENTER">
+                                          <children>
+                                             <TextField fx:id="charWidthField" alignment="CENTER" onKeyPressed="#updateCharWidthFromField" prefHeight="50.0" prefWidth="50.0" text="1">
+                                                <HBox.margin>
+                                                   <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                                                </HBox.margin>
+                                                <font>
+                                                   <Font size="15.0" />
+                                                </font>
+                                             </TextField>
+                                             <VBox>
+                                                <children>
+                                                   <Button fx:id="charWidthUpButton" mnemonicParsing="false" onAction="#charWidthUpButtonClicked" prefHeight="20.0" prefWidth="40.0" text="+">
+                                                      <font>
+                                                         <Font name="Consolas" size="15.0" />
+                                                      </font>
+                                                      <tooltip>
+                                                         <Tooltip text="Increase character finalWidth" />
+                                                      </tooltip>
+                                                   </Button>
+                                                   <Button fx:id="charWidthDownButton" mnemonicParsing="false" onAction="#charWidthDownButtonClicked" prefHeight="20.0" prefWidth="40.0" text="-">
+                                                      <font>
+                                                         <Font name="Consolas" size="15.0" />
+                                                      </font>
+                                                      <tooltip>
+                                                         <Tooltip text="Decrease character finalWidth" />
+                                                      </tooltip>
+                                                   </Button>
+                                                </children>
+                                                <HBox.margin>
+                                                   <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                                                </HBox.margin>
+                                             </VBox>
+                                             <Slider fx:id="charWidthSlider" blockIncrement="1.0" majorTickUnit="5.0" min="1.0" minorTickCount="4" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="1.0">
+                                                <HBox.margin>
+                                                   <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                                                </HBox.margin>
+                                             </Slider>
+                                          </children>
+                                       </HBox>
+                                    </children>
+                                 </VBox>
+                                 <Separator orientation="VERTICAL" />
+                                 <VBox alignment="CENTER">
+                                    <children>
+                                       <RadioButton fx:id="invertedShadingButton" contentDisplay="CENTER" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#invertedShadingClicked" text="Inverted Shading">
+                                          <font>
+                                             <Font size="15.0" />
+                                          </font>
+                                          <VBox.margin>
+                                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                          </VBox.margin>
+                                       </RadioButton>
+                                    </children>
+                                 </VBox>
+                                 <Separator orientation="VERTICAL" />
+                                 <VBox alignment="CENTER">
+                                    <children>
+                                       <Label text="Color Theme" textFill="#9a9a9a">
+                                          <VBox.margin>
+                                             <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                                          </VBox.margin>
+                                       </Label>
+                                       <MenuButton fx:id="colorThemeMenu" mnemonicParsing="false" prefWidth="179.0" style="-fx-background-color: WHITE;" text="Notepad">
+                                          <font>
+                                             <Font name="Consolas" size="15.0" />
+                                          </font>
+                                          <VBox.margin>
+                                             <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                                          </VBox.margin>
+                                       </MenuButton>
+                                    </children>
+                                 </VBox>
+                                 <VBox alignment="CENTER">
+                                    <children>
+                                       <Label text="Background" textFill="#9a9a9a">
+                                          <VBox.margin>
+                                             <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                                          </VBox.margin>
+                                       </Label>
+                                       <ColorPicker fx:id="bgColorPicker" editable="true" onAction="#bgColorSelected" prefHeight="25.0" prefWidth="100.0" promptText="Background Color">
+                                          <VBox.margin>
+                                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                          </VBox.margin>
+                                       </ColorPicker>
+                                    </children>
+                                    <padding>
+                                       <Insets top="3.0" />
+                                    </padding>
+                                 </VBox>
+                                 <VBox alignment="CENTER">
+                                    <children>
+                                       <Label text="Text" textFill="#9a9a9a">
+                                          <VBox.margin>
+                                             <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                                          </VBox.margin>
+                                       </Label>
+                                       <ColorPicker fx:id="textColorPicker" editable="true" onAction="#textColorSelected" prefHeight="25.0" prefWidth="100.0" promptText="Text Color">
+                                          <value>
+                                             <Color />
+                                          </value>
+                                          <VBox.margin>
+                                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                          </VBox.margin>
+                                       </ColorPicker>
+                                    </children>
+                                 </VBox>
+                                 <Separator orientation="VERTICAL" />
+                                 <Separator orientation="VERTICAL" />
+                                 <VBox alignment="CENTER_LEFT">
+                                    <children>
+                                       <HBox alignment="CENTER_LEFT">
+                                          <children>
+                                             <Button graphicTextGap="0.0" mnemonicParsing="false" onAction="#copyToClipboardAction" text="Copy to Clipboard">
+                                                <tooltip>
+                                                   <Tooltip text="Copy to Clipboard." />
+                                                </tooltip>
+                                                <font>
+                                                   <Font size="15.0" />
+                                                </font>
+                                                <graphic>
+                                                   <ImageView fitHeight="20.0" fitWidth="20.0" opacity="0.6" pickOnBounds="true" preserveRatio="true" smooth="false">
+                                                      <image>
+                                                         <Image url="@../icons/copy.png" />
+                                                      </image>
+                                                   </ImageView>
+                                                </graphic>
+                                                <HBox.margin>
+                                                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                                </HBox.margin>
+                                             </Button>
+                                          </children>
+                                       </HBox>
+                                       <HBox alignment="CENTER_LEFT">
+                                          <children>
+                                             <Button mnemonicParsing="false" onAction="#openInTextEditorAction" text="Open in Text Editor">
+                                                <HBox.margin>
+                                                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                                </HBox.margin>
+                                                <font>
+                                                   <Font size="15.0" />
+                                                </font>
+                                                <graphic>
+                                                   <ImageView fitHeight="20.0" fitWidth="20.0" opacity="0.6" pickOnBounds="true" preserveRatio="true" smooth="false">
+                                                      <image>
+                                                         <Image url="@../icons/export.png" />
+                                                      </image>
+                                                   </ImageView>
+                                                </graphic>
+                                             </Button>
+                                             <Button disable="true" mnemonicParsing="false" onAction="#saveAsImageAction" text="Save as Image">
+                                                <tooltip>
+                                                   <Tooltip text="Save as Image." />
+                                                </tooltip>
+                                                <graphic>
+                                                   <ImageView fitHeight="30.0" fitWidth="30.0" opacity="0.6" pickOnBounds="true" preserveRatio="true" smooth="false">
+                                                      <image>
+                                                         <Image url="@../icons/image.png" />
+                                                      </image>
+                                                   </ImageView>
+                                                </graphic>
+                                                <font>
+                                                   <Font size="15.0" />
+                                                </font>
+                                                <HBox.margin>
+                                                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                                </HBox.margin>
+                                             </Button>
+                                          </children>
+                                       </HBox>
+                                    </children>
+                                 </VBox>
+                              </items>
+                              <padding>
+                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                              </padding>
+                           </ToolBar>
+                        </children>
+                     </VBox>
+                  </top>
+               </BorderPane>
+            </children></AnchorPane>
+        </Scene>
+    </scene>
+</Stage>

@@ -15,21 +15,21 @@ public interface ImageSource {
     int getHeight();
 
     /**
-     * @return The name of the image if it has one
-     * (i.e., object instances like BufferedImage are not files, meaning they have no name).
+     * @return an Optional with the name of the image if it has one, otherwise it's empty.
+     * (i.e., object instances like BufferedImage are not files, so they have no menuName).
      */
     Optional<String> getName();
 
     /**
-     * @param x the desired pixel's column (read like a cartesian plane)
-     * @param y the desired pixel's row (read like a cartesian plane)
-     * @return an int value from 0 to 255 that represents the black-and-white color value at the pixel (x, y),
+     * @param col the desired pixel's column
+     * @param row the desired pixel's row
+     * @return an int value from 0 to 255 that represents the black-and-white color value at the pixel (col, row),
      * OR -1 if the pixel is completely transparent.
      */
-    int getDesaturatedPixel(int x, int y);
+    int getPixelLuminance(int col, int row);
 
     /**
-     * Stock desaturation algorithm provided by ImageSource (for optional use in a getBWValue() implementation).
+     * Stock desaturation algorithm provided by ImageSource (for optional use in a getPixelLuminance() implementation).
      * @param a alpha value
      * @param r red value
      * @param g green value
@@ -37,14 +37,15 @@ public interface ImageSource {
      * @return an int value from 0 to 255 that represents the black-and-white color value at the pixel (x, y),
      * OR -1 if the pixel is completely transparent.
      */
-    static int desaturate(int a, int r, int g, int b) {
+    static int desaturateARGB(int a, int r, int g, int b) {
 
         // todo: a more sophisticated way of handling semi-transparent pixels?
         if (a == 0) {
             return -1;
         } else {
-            int min = Math.min(r, Math.min(g, b));
-            int max = Math.max(r, Math.max(g, b));
+            final int min = Math.min(r, Math.min(g, b));
+            final int max = Math.max(r, Math.max(g, b));
+
             return (int) ((min + max) * 0.5);
         }
     }
