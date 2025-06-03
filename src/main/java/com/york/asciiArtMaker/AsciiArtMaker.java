@@ -1,16 +1,16 @@
 package com.york.asciiArtMaker;
 
-import com.york.asciiArtMaker.controller.ImageEditorController;
-import com.york.asciiArtMaker.controller.ProgressDialogController;
-import com.york.asciiArtMaker.controller.VideoEditorController;
+import com.york.asciiArtMaker.controller.*;
 import com.york.asciiArtMaker.model.FileManager;
 import com.york.asciiArtMaker.model.adapters.ImageSource;
+import com.york.asciiArtMaker.model.adapters.LiveSource;
 import com.york.asciiArtMaker.model.adapters.VideoFileConnectionService;
 import com.york.asciiArtMaker.model.adapters.VideoSource;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.stage.Stage;
@@ -23,9 +23,11 @@ import java.awt.image.DataBufferByte;
 import java.awt.image.DataBufferInt;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -88,6 +90,18 @@ public final class AsciiArtMaker extends Application {
         return Math.min(Math.max(value, min), max);
     }
 
+    public static ImageView generateIconImageView(String name, double width, double height) {
+        String path = "/com/york/asciiartmaker/icons/" + name + ".png";
+
+        InputStream inputStream = Objects.requireNonNull(AsciiArtMaker.class.getResourceAsStream(path));
+        Image image = new Image(inputStream);
+        ImageView returnVal = new ImageView(image);
+        returnVal.setFitWidth(width);
+        returnVal.setFitHeight(height);
+
+        return returnVal;
+    }
+
     /**
      * @author Javanaut
      * (<a href="https://answers.opencv.org/question/28348/converting-bufferedimage-to-mat-in-java/">...</a>)
@@ -127,79 +141,67 @@ public final class AsciiArtMaker extends Application {
         return imgMat;
     }
 
-    public static void launchImageEditor(ImageSource imageSource) {
-        URL icon = AsciiArtMaker.class.getResource("icons/appIcon.png");
-        FXMLLoader loader = new FXMLLoader(AsciiArtMaker.class.getResource("fxml/image_editor_view.fxml"));
-
-        Stage imageEditorStage = null;  // IOException anticipated
+    /**
+     * Tries to launch a view with a given relative project path as a string. If there's an issue, it returns an empty
+     * optional. Otherwise, it returns the FXML's associated Controller object s.t. final changes could be made by the
+     * user.
+     *
+     * @param path a relative path to the fxml file of the resource that you'd like to open.
+     * @return an empty optional if there was any issue in loading a resource, a Controller otherwise.
+     * If there is any issue in loading a resource, then an alert dialog is shown to the user as a side effect.
+     */
+    private static Optional<Object> tryLaunchView(String path) {
         try {
-            imageEditorStage = loader.load();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            URL icon = AsciiArtMaker.class.getResource("icons/appIcon.png");
+            assert icon != null;
+            URL fxml = AsciiArtMaker.class.getResource(path);
+            assert fxml != null;
+            FXMLLoader loader = new FXMLLoader(fxml);
+            Stage stage = loader.load();
+            stage.getIcons().add(new Image(icon.toExternalForm()));
 
-        ImageEditorController imageEditorController = loader.getController();
-        imageEditorController.setImageSource(imageSource);
-        assert icon != null;
-        imageEditorStage.getIcons().add(new Image(icon.toExternalForm()));
-        imageEditorStage.show();
+            stage.show();
+            return Optional.of(loader.getController());
+        } catch (IOException | AssertionError e) {
+            new Alert(Alert.AlertType.ERROR, e.getMessage()).showAndWait();
+            return Optional.empty();
+        }
     }
 
-    public static void launchVideoFileConnectionService(File selectedFile) {
-        URL icon = AsciiArtMaker.class.getResource("icons/appIcon.png");
-        FXMLLoader loader = new FXMLLoader(AsciiArtMaker.class.getResource("fxml/progress_dialog.fxml"));
-        Stage loadDialogStage;
+    public static void launchHome() {
+        tryLaunchView("fxml/home.fxml");
+    }
 
-        try {
-            loadDialogStage = loader.load();  // IOException anticipated
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public static void launchImageEditor(ImageSource imageSource) {
+        tryLaunchView("fxml/image_editor_view.fxml").ifPresent(controller ->
+                ((ImageEditorController) controller).setImageSource(imageSource));
+    }
 
-        assert icon != null;
-        loadDialogStage.getIcons().add(new Image(icon.toExternalForm()));
-        ProgressDialogController progressDialogController = loader.getController();
-        progressDialogController.setText("Gathering frame data...");
-        VideoFileConnectionService vfcs = new VideoFileConnectionService(selectedFile, progressDialogController);
-        progressDialogController.setCancellable(vfcs);
-        vfcs.addProgressMonitor(progressDialogController);
-        new Thread(vfcs).start();
-        loadDialogStage.show();
+    public static void launchVideoFileConnectionService(File selectedFile, ReturnLocation<VideoSource> returnLocation) {
+        tryLaunchView("fxml/progress_dialog.fxml").ifPresent(controller -> {
+
+            VideoFileConnectionService vfcs = new VideoFileConnectionService(selectedFile, returnLocation);
+            ProgressDialogController progressDialogController = (ProgressDialogController) controller;
+            progressDialogController.setCancellable(vfcs);
+            vfcs.addProgressMonitor(progressDialogController);
+            new Thread(vfcs).start();
+        });
     }
 
     public static void launchVideoEditor(VideoSource videoSource) {
-        URL icon = AsciiArtMaker.class.getResource("icons/appIcon.png");
-        FXMLLoader loader = new FXMLLoader(AsciiArtMaker.class.getResource("fxml/video_editor_view.fxml"));
+        tryLaunchView("fxml/video_editor_view.fxml").ifPresent(controller ->
+                ((VideoEditorController) controller).setVideoSource(videoSource));
+    }
 
-        Stage videoEditorStage = null;  // IOException anticipated
-        try {
-            videoEditorStage = loader.load();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        VideoEditorController videoEditorController = loader.getController();
-        videoEditorController.setVideoSource(videoSource);
-        assert icon != null;
-        videoEditorStage.getIcons().add(new Image(icon.toExternalForm()));
-        videoEditorStage.show();
+    public static void launchLiveEditor(LiveSource liveSource) {
+        tryLaunchView("fxml/live_editor_view.fxml").ifPresent(controller ->
+                ((LiveEditorController) controller).setLiveSource(liveSource));
     }
 
     @Override
     public void start(Stage mainStage) {
-        URL icon = AsciiArtMaker.class.getResource("icons/appIcon.png");
-        FXMLLoader loader = new FXMLLoader(AsciiArtMaker.class.getResource("fxml/home.fxml"));
-
-        try {
-            Stage stage = loader.load();  // IOException anticipated
-
-            assert icon != null;
-            stage.getIcons().add(new Image(icon.toExternalForm()));
-            stage.show();
-
-        } catch (IOException e) {
-            new Alert(Alert.AlertType.ERROR, e.getMessage()).showAndWait();
-        }
+        launchHome();
     }
+
 
 }

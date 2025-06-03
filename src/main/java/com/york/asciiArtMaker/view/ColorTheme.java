@@ -9,7 +9,8 @@ public enum ColorTheme {
     POWERSHELL("PowerShell", Color.rgb(1, 36, 86), Color.WHITE, true),
     GREEN_MONOCHROME("Green Mono", Color.BLACK, Color.rgb(102, 255, 102), true),
     AMBER_MONOCHROME("Amber Mono", Color.BLACK, Color.rgb(255, 176, 0), true),
-    JETBRAINS("JetBrains", Color.rgb(43, 43, 43), Color.rgb(169, 183, 198), true);
+    JETBRAINS("JetBrains", Color.rgb(43, 43, 43), Color.rgb(169, 183, 198), true),
+    STEAM("Steam", Color.rgb(31, 46, 65), Color.WHITE, true);
 
     public final String name;
     public final Color bgColor;

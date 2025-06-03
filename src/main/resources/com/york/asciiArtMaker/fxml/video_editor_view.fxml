@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.Scene?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ColorPicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
-<?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.control.Tooltip?>
@@ -19,8 +23,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.paint.Color?>
 <?import javafx.scene.text.Font?>
 <?import javafx.stage.Stage?>
@@ -30,350 +33,257 @@
         <Scene>
             <AnchorPane prefHeight="900.0" prefWidth="1400.0">
             <children>
-               <BorderPane fx:id="borderPane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+               <BorderPane fx:id="borderPane" layoutX="-1.0" layoutY="1.0" prefHeight="900.0" prefWidth="1400.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                   <top>
-                     <VBox BorderPane.alignment="CENTER">
+                     <StackPane alignment="TOP_LEFT" prefHeight="80.0" prefWidth="1400.0" BorderPane.alignment="CENTER">
                         <children>
-                           <MenuBar fx:id="menuBar">
-                              <menus>
-                                 <Menu fx:id="fileMenu" mnemonicParsing="false" text="File">
-                                    <items>
-                                       <MenuItem fx:id="openFile" mnemonicParsing="false" text="Open File..." />
-                                       <SeparatorMenuItem mnemonicParsing="false" />
-                                       <MenuItem fx:id="exportTxtMenuItem" disable="true" text="Export as Txt...">
-                                          <graphic>
-                                             <ImageView fitHeight="20.0" fitWidth="20.0" opacity="0.6" pickOnBounds="true" preserveRatio="true" smooth="false">
-                                                <image>
-                                                   <Image url="@../icons/export.png" />
-                                                </image>
-                                             </ImageView>
-                                          </graphic>
-                                       </MenuItem>
-                                       <MenuItem fx:id="saveImageMenuItem" disable="true" mnemonicParsing="false" text="Save as Image...">
-                                          <graphic>
-                                             <ImageView fitHeight="15.0" fitWidth="15.0" opacity="0.6" pickOnBounds="true" preserveRatio="true" smooth="false">
-                                                <image>
-                                                   <Image url="@../icons/image.png" />
-                                                </image>
-                                             </ImageView>
-                                          </graphic>
-                                       </MenuItem>
-                                       <MenuItem fx:id="saveMp4MenuItem" disable="true" mnemonicParsing="false" text="Save as Mp4...">
-                                          <graphic>
-                                             <ImageView fitHeight="15.0" fitWidth="15.0" opacity="0.6" pickOnBounds="true" preserveRatio="true" smooth="false">
-                                                <image>
-                                                   <Image url="@../icons/video.png" />
-                                                </image>
-                                             </ImageView>
-                                          </graphic>
-                                       </MenuItem>
-                                       <MenuItem fx:id="clearMenuItem" mnemonicParsing="false" text="Clear" />
-                                       <SeparatorMenuItem mnemonicParsing="false" />
-                                       <MenuItem fx:id="exitMenuItem" mnemonicParsing="false" text="Exit" />
-                                    </items>
-                                 </Menu>
-                                 <Menu fx:id="editMenu" mnemonicParsing="false" text="Edit">
-                                    <items>
-                                       <MenuItem disable="true" mnemonicParsing="false" text="Undo" />
-                                       <MenuItem disable="true" mnemonicParsing="false" text="Redo" />
-                                       <SeparatorMenuItem mnemonicParsing="false" />
-                                       <MenuItem fx:id="copyMenuItem" disable="true" text="Copy Art">
-                                          <graphic>
-                                             <ImageView fitHeight="20.0" fitWidth="20.0" opacity="0.6" pickOnBounds="true" preserveRatio="true" smooth="false">
-                                                <image>
-                                                   <Image url="@../icons/copy.png" />
-                                                </image>
-                                             </ImageView>
-                                          </graphic>
-                                       </MenuItem>
-                                    </items>
-                                 </Menu>
-                                 <Menu mnemonicParsing="false" text="Build">
-                                    <items>
-                                       <MenuItem fx:id="compileFramesMenuItem" mnemonicParsing="false" text="Compile Frames" />
-                                    </items>
-                                 </Menu>
-                              </menus>
-                           </MenuBar>
-                           <ToolBar fx:id="toolBar" disable="true" prefHeight="40.0" prefWidth="200.0">
-                              <items>
-                                 <VBox fx:id="zoomControls" alignment="CENTER">
-                                    <children>
-                                       <HBox fx:id="zoomBox" alignment="CENTER">
+                           <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE">
+                             <tabs>
+                               <Tab fx:id="fileTab" closable="false" disable="true">
+                                    <graphic>
+                                       <Label alignment="CENTER" prefWidth="75.0" />
+                                    </graphic>
+                               </Tab>
+                               <Tab>
+                                 <content>
+                                   <AnchorPane minHeight="0.0" minWidth="0.0">
                                           <children>
-                                             <TextField fx:id="fontField" alignment="CENTER" prefHeight="50.0" prefWidth="50.0">
-                                                <HBox.margin>
-                                                   <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
-                                                </HBox.margin>
-                                             </TextField>
-                                             <VBox>
-                                                <children>
-                                                   <Button fx:id="zoomInBtn" mnemonicParsing="false" prefHeight="20.0" prefWidth="40.0" text="+">
+                                             <ToolBar AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                <items>
+                                                   <Label text="Character Width:">
                                                       <tooltip>
-                                                         <Tooltip text="Zoom In" />
+                                                         <Tooltip text="The width of each character in pixels (the lower the value, the higher the resolution)" />
                                                       </tooltip>
+                                                   </Label>
+                                                   <TextField fx:id="charWidthField" alignment="CENTER" onKeyPressed="#updateCharWidthFromField" prefWidth="50.0" text="1">
                                                       <font>
-                                                         <Font name="Consolas" size="15.0" />
+                                                         <Font size="15.0" />
                                                       </font>
-                                                   </Button>
-                                                   <Button fx:id="zoomOutBtn" mnemonicParsing="false" prefHeight="20.0" prefWidth="40.0" text="-">
-                                                      <tooltip>
-                                                         <Tooltip text="Zoom Out" />
-                                                      </tooltip>
-                                                      <font>
-                                                         <Font name="Consolas" size="15.0" />
-                                                      </font>
-                                                   </Button>
-                                                </children>
-                                             </VBox>
-                                          </children>
-                                       </HBox>
-                                       <Label text="Font Size">
-                                          <font>
-                                             <Font size="15.0" />
-                                          </font>
-                                       </Label>
-                                    </children>
-                                 </VBox>
-                                 <Separator orientation="VERTICAL" />
-                                 <VBox fx:id="charWidthControls" alignment="CENTER">
-                                    <children>
-                                       <HBox fx:id="characterWidthBox" alignment="CENTER">
-                                          <children>
-                                             <TextField fx:id="charWidthField" alignment="CENTER" prefHeight="50.0" prefWidth="50.0">
-                                                <HBox.margin>
-                                                   <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
-                                                </HBox.margin>
-                                             </TextField>
-                                             <VBox>
-                                                <children>
-                                                   <Button fx:id="charWidthUpBtn" mnemonicParsing="false" prefHeight="20.0" prefWidth="40.0" text="+">
-                                                      <font>
-                                                         <Font name="Consolas" size="15.0" />
-                                                      </font>
+                                                   </TextField>
+                                                   <Button fx:id="charWidthUpButton" mnemonicParsing="false" onAction="#charWidthUpButtonClicked" prefWidth="40.0" text="+">
                                                       <tooltip>
                                                          <Tooltip text="Increase character finalWidth" />
                                                       </tooltip>
-                                                   </Button>
-                                                   <Button fx:id="charWidthDownBtn" mnemonicParsing="false" prefHeight="20.0" prefWidth="40.0" text="-">
                                                       <font>
-                                                         <Font name="Consolas" size="15.0" />
+                                                         <Font size="15.0" />
+                                                      </font>
+                                                   </Button>
+                                                   <Button fx:id="charWidthDownButton" mnemonicParsing="false" onAction="#charWidthDownButtonClicked" prefWidth="40.0" text="-">
+                                                      <font>
+                                                         <Font size="15.0" />
                                                       </font>
                                                       <tooltip>
                                                          <Tooltip text="Decrease character finalWidth" />
                                                       </tooltip>
                                                    </Button>
-                                                </children>
-                                             </VBox>
+                                                   <Separator orientation="VERTICAL" />
+                                                   <RadioButton fx:id="invertedShadingButton" contentDisplay="CENTER" mnemonicParsing="false" nodeOrientation="RIGHT_TO_LEFT" onAction="#invertedShadingClicked" text="Inverted Shading:" />
+                                                   <Separator orientation="VERTICAL" prefHeight="200.0" />
+                                                </items>
+                                                <padding>
+                                                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                                </padding>
+                                             </ToolBar>
                                           </children>
-                                       </HBox>
-                                       <Label text="Character Width (?)">
-                                          <font>
-                                             <Font size="15.0" />
-                                          </font>
-                                          <tooltip>
-                                             <Tooltip text="The finalWidth of each character in pixels (the lower the value, the higher the resolution)" />
-                                          </tooltip>
-                                       </Label>
-                                    </children>
-                                 </VBox>
-                                 <Separator orientation="VERTICAL" />
-                                 <VBox alignment="CENTER">
-                                    <children>
-                                       <MenuButton fx:id="colorThemeMenu" mnemonicParsing="false" text="Color Theme">
-                                          <font>
-                                             <Font size="15.0" />
-                                          </font>
-                                          <VBox.margin>
-                                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                                          </VBox.margin>
-                                       </MenuButton>
-                                       <RadioButton fx:id="invertedShadingBtn" contentDisplay="CENTER" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" text="Inverted Shading">
-                                          <font>
-                                             <Font size="15.0" />
-                                          </font>
-                                          <VBox.margin>
-                                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                                          </VBox.margin>
-                                       </RadioButton>
-                                    </children>
-                                 </VBox>
-                                 <HBox fx:id="shadingControls" alignment="CENTER" />
-                                 <Separator orientation="VERTICAL" />
-                                 <VBox fx:id="bGColorControls" alignment="CENTER">
-                                    <children>
-                                       <ColorPicker fx:id="bgColorPicker" editable="true" promptText="Background Color">
-                                          <VBox.margin>
-                                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                                          </VBox.margin>
-                                       </ColorPicker>
-                                       <Label text="Background">
-                                          <font>
-                                             <Font size="15.0" />
-                                          </font>
-                                          <VBox.margin>
-                                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                                          </VBox.margin>
-                                       </Label>
-                                    </children>
-                                    <padding>
-                                       <Insets top="3.0" />
-                                    </padding>
-                                 </VBox>
-                                 <VBox fx:id="textColorControls" alignment="CENTER">
-                                    <children>
-                                       <ColorPicker fx:id="textColorPicker" editable="true" promptText="Text Color">
-                                          <value>
-                                             <Color />
-                                          </value>
-                                          <VBox.margin>
-                                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                                          </VBox.margin>
-                                       </ColorPicker>
-                                       <Label text="Text">
-                                          <font>
-                                             <Font size="15.0" />
-                                          </font>
-                                          <VBox.margin>
-                                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                                          </VBox.margin>
-                                       </Label>
-                                    </children>
-                                 </VBox>
-                                 <Separator orientation="VERTICAL" />
-                                 <HBox fx:id="fileSaveControls" alignment="CENTER_LEFT">
-                                    <children>
-                                       <Button fx:id="copyBtn" graphicTextGap="0.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="45.0">
-                                          <tooltip>
-                                             <Tooltip text="Copy to Clipboard." />
-                                          </tooltip>
-                                          <font>
-                                             <Font name="Consolas" size="20.0" />
-                                          </font>
-                                          <graphic>
-                                             <ImageView fitHeight="20.0" fitWidth="20.0" opacity="0.6" pickOnBounds="true" preserveRatio="true" smooth="false">
-                                                <image>
-                                                   <Image url="@../icons/copy.png" />
-                                                </image>
-                                             </ImageView>
-                                          </graphic>
-                                          <HBox.margin>
-                                             <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
-                                          </HBox.margin>
-                                       </Button>
-                                       <Button fx:id="exportTxtBtn" graphicTextGap="0.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="45.0">
-                                          <tooltip>
-                                             <Tooltip text="Export as Txt." />
-                                          </tooltip>
-                                          <font>
-                                             <Font name="Consolas" size="20.0" />
-                                          </font>
-                                          <graphic>
-                                             <ImageView fitHeight="20.0" fitWidth="20.0" opacity="0.6" pickOnBounds="true" preserveRatio="true" smooth="false">
-                                                <image>
-                                                   <Image url="@../icons/export.png" />
-                                                </image>
-                                             </ImageView>
-                                          </graphic>
-                                          <HBox.margin>
-                                             <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
-                                          </HBox.margin>
-                                       </Button>
-                                       <Button fx:id="saveImageBtn" mnemonicParsing="false" prefHeight="45.0" prefWidth="45.0">
-                                          <font>
-                                             <Font name="Consolas" size="15.0" />
-                                          </font>
-                                          <HBox.margin>
-                                             <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
-                                          </HBox.margin>
-                                          <tooltip>
-                                             <Tooltip text="Save as Image." />
-                                          </tooltip>
-                                          <graphic>
-                                             <ImageView fitHeight="30.0" fitWidth="30.0" opacity="0.6" pickOnBounds="true" preserveRatio="true" smooth="false">
-                                                <image>
-                                                   <Image url="@../icons/image.png" />
-                                                </image>
-                                             </ImageView>
-                                          </graphic>
-                                       </Button>
-                                       <Button fx:id="saveMp4Btn" mnemonicParsing="false" prefHeight="45.0" prefWidth="45.0">
-                                          <font>
-                                             <Font name="Consolas" size="15.0" />
-                                          </font>
-                                          <tooltip>
-                                             <Tooltip text="Save Video as MP4..." />
-                                          </tooltip>
-                                          <graphic>
-                                             <ImageView fitHeight="30.0" fitWidth="30.0" opacity="0.6" pickOnBounds="true" preserveRatio="true" smooth="false">
-                                                <image>
-                                                   <Image url="@../icons/video.png" />
-                                                </image>
-                                             </ImageView>
-                                          </graphic>
-                                       </Button>
-                                    </children>
-                                 </HBox>
-                                 <Separator orientation="VERTICAL" />
-                                 <VBox fx:id="videoPlayerControls" alignment="CENTER">
-                                    <children>
-                                       <HBox fx:id="videoControlBox" alignment="CENTER">
+                                       </AnchorPane>
+                                 </content>
+                                    <graphic>
+                                       <Label alignment="CENTER" prefWidth="75.0" text="Edit" />
+                                    </graphic>
+                               </Tab>
+                                 <Tab>
+                                   <content>
+                                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                           <children>
-                                             <Button fx:id="prevFrameBtn" mnemonicParsing="false" prefHeight="45.0" prefWidth="45.0" text="&lt;&lt;">
-                                                <HBox.margin>
-                                                   <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
-                                                </HBox.margin>
-                                                <font>
-                                                   <Font name="Consolas Bold" size="15.0" />
-                                                </font>
-                                                <tooltip>
-                                                   <Tooltip text="Previous Frame" />
-                                                </tooltip>
-                                             </Button>
-                                             <Button fx:id="playVideoBtn" mnemonicParsing="false" prefHeight="45.0" prefWidth="45.0">
-                                                <graphic>
-                                                   <ImageView fitHeight="20.0" fitWidth="20.0" opacity="0.6" pickOnBounds="true" preserveRatio="true">
-                                                      <image>
-                                                         <Image url="@../icons/play.png" />
-                                                      </image>
-                                                   </ImageView>
-                                                </graphic>
-                                                <HBox.margin>
-                                                   <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
-                                                </HBox.margin>
-                                                <tooltip>
-                                                   <Tooltip text="Play Video" />
-                                                </tooltip>
-                                             </Button>
-                                             <Button fx:id="nextFrameBtn" mnemonicParsing="false" prefHeight="45.0" prefWidth="45.0" text="&gt;&gt;">
-                                                <HBox.margin>
-                                                   <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
-                                                </HBox.margin>
-                                                <font>
-                                                   <Font name="Consolas Bold" size="15.0" />
-                                                </font>
-                                                <tooltip>
-                                                   <Tooltip text="Next Frame" />
-                                                </tooltip>
-                                             </Button>
+                                             <ToolBar AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                <padding>
+                                                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                                </padding>
+                                                <items>
+                                                   <Label text="Color Theme:" />
+                                                   <MenuButton fx:id="colorThemeMenu" mnemonicParsing="false" prefWidth="179.0" style="-fx-background-color: WHITE;" text="Notepad">
+                                                      <font>
+                                                         <Font name="Consolas" size="15.0" />
+                                                      </font>
+                                                      <tooltip>
+                                                         <Tooltip text="Color Theme" />
+                                                      </tooltip>
+                                                   </MenuButton>
+                                                   <Label text="Background:" />
+                                                   <ColorPicker fx:id="bgColorPicker" editable="true" onAction="#bgColorSelected" prefHeight="25.0" prefWidth="100.0" promptText="Background Color" />
+                                                   <Separator orientation="VERTICAL" prefHeight="200.0" />
+                                                   <Label text="Text:" />
+                                                   <ColorPicker fx:id="textColorPicker" editable="true" onAction="#textColorSelected" prefHeight="25.0" prefWidth="100.0" promptText="Text Color">
+                                                      <value>
+                                                         <Color />
+                                                      </value>
+                                                   </ColorPicker>
+                                                </items>
+                                             </ToolBar>
                                           </children>
-                                       </HBox>
-                                       <Label text="Video Controls">
-                                          <font>
-                                             <Font size="15.0" />
-                                          </font>
-                                       </Label>
-                                    </children>
-                                 </VBox>
-                                 <Separator orientation="VERTICAL" />
+                                       </AnchorPane>
+                                   </content>
+                                    <graphic>
+                                       <Label alignment="CENTER" prefWidth="75.0" text="Color" />
+                                    </graphic>
+                                 </Tab>
+                                 <Tab>
+                                   <content>
+                                     <AnchorPane minHeight="0.0" minWidth="0.0">
+                                          <children>
+                                             <ToolBar AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                <items>
+                                                   <Button alignment="CENTER" contentDisplay="RIGHT" mnemonicParsing="false" onAction="#zoomInAction" styleClass="transparent-button" stylesheets="@../css/stylesheet.css" text="Zoom In:">
+                                                      <graphic>
+                                                         <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                                                            <image>
+                                                               <Image url="@../icons/zoomIn.png" />
+                                                            </image>
+                                                         </ImageView>
+                                                      </graphic>
+                                                      <padding>
+                                                         <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                                                      </padding>
+                                                   </Button>
+                                                   <Button alignment="CENTER" contentDisplay="RIGHT" mnemonicParsing="false" onAction="#zoomOutAction" styleClass="transparent-button" stylesheets="@../css/stylesheet.css" text="Zoom Out:">
+                                                      <graphic>
+                                                         <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                                                            <image>
+                                                               <Image url="@../icons/zoomOut.png" />
+                                                            </image>
+                                                         </ImageView>
+                                                      </graphic>
+                                                      <padding>
+                                                         <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                                                      </padding>
+                                                   </Button>
+                                                   <Label text="Fine Adjustment:">
+                                                      <padding>
+                                                         <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                                                      </padding>
+                                                   </Label>
+                                                   <Slider fx:id="zoomSlider" max="0.5" min="-0.5" onMouseClicked="#fineZoomAction" onMouseDragged="#fineZoomAction" showTickLabels="true" showTickMarks="true">
+                                                      <padding>
+                                                         <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                                                      </padding>
+                                                   </Slider>
+                                                   <Separator orientation="VERTICAL" prefHeight="200.0" />
+                                                   <Button contentDisplay="RIGHT" mnemonicParsing="false" onAction="#fitToAreaAction" styleClass="transparent-button" stylesheets="@../css/stylesheet.css" text="Fit To Area: ">
+                                                      <graphic>
+                                                         <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                                                            <image>
+                                                               <Image url="@../icons/center.png" />
+                                                            </image>
+                                                         </ImageView>
+                                                      </graphic>
+                                                      <padding>
+                                                         <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                                                      </padding>
+                                                   </Button>
+                                                   <Separator orientation="VERTICAL" prefHeight="200.0" />
+                                                   <CheckBox alignment="CENTER" mnemonicParsing="false" nodeOrientation="RIGHT_TO_LEFT" onAction="#toggleFullScreen" text="Fullscreen:">
+                                                      <padding>
+                                                         <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                                                      </padding>
+                                                   </CheckBox>
+                                                   <Separator orientation="VERTICAL" prefHeight="200.0" />
+                                                </items>
+                                             </ToolBar>
+                                          </children>
+                                       </AnchorPane>
+                                   </content>
+                                    <graphic>
+                                       <Label alignment="CENTER" prefWidth="75.0" text="View" />
+                                    </graphic>
+                                 </Tab>
+                             </tabs>
+                           </TabPane>
+                           <MenuButton alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="25.0" prefWidth="87.0" text="File">
+                              <items>
+                                 <Menu mnemonicParsing="false" text="New Ascii Image...">
+                                    <items>
+                                       <MenuItem mnemonicParsing="false" onAction="#newAsciiImageFromFileChosen" text="Choose File..." />
+                                       <MenuItem disable="true" mnemonicParsing="false" text="Camera..." />
+                                       <MenuItem disable="true" mnemonicParsing="false" text="Screen Share..." />
+                                       <MenuItem disable="true" mnemonicParsing="false" text="Paste Link..." />
+                                    </items>
+                                 </Menu>
+                                 <Menu mnemonicParsing="false" text="New Ascii Video...">
+                                    <items>
+                                       <MenuItem mnemonicParsing="false" onAction="#newAsciiVideoFromFileChosen" text="Choose File..." />
+                                       <MenuItem disable="true" mnemonicParsing="false" text="Camera..." />
+                                       <MenuItem disable="true" mnemonicParsing="false" text="Screen Share..." />
+                                       <MenuItem disable="true" mnemonicParsing="false" text="Paste Link..." />
+                                    </items>
+                                 </Menu>
+                                 <Menu mnemonicParsing="false" text="Live Render Ascii...">
+                                    <items>
+                                       <MenuItem mnemonicParsing="false" onAction="#liveRenderFromCameraChosen" text="Camera..." />
+                                       <MenuItem disable="true" mnemonicParsing="false" text="Screen Capture..." />
+                                       <MenuItem disable="true" mnemonicParsing="false" text="Paste Link..." />
+                                    </items>
+                                 </Menu>
+                                 <SeparatorMenuItem mnemonicParsing="false" />
+                                 <MenuItem mnemonicParsing="false" onAction="#copyToClipboardAction" text="Copy to Clipboard">
+                                    <graphic>
+                                       <ImageView fitHeight="15.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                          <image>
+                                             <Image url="@../icons/copy.png" />
+                                          </image>
+                                       </ImageView>
+                                    </graphic>
+                                 </MenuItem>
+                                 <MenuItem disable="true" mnemonicParsing="false" onAction="#exportAsImageAction" text="Export as Image...">
+                                    <graphic>
+                                       <ImageView fitHeight="15.0" fitWidth="15.0" opacity="0.6" pickOnBounds="true" preserveRatio="true" smooth="false">
+                                          <image>
+                                             <Image url="@../icons/export.png" />
+                                          </image>
+                                       </ImageView>
+                                    </graphic>
+                                 </MenuItem>
+                                 <SeparatorMenuItem mnemonicParsing="false" />
+                                 <MenuItem mnemonicParsing="false" onAction="#closeEditorAction" text="Close Video Editor" />
+                                 <MenuItem mnemonicParsing="false" onAction="#quitProject" text="Quit" />
                               </items>
-                              <padding>
-                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                              </padding>
+                              <StackPane.margin>
+                                 <Insets bottom="5.0" left="4.0" right="5.0" top="4.0" />
+                              </StackPane.margin>
+                           </MenuButton>
+                        </children>
+                        <cursor>
+                           <Cursor fx:constant="DEFAULT" />
+                        </cursor>
+                        <opaqueInsets>
+                           <Insets />
+                        </opaqueInsets>
+                     </StackPane>
+                  </top>
+                  <bottom>
+                     <AnchorPane BorderPane.alignment="CENTER">
+                        <children>
+                           <ToolBar prefHeight="40.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                             <items>
+                               <Button fx:id="frameBackwardButton" mnemonicParsing="false" onAction="#frameBackwardAction" prefHeight="40.0" prefWidth="40.0" styleClass="transparent-button" stylesheets="@../css/stylesheet.css" text="&lt;&lt;" />
+                                 <Button fx:id="togglePlayButton" mnemonicParsing="false" onAction="#togglePlayAction" prefHeight="40.0" prefWidth="40.0" styleClass="transparent-button" stylesheets="@../css/stylesheet.css">
+                                    <graphic>
+                                       <ImageView fitHeight="25.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                                          <image>
+                                             <Image url="@../icons/play.png" />
+                                          </image>
+                                       </ImageView>
+                                    </graphic>
+                                 </Button>
+                                 <Button fx:id="frameForwardButton" mnemonicParsing="false" onAction="#frameForwardAction" prefHeight="40.0" prefWidth="40.0" styleClass="transparent-button" stylesheets="@../css/stylesheet.css" text="&gt;&gt;" />
+                                 <Slider fx:id="videoProgressSlider" blockIncrement="1.0" majorTickUnit="1.0" minorTickCount="1" onMouseDragged="#dragSlider" onMousePressed="#grabSlider" onMouseReleased="#releaseSlider" prefWidth="1253.0" snapToTicks="true">
+                                    <cursor>
+                                       <Cursor fx:constant="HAND" />
+                                    </cursor></Slider>
+                             </items>
                            </ToolBar>
                         </children>
-                     </VBox>
-                  </top>
+                     </AnchorPane>
+                  </bottom>
                </BorderPane>
             </children></AnchorPane>
         </Scene>

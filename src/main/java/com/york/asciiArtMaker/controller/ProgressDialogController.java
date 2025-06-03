@@ -8,10 +8,10 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.stage.Stage;
 
-public class ProgressDialogController implements ProgressMonitor, ReturnLocation<VideoSource> {
+public class ProgressDialogController implements ProgressMonitor {
 
     @FXML
-    public Label info;
+    public Label label;
     @FXML
     public Stage stage;
     @FXML
@@ -20,13 +20,11 @@ public class ProgressDialogController implements ProgressMonitor, ReturnLocation
     public Button cancelBtn;
 
     private double progress;
-    private String text;
     private Cancellable cancellable;
 
     @FXML
     public void initialize() {
         progress = 0.0;
-        text = "Gathering Frame Data...(0.0%)";
     }
 
     @FXML
@@ -34,16 +32,12 @@ public class ProgressDialogController implements ProgressMonitor, ReturnLocation
         cancel();
     }
 
-    public void setText(String text) {
-        this.text = text;
-    }
-
     public void setCancellable(Cancellable process) {
         this.cancellable = process;
     }
 
     public void updateDisplay() {
-        info.setText(String.format("%s...(%f%%)", text, progress * 100));
+        label.setText(String.format("Gathering Frame Data...(%f%%)", progress * 100));
         progressBar.setProgress(progress);
     }
 
@@ -67,8 +61,4 @@ public class ProgressDialogController implements ProgressMonitor, ReturnLocation
         stage.close();
     }
 
-    @Override
-    public void acceptResult(VideoSource result) {
-        AsciiArtMaker.launchVideoEditor(result);
-    }
 }

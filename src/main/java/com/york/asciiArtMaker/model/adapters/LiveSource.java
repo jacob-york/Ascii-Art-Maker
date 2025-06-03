@@ -27,5 +27,10 @@ public interface LiveSource {
     /**
      * @return the livestream's current frame at the time of calling, represented as an ImageSource.
      */
-    ImageSource getCurImageSource();
+    ImageSource getCurrentImageSource();
+
+    /**
+     * Closes the LoveSource object and releases all of its resources
+     */
+    void close();
 }

@@ -29,10 +29,10 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.stage.Stage?>
 
-<Stage title="Image Editor - Ascii Art Maker" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.york.asciiArtMaker.controller.ImageEditorController">
+<Stage title="Live Editor - Ascii Art Maker" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.york.asciiArtMaker.controller.LiveEditorController">
     <scene>
         <Scene>
-            <AnchorPane prefHeight="900.0" prefWidth="1400.0">
+            <AnchorPane fx:id="anchorPane" prefHeight="900.0" prefWidth="1400.0">
             <children>
                <BorderPane fx:id="borderPane" layoutX="-1.0" layoutY="1.0" prefHeight="900.0" prefWidth="1400.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                   <top>
@@ -274,9 +274,9 @@
                                        <MenuItem disable="true" mnemonicParsing="false" text="Paste Link..." />
                                     </items>
                                  </Menu>
-                                 <Menu mnemonicParsing="false" text="Live Render Ascii...">
+                                 <Menu mnemonicParsing="false" onAction="#liveRenderFromCameraChosen" text="Live Render Ascii...">
                                     <items>
-                                       <MenuItem mnemonicParsing="false" onAction="#liveRenderFromCameraChosen" text="Camera..." />
+                                       <MenuItem disable="true" mnemonicParsing="false" text="Camera..." />
                                        <MenuItem disable="true" mnemonicParsing="false" text="Screen Capture..." />
                                        <MenuItem disable="true" mnemonicParsing="false" text="Paste Link..." />
                                     </items>
@@ -301,7 +301,7 @@
                                     </graphic>
                                  </MenuItem>
                                  <SeparatorMenuItem mnemonicParsing="false" />
-                                 <MenuItem mnemonicParsing="false" onAction="#closeEditorAction" text="Close Image Editor" />
+                                 <MenuItem mnemonicParsing="false" onAction="#closeEditorAction" text="Close Live Editor" />
                                  <MenuItem mnemonicParsing="false" onAction="#quitProject" text="Quit" />
                               </items>
                               <StackPane.margin>
@@ -317,6 +317,20 @@
                         </opaqueInsets>
                      </StackPane>
                   </top>
+                  <bottom>
+                     <Button fx:id="togglePlayButton" alignment="CENTER" mnemonicParsing="false" onAction="#togglePlayAction" prefHeight="50.0" prefWidth="50.0" styleClass="transparent-button" stylesheets="@../css/stylesheet.css" BorderPane.alignment="CENTER">
+                        <graphic>
+                           <ImageView fitHeight="37.0" fitWidth="45.0" pickOnBounds="true" preserveRatio="true">
+                              <image>
+                                 <Image url="@../icons/pause.png" />
+                              </image>
+                           </ImageView>
+                        </graphic>
+                        <BorderPane.margin>
+                           <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                        </BorderPane.margin>
+                     </Button>
+                  </bottom>
                </BorderPane>
             </children></AnchorPane>
         </Scene>

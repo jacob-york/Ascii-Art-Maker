@@ -38,8 +38,6 @@ public interface ImageSource {
      * OR -1 if the pixel is completely transparent.
      */
     static int desaturateARGB(int a, int r, int g, int b) {
-
-        // todo: a more sophisticated way of handling semi-transparent pixels?
         if (a == 0) {
             return -1;
         } else {

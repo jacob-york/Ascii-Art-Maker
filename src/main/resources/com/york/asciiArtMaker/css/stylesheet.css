@@ -1,0 +1,16 @@
+.transparent-button {
+    -fx-background-color: light-gray;
+}
+.transparent-button:hover {
+    -fx-background-color: gainsboro;
+}
+
+.transparent-toggle-button {
+    -fx-background-color: light-gray;
+}
+.transparent-toggle-button:hover {
+    -fx-background-color: gainsboro;
+}
+.transparent-toggle-button:selected {
+    -fx-background-color: silver;
+}

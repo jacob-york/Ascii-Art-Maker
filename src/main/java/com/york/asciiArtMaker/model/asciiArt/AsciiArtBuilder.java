@@ -1,5 +1,8 @@
 package com.york.asciiArtMaker.model.asciiArt;
 
+import com.york.asciiArtMaker.model.adapters.ImageSource;
+import com.york.asciiArtMaker.model.adapters.VideoSource;
+
 import java.util.Optional;
 
 /**
@@ -7,6 +10,18 @@ import java.util.Optional;
  * but since they share most of their methods, they both implement this shared AsciiArtBuilder interface.
  */
 public interface AsciiArtBuilder {
+
+    String DEFAULT_PALETTE = "@N#bhyo+s/=-:.  ";
+
+    static int getMaxCharWidth(ImageSource imageSource) {
+        boolean ge2 = imageSource.getHeight() / imageSource.getWidth() >= 2;
+        return ge2 ? imageSource.getWidth() : imageSource.getHeight() / 2;
+    }
+
+    static int getMaxCharWidth(VideoSource videoSource) {
+        boolean ge2 = videoSource.getHeight() / videoSource.getWidth() >= 2;
+        return ge2 ? videoSource.getWidth() : videoSource.getHeight() / 2;
+    }
 
     /**
      * Get the width of the art in characters.
@@ -38,15 +53,15 @@ public interface AsciiArtBuilder {
     int getMaxCharWidth();
 
     /**
+     * Resets the builder to the default values.
+     */
+    AsciiArtBuilder reset();
+
+    /**
      * Get how wide each character is in pixels (from the original image).
      * @return Width of each character in pixels
      */
     int getCharWidth();
-
-    /**
-     * Resets the builder to the default values.
-     */
-    AsciiArtBuilder reset();
 
     /**
      * Set the width of each character in pixels.
@@ -64,6 +79,7 @@ public interface AsciiArtBuilder {
      * @param palette The new palette of chars
      */
     AsciiArtBuilder setPalette(String palette);
+
 
     /**
      * @return the art's menuName if it has one.

@@ -28,8 +28,9 @@ public class VideoFileConnectionService implements Cancellable, Runnable {
      * <p>Nested class with a private constructor, for representing VideoSources created via a
      * VideoFileConnectionService.</p>
      *
-     * <p>Since you need a VFCS to read and work with any video file source in AsciiArtMaker,
-     * the VideoFileAdapter is nested within VFCS and has a private constructor.</p>
+     * <p>The reason for the private constructor is that in AsciiArtMaker, the only way to read a video file is
+     * via a VideoFileConnectionService. So, a VideoFileConnectionService is the only object that
+     * can instantiate a VideoFileAdapter. The user is meant to access the VideoFileAdapter as a VideoSource.</p>
      */
     public static class VideoFileAdapter implements VideoSource {
 
@@ -125,58 +126,50 @@ public class VideoFileConnectionService implements Cancellable, Runnable {
         }
     }
 
-    // *theoretically*, updating our observers every FRAME_BUFFER frames instead of per frame
-    // will reduce interruptions from the GUI thread and improve speed.
-    // I've seen /minimal/ improvement in my own testing, but I'm keeping this feature anyway, at least
-    // for aesthetic reasons since it doesn't hurt anything.
     public static final int FRAME_BUFFER = 100;
     private final File file;
     private int frameInProgress;
     private boolean cancelled;
     private final List<ProgressMonitor> observers;
     private final ReturnLocation<VideoSource> returnLocation;
-    private final VideoCapture vc;
-    private final Mat buffer;  // holds data for a frame
+    private final VideoCapture videoCapture;
+    private final Mat frameBuffer;  // holds data for a frame
 
     public VideoFileConnectionService(File file, ReturnLocation<VideoSource> returnLocation) {
         this.file = file;
         this.returnLocation = returnLocation;
         frameInProgress = 0;
 
-        vc = new VideoCapture(file.getPath());
-        buffer = new Mat();
+        videoCapture = new VideoCapture(file.getPath());
+        frameBuffer = new Mat();
         observers = new ArrayList<>();
     }
 
     @Override
     public void run() {
-        if (!vc.isOpened()) {
+        if (!videoCapture.isOpened()) {
             Platform.runLater(() -> observers.forEach(ProgressMonitor::cancel));
             return;
         }
 
-        double fps = vc.get(Videoio.CAP_PROP_FPS);
-        double estFrameCount = vc.get(Videoio.CAP_PROP_FRAME_COUNT);
+        double fps = videoCapture.get(Videoio.CAP_PROP_FPS);
+        double approxFrameCount = videoCapture.get(Videoio.CAP_PROP_FRAME_COUNT);
         List<Mat> matrices = new ArrayList<>();
 
-        long start = System.currentTimeMillis();
-        while (!cancelled && vc.read(buffer)) {
+        while (!cancelled && videoCapture.read(frameBuffer)) {
             frameInProgress++;
-            matrices.add(buffer.clone());
+            matrices.add(frameBuffer.clone());
 
             if (matrices.size() % FRAME_BUFFER == 0) {
                 Platform.runLater(() -> observers.forEach(observer ->
-                        observer.setProgress((double) frameInProgress / estFrameCount)));
+                        observer.setProgress((double) frameInProgress / approxFrameCount)));
             }
         }
 
-        vc.release();
-        buffer.release();
+        videoCapture.release();
+        frameBuffer.release();
 
         if (!cancelled) {
-            long end = System.currentTimeMillis();
-            System.out.printf("%d millis run time.", end - start);
-
             VideoSource videoSource = new VideoFileAdapter(file.getName(), fps, matrices);
             Platform.runLater(() -> {
                 observers.forEach(ProgressMonitor::finish);
@@ -188,8 +181,8 @@ public class VideoFileConnectionService implements Cancellable, Runnable {
     @Override
     public boolean cancel() {
         cancelled = true;
-        vc.release();
-        buffer.release();
+        videoCapture.release();
+        frameBuffer.release();
         return true;
     }
 

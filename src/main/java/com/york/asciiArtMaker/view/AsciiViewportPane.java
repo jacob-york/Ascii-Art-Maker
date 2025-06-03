@@ -1,8 +1,12 @@
 package com.york.asciiArtMaker.view;
 
+import com.york.asciiArtMaker.AsciiArtMaker;
 import com.york.asciiArtMaker.model.asciiArt.AsciiImage;
+import javafx.scene.Cursor;
 import javafx.scene.Group;
 
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -15,19 +19,25 @@ import javafx.scene.text.Text;
 public class AsciiViewportPane extends Pane {
 
     public static final double VIEWPORT_PADDING_PIXELS = 50;
-    public static final double MAX_CHAR_RENDER_HEIGHT = 75;
+    public static final double MAX_CHAR_RENDER_HEIGHT = 40;
+    public static final double MIN_CHAR_RENDER_HEIGHT = 1;
+    public static final double ZOOM_TRANSFORM = 0.25;
+    public static final double PANNING_TRANSFORM = 50;
 
     private double minX;
     private double maxX;
     private double minY;
     private double maxY;
+
+    private double mouseXDragSpace;
+    private double mouseYDragSpace;
+
     private AsciiImage art;
     private double virtualContentXPos;
     private double virtualContentYPos;
     private double virtualContentZoom;
-    private double zeroedScale;
-    private double zeroedWidth;
-    private double zeroedHeight;
+    private double baselineScale;
+    private final double DEFAULT_HEIGHT;
     private final Rectangle clip;
     private final Text text;
     private final Group textGroup;
@@ -42,6 +52,8 @@ public class AsciiViewportPane extends Pane {
         minY = prefHeight / 2.0;
         maxY = prefHeight / 2.0;
 
+        DEFAULT_HEIGHT = prefHeight * 0.80;
+
         virtualContentXPos = 0.0;
         virtualContentYPos = 0.0;
         virtualContentZoom = 1.0;
@@ -49,22 +61,53 @@ public class AsciiViewportPane extends Pane {
         text = new Text();
         text.setFont(new Font(getDefaultFontName(), 13));
         textGroup = new Group(text);
-        setPrefWidth(prefWidth);
-        setPrefHeight(prefHeight);
+
+        setPrefSize(prefWidth, prefHeight);
         clip = new Rectangle(prefWidth, prefHeight);
         setClip(clip);
 
         widthProperty().addListener((obs, oldVal, newVal) -> {
             clip.setWidth(newVal.doubleValue());
-            refreshContentXPos();
+            updateContentXPos();
+            recalibrateXRange();
         });
         heightProperty().addListener((obs, oldVal, newVal) -> {
             clip.setHeight(newVal.doubleValue());
-            refreshContentYPos();
+            updateContentYPos();
+            recalibrateYRange();
         });
 
-        refreshContentPos();
+        updateContentPos();
+        initializeMouseControls();
         getChildren().add(textGroup);
+    }
+
+    private void initializeMouseControls() {
+        setOnMousePressed(mouseEvent -> {
+            if (mouseEvent.getButton() == MouseButton.PRIMARY) {
+                setCursor(Cursor.CLOSED_HAND);
+                mouseXDragSpace = mouseEvent.getSceneX() - getContentXPos();
+                mouseYDragSpace = mouseEvent.getSceneY() - getContentYPos();
+            }
+        });
+        setOnMouseDragged(mouseEvent -> {
+            if (mouseEvent.getButton() == MouseButton.PRIMARY) {
+                setContentXPos(mouseEvent.getSceneX() - mouseXDragSpace);
+                setContentYPos(mouseEvent.getSceneY() - mouseYDragSpace);
+            }
+        });
+        setOnMouseReleased(mouseEvent -> {
+            if (mouseEvent.getButton() == MouseButton.PRIMARY)
+                setCursor(Cursor.OPEN_HAND);
+        });
+    }
+
+    public double getViewportWidth() {
+        return windowIsShowing() ? getWidth() : getPrefWidth();
+    }
+
+    public double getViewportHeight() {
+        return windowIsShowing() ? getHeight() : getPrefHeight();
     }
 
     public boolean hasContent() {
@@ -90,23 +133,50 @@ public class AsciiViewportPane extends Pane {
 
     public void setNewContent(AsciiImage newContent) {
         text.setText(newContent.toStr());
-        centerContentPos();
         this.art = newContent;
-    }
 
-    public boolean updateExistingContent(AsciiImage newContent) {
-        text.setText(newContent.toStr());
-        final double charWidthScalar = ((double) newContent.charWidth() / (double) art.charWidth());
-        zeroedScale *= charWidthScalar;
-        setContentScale(getContentScale() * charWidthScalar);
-        refreshContentPos();
+        // recalculate baseline scale
+        baselineScale = DEFAULT_HEIGHT / getPhysicalContentHeight();
 
-        this.art = newContent;
-        return true;
+        setContentScale(baselineScale);
+        virtualContentZoom = 1;
+        setContentXPos(0);
+        setContentYPos(0);
     }
 
     /**
-     * <p>ONLY updates the nested text attribute itself; No rescaling, no re-centering, no repositioning, etc.</p>
+     * @param newContent
+     * @return false if any resizing needed to be done, otherwise true
+     */
+    public boolean updateExistingContent(AsciiImage newContent) {
+        text.setText(newContent.toStr());
+
+        final double charWidthScalar = ((double) newContent.charWidth() / (double) art.charWidth());
+        double newScale = getContentScale() * charWidthScalar;
+        baselineScale *= charWidthScalar;
+
+        double newCharRenderHeight = getPhysicalContentHeight()*newScale / newContent.height();
+        double adjustedCharRenderHeight = AsciiArtMaker.ensureInRange(
+                newCharRenderHeight, MIN_CHAR_RENDER_HEIGHT, MAX_CHAR_RENDER_HEIGHT);
+
+        // compute adjusted scale and adjusted virtualZoom
+        if (adjustedCharRenderHeight != newCharRenderHeight) {
+            newScale = adjustedCharRenderHeight*newContent.height() / getPhysicalContentHeight();
+            virtualContentZoom = newScale / baselineScale;
+        }
+
+        setContentScale(newScale);
+        updateContentPos();
+        this.art = newContent;
+        return adjustedCharRenderHeight == newCharRenderHeight;
+    }
+
+    private boolean windowIsShowing() {
+        return getScene() != null && getScene().getWindow().isShowing();
+    }
+
+    /**
+     * <p>ONLY updates the nested hText attribute itself; No rescaling, no re-centering, no repositioning, etc.</p>
      * <p>The intended use case for this is when you're confident that the new art will have the EXACT same dimensions as
      * the previous art, and you'd like to skip some unnecessary computation.</p>
      * @param newContent the new Art
@@ -116,53 +186,48 @@ public class AsciiViewportPane extends Pane {
         this.art = newContent;
     }
 
-    public void centerContentPos() {
-        setContentScale(1);
-        zeroedScale = (getPrefHeight() * (2.0/3.0)) / getPhysicalContentHeight();
-        zeroedWidth = getContentWidth();
-        zeroedHeight = getContentHeight();
-
-        boolean windowIsShowing = getScene().getWindow().isShowing();
-        double desiredContentHeight = (windowIsShowing ? getHeight() : getPrefHeight()) * (2.0/3.0);
-        double appliedScale = desiredContentHeight / getPhysicalContentHeight();
-        setContentScale(appliedScale);
-        virtualContentZoom = appliedScale / zeroedScale;
-
-        virtualContentXPos = 0;
-        virtualContentYPos = 0;
-        refreshContentPos();
+    public void fitContentToArea() {
+        double newScale = getViewportHeight() / getPhysicalContentHeight();
+        setContentZoom(newScale / baselineScale);
+        setContentXPos(0);
+        setContentYPos(0);
     }
 
-    private void refreshContentPos() {
-        refreshContentXPos();
-        refreshContentYPos();
+    private void updateContentPos() {
+        updateContentXPos();
+        updateContentYPos();
     }
-
-    private void refreshContentXPos() {
-        textGroup.setTranslateX(getWidth()/2.0 - (getPhysicalContentWidth()/2.0) + virtualContentXPos);
+    private void updateContentXPos() {
+        virtualContentXPos = AsciiArtMaker.ensureInRange(virtualContentXPos, minX, maxX);
+        textGroup.setTranslateX(getViewportWidth()/2.0 - (getPhysicalContentWidth()/2.0) + virtualContentXPos);
     }
-
-    private void refreshContentYPos() {
-        textGroup.setTranslateY(getHeight()/2.0 - (getPhysicalContentHeight()/2.0) + virtualContentYPos);
+    private void updateContentYPos() {
+        virtualContentYPos = AsciiArtMaker.ensureInRange(virtualContentYPos, minY, maxY);
+        textGroup.setTranslateY(getViewportHeight()/2.0 - (getPhysicalContentHeight()/2.0) + virtualContentYPos + 10);
     }
 
     public double getContentZoom() {
         return virtualContentZoom;
     }
-    public void setContentZoom(double newZoom) {
-        double newScale = zeroedScale * newZoom;
+    public boolean setContentZoom(double newZoom) {
+        double adjustedZoom = ensureZoomInRange(newZoom);
+        double newScale = baselineScale * adjustedZoom;
+        virtualContentZoom = adjustedZoom;
+        setContentScale(newScale);
 
-        if (virtualContentZoom - newZoom > 0 && newZoom > 0) {
-            virtualContentZoom = newZoom;
-            setContentScale(newScale);
-        } else if (virtualContentZoom - newZoom < 0 && ((zeroedHeight*newZoom) / art.height()) <= MAX_CHAR_RENDER_HEIGHT) {
-            virtualContentZoom = newZoom;
-            setContentScale(newScale);
-        }
+        virtualContentXPos = AsciiArtMaker.ensureInRange(virtualContentXPos, minX, maxX);
+        virtualContentYPos = AsciiArtMaker.ensureInRange(virtualContentYPos, minY, maxY);
+        updateContentPos();
 
-        virtualContentXPos = ensureVirtualXInRange(virtualContentXPos);
-        virtualContentYPos = ensureVirtualYInRange(virtualContentYPos);
-        refreshContentPos();
+        return adjustedZoom == newZoom;
+    }
+    private double ensureZoomInRange(double newZoom) {
+        double charRenderHeight = getPhysicalContentHeight()* baselineScale *newZoom / art.height();
+        double adjustedCharRenderHeight = AsciiArtMaker.ensureInRange(
+                charRenderHeight, MIN_CHAR_RENDER_HEIGHT, MAX_CHAR_RENDER_HEIGHT);
+
+        if (adjustedCharRenderHeight == charRenderHeight) return newZoom;
+        else return adjustedCharRenderHeight*art.height() / (getPhysicalContentHeight()* baselineScale);
     }
 
     private double getContentScale() {
@@ -174,52 +239,66 @@ public class AsciiViewportPane extends Pane {
         recalibrateXRange();
         recalibrateYRange();
     }
+
     private void recalibrateXRange() {
-        minX = -1*getWidth()/2.0 - (getContentWidth()/2.0) + VIEWPORT_PADDING_PIXELS;
-        maxX = getWidth()/2.0 + (getContentWidth()/2.0) - VIEWPORT_PADDING_PIXELS;
+        minX = -1*getViewportWidth()/2.0 - (getContentWidth()/2.0) + VIEWPORT_PADDING_PIXELS;
+        maxX = getViewportWidth()/2.0 + (getContentWidth()/2.0) - VIEWPORT_PADDING_PIXELS;
     }
     private void recalibrateYRange() {
-        minY = -1*getHeight()/2.0 - (getContentHeight()/2.0) + VIEWPORT_PADDING_PIXELS;
-        maxY = getHeight()/2.0 + (getContentHeight()/2.0) - VIEWPORT_PADDING_PIXELS;
+        minY = -1*getViewportHeight()/2.0 - (getContentHeight()/2.0) + VIEWPORT_PADDING_PIXELS;
+        maxY = getViewportHeight()/2.0 + (getContentHeight()/2.0) - VIEWPORT_PADDING_PIXELS;
     }
 
     public double getContentXPos() {
         return virtualContentXPos;
     }
-    public void setContentXPos(double newXPos) {
-        virtualContentXPos = ensureVirtualXInRange(newXPos);
-        refreshContentXPos();
+
+    /**
+     * @param newXPos new x pos of the content, where the origin is the center of the viewport.
+     * @return false if newXPos is out of bounds, otherwise true (if the value is out of bounds,
+     * then the content will be placed at the min or max respectively).
+     */
+    public boolean setContentXPos(double newXPos) {
+        double adjustedXPos = AsciiArtMaker.ensureInRange(newXPos, minX, maxX);
+        virtualContentXPos = adjustedXPos;
+        updateContentXPos();
+
+        return adjustedXPos == newXPos;
     }
 
     public double getContentYPos() {
         return virtualContentYPos;
     }
-    public void setContentYPos(double newYPos) {
-        virtualContentYPos = ensureVirtualYInRange(newYPos);
-        refreshContentYPos();
-    }
 
-    private double ensureVirtualXInRange(double newXPos) {
-        return newXPos < minX ? minX : (newXPos > maxX ? maxX : newXPos);
-    }
-    private double ensureVirtualYInRange(double newYPos) {
-        return newYPos < minY ? minY : (newYPos > maxY ? maxY : newYPos);
+    /**
+     * @param newYPos new y pos of the content, where the origin is the center of the viewport.
+     * @return false if newYPos is out of bounds, otherwise true (if the value is out of bounds,
+     * then the content will be placed at the min or max respectively).
+     */
+    public boolean setContentYPos(double newYPos) {
+        double adjustedYPos = AsciiArtMaker.ensureInRange(newYPos, minY, maxY);
+        virtualContentYPos = adjustedYPos;
+        updateContentYPos();
+
+        return adjustedYPos == newYPos;
     }
 
     // virtual
     public double getContentWidth() {
-        return getPhysicalContentWidth() * textGroup.getScaleX();
+        return textGroup.getBoundsInParent().getWidth();
     }
 
     // virtual
     public double getContentHeight() {
-        return getPhysicalContentHeight() * textGroup.getScaleY();
+        return textGroup.getBoundsInParent().getHeight();
     }
 
+    // physical
     private double getPhysicalContentWidth() {
         return textGroup.getBoundsInLocal().getWidth();
     }
 
+    // physical
     private double getPhysicalContentHeight() {
         return textGroup.getBoundsInLocal().getHeight();
     }

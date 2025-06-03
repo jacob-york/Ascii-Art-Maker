@@ -24,7 +24,7 @@
                               <items>
                                  <MenuItem mnemonicParsing="false" onAction="#asciiImageFromFileChosen" text="Choose File..." />
                                  <MenuItem disable="true" mnemonicParsing="false" text="Camera..." />
-                                 <MenuItem disable="true" mnemonicParsing="false" text="Screen Share..." />
+                                 <MenuItem disable="true" mnemonicParsing="false" text="Screen Capture..." />
                                  <MenuItem disable="true" mnemonicParsing="false" text="Paste Link..." />
                               </items>
                               <VBox.margin>
@@ -38,7 +38,7 @@
                               <items>
                                  <MenuItem mnemonicParsing="false" onAction="#asciiVideoFromFileChosen" text="Choose File..." />
                                  <MenuItem disable="true" mnemonicParsing="false" text="Camera..." />
-                                 <MenuItem disable="true" mnemonicParsing="false" text="Screen Share..." />
+                                 <MenuItem disable="true" mnemonicParsing="false" text="Screen Capture..." />
                                  <MenuItem disable="true" mnemonicParsing="false" text="Paste Link..." />
                               </items>
                               <VBox.margin>
@@ -48,10 +48,10 @@
                                  <Font name="Arial" size="20.0" />
                               </font>
                            </MenuButton>
-                           <MenuButton fx:id="liveRenderMenuButton" disable="true" mnemonicParsing="false" popupSide="RIGHT" text="Live Render">
+                           <MenuButton fx:id="liveRenderMenuButton" mnemonicParsing="false" popupSide="RIGHT" text="Live Render">
                               <items>
-                                 <MenuItem disable="true" mnemonicParsing="false" text="Camera..." />
-                                 <MenuItem disable="true" mnemonicParsing="false" text="Screen Share..." />
+                                 <MenuItem mnemonicParsing="false" onAction="#liveRenderFromCameraChosen" text="Camera..." />
+                                 <MenuItem disable="true" mnemonicParsing="false" text="Screen Capture..." />
                                  <MenuItem disable="true" mnemonicParsing="false" text="Paste Link..." />
                               </items>
                               <VBox.margin>
@@ -74,6 +74,9 @@
                         </BorderPane.margin>
                      </Text>
                   </top>
+                  <padding>
+                     <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                  </padding>
                </BorderPane>
             </children></AnchorPane>
         </Scene>

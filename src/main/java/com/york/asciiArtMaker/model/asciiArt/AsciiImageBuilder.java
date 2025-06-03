@@ -3,16 +3,16 @@ package com.york.asciiArtMaker.model.asciiArt;
 import com.york.asciiArtMaker.model.adapters.ImageSource;
 import javafx.scene.paint.Color;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class AsciiImageBuilder implements AsciiArtBuilder {
 
+    private ImageSource imageSource;
     private int charWidth;
     private String name;
-    private final ImageSource imageSource;
-    private final String defaultPalette = "@N#bhyo+s/=-:.  ";
     private String activePalette;
     private String palette;
     private boolean invertedShading;
@@ -25,14 +25,14 @@ public class AsciiImageBuilder implements AsciiArtBuilder {
         this.imageSource = imageSource;
         this.charWidth = 1;
         this.invertedShading = false;
-
         this.name = imageSource.getName().orElse(null);
-        this.palette = defaultPalette;
+        this.palette = DEFAULT_PALETTE;
         this.activePalette = palette;
 
         this.artCache = null;
 
-        updateDomainAndRange();
+        updateDomain();
+        updateRange();
     }
 
     @Override
@@ -62,20 +62,39 @@ public class AsciiImageBuilder implements AsciiArtBuilder {
     }
 
     @Override
-    public int getCharWidth() {
-        return charWidth;
-    }
-
-    @Override
     public AsciiImageBuilder reset() {
         this.charWidth = 1;
         this.invertedShading = false;
 
-        this.palette = defaultPalette;
+        this.palette = DEFAULT_PALETTE;
         this.activePalette = palette;
-        updateDomainAndRange();
+        updateDomain();
+        updateRange();
         artCache = null;
         return this;
+    }
+
+    public ImageSource getImageSource() {
+        return imageSource;
+    }
+    
+    public AsciiImageBuilder setImageSource(ImageSource imageSource) {
+        if (charWidth > AsciiArtBuilder.getMaxCharWidth(imageSource)) {
+            throw new IllegalArgumentException("Image source is too small for the current char width.");
+        }
+        double oldSourceWidth = this.imageSource.getWidth();
+        double oldSourceHeight = this.imageSource.getHeight();
+        this.imageSource = imageSource;
+        if (imageSource.getWidth() != oldSourceWidth) updateDomain();
+        if (imageSource.getHeight() != oldSourceHeight) updateRange();
+        if (name == null) name = imageSource.getName().orElse(null);
+        artCache = null;
+        return this;
+    }
+
+    @Override
+    public int getCharWidth() {
+        return charWidth;
     }
 
     /**
@@ -93,7 +112,9 @@ public class AsciiImageBuilder implements AsciiArtBuilder {
         }
 
         this.charWidth = charWidth;
-        updateDomainAndRange();
+
+        updateDomain();
+        updateRange();
         artCache = null;
         return this;
     }
@@ -161,7 +182,7 @@ public class AsciiImageBuilder implements AsciiArtBuilder {
 
     @Override
     public boolean isUsingDefaultPalette() {
-        return palette.equals(defaultPalette);
+        return palette.equals(DEFAULT_PALETTE);
     }
 
     /**
@@ -177,6 +198,10 @@ public class AsciiImageBuilder implements AsciiArtBuilder {
      * @return a Character to abstractly represent your section of pixels.
      */
     private Character mapPixelSectionToChar(int row, int col) {
+        final int charIndex = (int) Math.floor(getSectionLuminance(row, col) / (double) (256/activePalette.length()));
+        return activePalette.charAt(charIndex);
+    }
+    private int getSectionLuminance(int row, int col) {
         final int sectionWidthPixels = charWidth;
         final int sectionHeightPixels = charWidth * 2;
         final int sectionAreaPixels = sectionWidthPixels * sectionHeightPixels;
@@ -197,13 +222,12 @@ public class AsciiImageBuilder implements AsciiArtBuilder {
         // quick check to decide if we should deem the entire section "transparent":
         final int opaquePixelCnt = sectionAreaPixels - transparentPixelCnt;
         if (transparentPixelCnt > opaquePixelCnt) return ' ';
-
-        final int sectionLuminance = runningLuminositySum / sectionAreaPixels;
-        final int charIndex = (int) Math.floor(sectionLuminance / (double) (256/activePalette.length()));
-        return activePalette.charAt(charIndex);
+        return runningLuminositySum / sectionAreaPixels;
     }
 
     public AsciiImage build() {
+        if (imageSource == null) return null;
+
         if (artCache == null) {
             artCache = new AsciiImage(generateArtStr(), getArtName().orElse("ascii-image"),
                     getCharWidth(), getArtWidth(), getArtHeight(), invertedShading
@@ -235,8 +259,10 @@ public class AsciiImageBuilder implements AsciiArtBuilder {
                 .collect(Collectors.joining("\n"));  // collecting all rows into a single String of ascii art.
     }
 
-    private void updateDomainAndRange() {
+    private void updateDomain() {
         domain = imageSource.getWidth() - imageSource.getWidth() % charWidth;
+    }
+    private void updateRange() {
         range = imageSource.getHeight() - imageSource.getHeight() % (2 * charWidth);
     }
 }

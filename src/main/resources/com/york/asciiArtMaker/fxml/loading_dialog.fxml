@@ -19,7 +19,7 @@
                   <VBox alignment="CENTER">
                      <children>
                         <ProgressBar fx:id="progressBar" prefWidth="200.0" progress="0.0" />
-                        <Label fx:id="info" text="Gathering frame data...(0%)">
+                        <Label fx:id="label" text="Gathering frame data...(0%)">
                            <font>
                               <Font name="System Italic" size="15.0" />
                            </font>
