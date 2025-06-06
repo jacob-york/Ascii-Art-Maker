@@ -12,6 +12,7 @@ public class DefaultCameraAdapter implements LiveSource {
     private final Mat frameBuffer;
     private final int width;
     private final int height;
+    private boolean isPaused;
 
     public DefaultCameraAdapter() {
         videoCapture = new VideoCapture(0);
@@ -22,6 +23,8 @@ public class DefaultCameraAdapter implements LiveSource {
 
         this.width = frameBuffer.cols();
         this.height = frameBuffer.rows();
+
+        isPaused = false;
     }
 
     @Override
@@ -40,14 +43,26 @@ public class DefaultCameraAdapter implements LiveSource {
     }
 
     @Override
-    public double getFps() {
+    public double getFPS() {
         return videoCapture.get(Videoio.CAP_PROP_FPS);
     }
 
     @Override
     public ImageSource getCurrentImageSource() {
-        videoCapture.read(frameBuffer);
+        if (!isPaused) {
+            videoCapture.read(frameBuffer);
+        }
         return new MatAdapter(frameBuffer);
+    }
+
+    @Override
+    public void pause() {
+        isPaused = true;
+    }
+
+    @Override
+    public void unpause() {
+        isPaused = false;
     }
 
     @Override

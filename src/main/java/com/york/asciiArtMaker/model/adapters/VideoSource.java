@@ -22,7 +22,7 @@ public interface VideoSource {
     /**
      * @return the frames per second of the original video.
      */
-    double getFps();
+    double getFPS();
 
     /**
      * @return the total number of frames in the original video.

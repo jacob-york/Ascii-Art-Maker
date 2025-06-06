@@ -70,7 +70,7 @@ public class VideoFileConnectionService implements Cancellable, Runnable {
         }
 
         @Override
-        public double getFps() {
+        public double getFPS() {
             return fps;
         }
 

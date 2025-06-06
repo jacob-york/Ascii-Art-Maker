@@ -219,7 +219,7 @@
                                  <Menu mnemonicParsing="false" text="Live Render Ascii...">
                                     <items>
                                        <MenuItem mnemonicParsing="false" onAction="#liveRenderFromCameraChosen" text="Camera..." />
-                                       <MenuItem disable="true" mnemonicParsing="false" text="Screen Capture..." />
+                                       <MenuItem mnemonicParsing="false" onAction="#liveRenderFromScreenCaptureChosen" text="Screen Capture..." />
                                        <MenuItem disable="true" mnemonicParsing="false" text="Paste Link..." />
                                     </items>
                                  </Menu>

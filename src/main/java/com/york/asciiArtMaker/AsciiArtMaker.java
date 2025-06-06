@@ -163,6 +163,7 @@ public final class AsciiArtMaker extends Application {
             stage.show();
             return Optional.of(loader.getController());
         } catch (IOException | AssertionError e) {
+            e.printStackTrace();
             new Alert(Alert.AlertType.ERROR, e.getMessage()).showAndWait();
             return Optional.empty();
         }

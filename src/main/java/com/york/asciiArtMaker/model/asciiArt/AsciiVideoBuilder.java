@@ -169,7 +169,7 @@ public class AsciiVideoBuilder implements AsciiArtBuilder {
     }
 
     public double getFps() {
-        return videoSource.getFps();
+        return videoSource.getFPS();
     }
 
     /**

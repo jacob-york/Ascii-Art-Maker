@@ -1,12 +1,12 @@
 package com.york.asciiArtMaker.view;
 
 import com.york.asciiArtMaker.AsciiArtMaker;
+import com.york.asciiArtMaker.model.asciiArt.AsciiArtBuilder;
 import com.york.asciiArtMaker.model.asciiArt.AsciiImage;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
 
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -32,6 +32,7 @@ public class AsciiViewportPane extends Pane {
     private double mouseXDragSpace;
     private double mouseYDragSpace;
 
+    private AsciiArtBuilder asciiArtBuilder;
     private AsciiImage art;
     private double virtualContentXPos;
     private double virtualContentYPos;
@@ -146,29 +147,35 @@ public class AsciiViewportPane extends Pane {
 
     /**
      * @param newContent
-     * @return false if any resizing needed to be done, otherwise true
+     * @return false if any resizing needed to be done to keep the art size in the valid char render height range, otherwise true
      */
     public boolean updateExistingContent(AsciiImage newContent) {
-        text.setText(newContent.toStr());
+        if (newContent.charWidth() == art.charWidth()) {
+            unsafeSetContent(newContent);
+            return false;
 
-        final double charWidthScalar = ((double) newContent.charWidth() / (double) art.charWidth());
-        double newScale = getContentScale() * charWidthScalar;
-        baselineScale *= charWidthScalar;
+        } else {
+            text.setText(newContent.toStr());
 
-        double newCharRenderHeight = getPhysicalContentHeight()*newScale / newContent.height();
-        double adjustedCharRenderHeight = AsciiArtMaker.ensureInRange(
-                newCharRenderHeight, MIN_CHAR_RENDER_HEIGHT, MAX_CHAR_RENDER_HEIGHT);
+            final double charWidthScalar = ((double) newContent.charWidth() / (double) art.charWidth());
+            double newScale = getContentScale() * charWidthScalar;
+            baselineScale *= charWidthScalar;
 
-        // compute adjusted scale and adjusted virtualZoom
-        if (adjustedCharRenderHeight != newCharRenderHeight) {
-            newScale = adjustedCharRenderHeight*newContent.height() / getPhysicalContentHeight();
-            virtualContentZoom = newScale / baselineScale;
+            double newCharRenderHeight = getPhysicalContentHeight()*newScale / newContent.height();
+            double adjustedCharRenderHeight = AsciiArtMaker.ensureInRange(
+                    newCharRenderHeight, MIN_CHAR_RENDER_HEIGHT, MAX_CHAR_RENDER_HEIGHT);
+
+            // compute adjusted scale and adjusted virtualZoom
+            if (adjustedCharRenderHeight != newCharRenderHeight) {
+                newScale = adjustedCharRenderHeight*newContent.height() / getPhysicalContentHeight();
+                virtualContentZoom = newScale / baselineScale;
+            }
+
+            setContentScale(newScale);
+            updateContentPos();
+            this.art = newContent;
+            return adjustedCharRenderHeight == newCharRenderHeight;
         }
-
-        setContentScale(newScale);
-        updateContentPos();
-        this.art = newContent;
-        return adjustedCharRenderHeight == newCharRenderHeight;
     }
 
     private boolean windowIsShowing() {
@@ -311,4 +318,5 @@ public class AsciiViewportPane extends Pane {
     public void setTextColor(Color value) {
         text.setFill(value);
     }
+
 }

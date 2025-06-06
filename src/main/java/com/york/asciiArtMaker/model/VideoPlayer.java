@@ -1,6 +1,7 @@
 package com.york.asciiArtMaker.model;
 
 import com.york.asciiArtMaker.AsciiArtMaker;
+import com.york.asciiArtMaker.model.asciiArt.AsciiImage;
 import com.york.asciiArtMaker.model.asciiArt.AsciiVideoBuilder;
 import com.york.asciiArtMaker.view.AsciiViewportPane;
 import javafx.animation.KeyFrame;
@@ -108,8 +109,9 @@ public class VideoPlayer {
     }
 
     public void setCurFrameInd(int newFrameInd) {
-            curFrameInd = newFrameInd;
-            asciiViewportPane.unsafeSetContent(asciiVideoBuilder.buildFrame(curFrameInd));
+        curFrameInd = newFrameInd;
+        AsciiImage asciiImage = asciiVideoBuilder.buildFrame(curFrameInd);
+        asciiViewportPane.updateExistingContent(asciiImage);
     }
 
     public boolean nextFrame() {
@@ -117,7 +119,8 @@ public class VideoPlayer {
             return false;
 
         slider.setValue(++curFrameInd);
-        asciiViewportPane.unsafeSetContent(asciiVideoBuilder.buildFrame(curFrameInd));
+        AsciiImage asciiImage = asciiVideoBuilder.buildFrame(curFrameInd);
+        asciiViewportPane.updateExistingContent(asciiImage);
 
         if (curFrameInd + 1 == asciiVideoBuilder.getFrameCount())
             finishVideo();
@@ -129,7 +132,8 @@ public class VideoPlayer {
         if (curFrameInd <= 0) return false;
 
         slider.setValue(--curFrameInd);
-        asciiViewportPane.unsafeSetContent(asciiVideoBuilder.buildFrame(curFrameInd));
+        AsciiImage asciiImage = asciiVideoBuilder.buildFrame(curFrameInd);
+        asciiViewportPane.updateExistingContent(asciiImage);
 
         if (state == State.VIDEO_FINISHED) {
             state = State.VIDEO_PAUSED;

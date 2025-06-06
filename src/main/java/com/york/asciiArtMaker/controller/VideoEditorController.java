@@ -40,6 +40,22 @@ public class VideoEditorController extends AsciiEditorController {
         return ((AsciiVideoBuilder) asciiArtBuilder).buildFrame(videoPlayer.getCurFrameInd());
     }
 
+    @Override
+    protected void configureAppCharWidth(int newCharWidth) {
+        super.configureAppCharWidth(newCharWidth);
+        if (videoPlayer != null && videoPlayer.getState() != VideoPlayer.State.VIDEO_PLAYING) {
+            asciiViewportPane.updateExistingContent(getAsciiImageFrame());
+        }
+    }
+
+    @Override
+    protected void configureAppInvertedShading(boolean newInvertedShading) {
+        super.configureAppInvertedShading(newInvertedShading);
+        if (videoPlayer != null && videoPlayer.getState() != VideoPlayer.State.VIDEO_PLAYING) {
+            asciiViewportPane.unsafeSetContent(getAsciiImageFrame());
+        }
+    }
+
     public void setVideoSource(VideoSource videoSource) {
         asciiArtBuilder = new AsciiVideoBuilder(videoSource)
                 .setCharWidth(INIT_CHAR_WIDTH)

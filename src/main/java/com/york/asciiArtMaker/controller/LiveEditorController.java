@@ -6,7 +6,6 @@ import com.york.asciiArtMaker.model.adapters.LiveSource;
 import com.york.asciiArtMaker.model.adapters.VideoSource;
 import com.york.asciiArtMaker.model.asciiArt.AsciiImage;
 import com.york.asciiArtMaker.model.asciiArt.AsciiLiveBuilder;
-import com.york.asciiArtMaker.view.ColorTheme;
 import com.york.asciiArtMaker.view.FPSTracker;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -29,6 +28,8 @@ public class LiveEditorController extends AsciiEditorController {
     @FXML
     public Button togglePlayButton;
 
+    private AsciiImage curImage;
+
     @Override
     public void initialize() {
         super.initialize();
@@ -48,10 +49,12 @@ public class LiveEditorController extends AsciiEditorController {
                 .setCharWidth(INIT_CHAR_WIDTH)
                 .setInvertedShading(activeColorTheme.invertedShading);
 
-        int fps = 30;
+        double fps = liveSource.getFPS();
         playLoop = new Timeline(new KeyFrame(Duration.seconds(1.0 / fps), (ActionEvent event) -> {
-            asciiViewportPane.unsafeSetContent(getAsciiImageFrame());
-            fpsTracker.tick();
+            if (playLoop.getStatus() == Animation.Status.RUNNING) {
+                asciiViewportPane.updateExistingContent(getAsciiImageFrame());
+                fpsTracker.tick();
+            }
         }));
 
         playLoop.setCycleCount(Timeline.INDEFINITE);
@@ -64,24 +67,19 @@ public class LiveEditorController extends AsciiEditorController {
     }
 
     @Override
-    protected void configureAppCharWidth(int newCharWidth)  {
-        if (playLoop != null) playLoop.pause();
+    protected void configureAppCharWidth(int newCharWidth) {
         super.configureAppCharWidth(newCharWidth);
-        if (playLoop != null) playLoop.play();
+        if (playLoop != null && playLoop.getStatus() != Animation.Status.RUNNING) {
+            asciiViewportPane.updateExistingContent(getAsciiImageFrame());
+        }
     }
 
     @Override
-    public void invertedShadingClicked() {
-        if (playLoop != null) playLoop.pause();
-        super.invertedShadingClicked();
-        if (playLoop != null) playLoop.play();
-    }
-
-    @Override
-    public void applyTheme(ColorTheme colorTheme) {
-        if (playLoop != null) playLoop.pause();
-        super.applyTheme(colorTheme);
-        if (playLoop != null) playLoop.play();
+    protected void configureAppInvertedShading(boolean newInvertedShading) {
+        super.configureAppInvertedShading(newInvertedShading);
+        if (playLoop != null && playLoop.getStatus() != Animation.Status.RUNNING) {
+            asciiViewportPane.unsafeSetContent(getAsciiImageFrame());
+        }
     }
 
     @Override
@@ -134,11 +132,13 @@ public class LiveEditorController extends AsciiEditorController {
 
     public void play() {
         playLoop.play();
+        ((AsciiLiveBuilder) asciiArtBuilder).getLiveSource().unpause();
         setPlayButtonIcon("pause");
     }
 
     public void pause() {
         playLoop.pause();
+        ((AsciiLiveBuilder) asciiArtBuilder).getLiveSource().pause();
         setPlayButtonIcon("play");
     }
 

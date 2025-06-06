@@ -3,6 +3,7 @@ package com.york.asciiArtMaker.controller;
 import com.york.asciiArtMaker.AsciiArtMaker;
 import com.york.asciiArtMaker.model.adapters.DefaultCameraAdapter;
 import com.york.asciiArtMaker.model.adapters.ImageFileAdapter;
+import com.york.asciiArtMaker.model.adapters.ScreenCaptureAdapter;
 import com.york.asciiArtMaker.model.adapters.VideoSource;
 import com.york.asciiArtMaker.model.asciiArt.AsciiArtBuilder;
 import com.york.asciiArtMaker.model.asciiArt.AsciiImage;
@@ -13,11 +14,14 @@ import javafx.fxml.FXML;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.input.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+import java.awt.*;
 import java.io.File;
 import java.util.Optional;
 
@@ -64,11 +68,19 @@ public abstract class AsciiEditorController implements ReturnLocation<VideoSourc
         asciiViewportPane = new AsciiViewportPane(1400, 770);
         asciiViewportPane.setCursor(Cursor.OPEN_HAND);
         fineZoomBase = asciiViewportPane.getContentZoom();
-
+        freestylingColorTheme = false;
         borderPane.setCenter(asciiViewportPane);
 
         for (ColorTheme colorTheme : ColorTheme.values()) {
-            colorThemeMenu.getItems().add(new ThemeMenuItem(colorTheme, () -> applyTheme(colorTheme)));
+            colorThemeMenu.getItems().add(new ThemeMenuItem(colorTheme, () -> {
+                styleView(colorTheme);
+                boolean newInvertedShading = colorTheme.invertedShading;
+                if (newInvertedShading != activeColorTheme.invertedShading) {
+                    configureAppInvertedShading(newInvertedShading);
+                }
+                activeColorTheme = colorTheme;
+                setFreestylingColorTheme(false);
+            }));
         }
 
         zoomSlider.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
@@ -84,7 +96,8 @@ public abstract class AsciiEditorController implements ReturnLocation<VideoSourc
             });
         }
 
-        applyTheme(ColorTheme.NOTEPAD);
+        styleView(ColorTheme.NOTEPAD);
+        activeColorTheme = ColorTheme.NOTEPAD;
     }
 
     abstract AsciiImage getAsciiImageFrame();
@@ -116,6 +129,24 @@ public abstract class AsciiEditorController implements ReturnLocation<VideoSourc
     public void liveRenderFromCameraChosen() {
         ((Stage) borderPane.getScene().getWindow()).close();
         AsciiArtMaker.launchLiveEditor(new DefaultCameraAdapter());
+    }
+
+    @FXML
+    public void liveRenderFromScreenCaptureChosen() {
+        Robot robot = null;
+
+        try {
+            robot = new Robot();
+        } catch (AWTException e) {
+            new Alert(Alert.AlertType.ERROR, e.getMessage()).showAndWait();
+        } catch (SecurityException e) {
+            new Alert(Alert.AlertType.ERROR, "Permission to capture screen was denied by your security manager:\n" + e.getMessage()).showAndWait();
+        }
+
+        if (robot != null) {
+            ((Stage) borderPane.getScene().getWindow()).close();
+            AsciiArtMaker.launchLiveEditor(new ScreenCaptureAdapter(robot));
+        }
     }
 
     @Override
@@ -207,23 +238,18 @@ public abstract class AsciiEditorController implements ReturnLocation<VideoSourc
         }
     }
 
-    /**
-     * @param newCharWidth
-     * @return false if unsuccessful (changes are therefore not written),
-     * true if successful
-     */
     protected void configureAppCharWidth(int newCharWidth)  {
         assert newCharWidth > 0 && newCharWidth <= asciiArtBuilder.getMaxCharWidth();
         asciiArtBuilder.setCharWidth(newCharWidth);
-
-        asciiViewportPane.updateExistingContent(getAsciiImageFrame());
         charWidthField.setText(String.valueOf(newCharWidth));
+    }
+    protected void configureAppInvertedShading(boolean newInvertedShading) {
+        asciiArtBuilder.setInvertedShading(newInvertedShading);
     }
 
     @FXML
     public void invertedShadingClicked() {
-        asciiArtBuilder.setInvertedShading(invertedShadingButton.isSelected());
-        asciiViewportPane.unsafeSetContent(getAsciiImageFrame());
+        configureAppInvertedShading(invertedShadingButton.isSelected());
     }
 
     @FXML
@@ -286,7 +312,7 @@ public abstract class AsciiEditorController implements ReturnLocation<VideoSourc
         scene.getAccelerators().put(kbZoomOut, this::zoomOutAction);
     }
 
-    public void applyTheme(ColorTheme colorTheme) {
+    private void styleView(ColorTheme colorTheme) {
         Color bgColor = colorTheme.bgColor;
         asciiViewportPane.setBackgroundColor(bgColor);
         bgColorPicker.setValue(bgColor);
@@ -295,19 +321,11 @@ public abstract class AsciiEditorController implements ReturnLocation<VideoSourc
         asciiViewportPane.setTextColor(textColor);
         textColorPicker.setValue(textColor);
 
-        boolean invertedShading = colorTheme.invertedShading;
-        if (asciiArtBuilder != null && invertedShading != asciiArtBuilder.getInvertedShading()) {
-            asciiArtBuilder.setInvertedShading(invertedShading);
-            asciiViewportPane.unsafeSetContent(getAsciiImageFrame());
-        }
-        invertedShadingButton.setSelected(invertedShading);
+        invertedShadingButton.setSelected(colorTheme.invertedShading);
 
-        activeColorTheme = colorTheme;
         colorThemeMenu.setTextFill(colorTheme.textColor);
         String hexCode = colorTheme.bgColor.toString().substring(2, 8);
         colorThemeMenu.setStyle("-fx-background-color: #" + hexCode + ";");
-
-        setFreestylingColorTheme(false);
     }
 
 }

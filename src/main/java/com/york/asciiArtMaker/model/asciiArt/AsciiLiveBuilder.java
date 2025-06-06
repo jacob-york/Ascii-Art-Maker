@@ -108,7 +108,7 @@ public class AsciiLiveBuilder implements AsciiArtBuilder {
     }
 
     public double getFps() {
-        return liveSource.getFps();
+        return liveSource.getFPS();
     }
 
     public AsciiImage buildCurrentFrame() {

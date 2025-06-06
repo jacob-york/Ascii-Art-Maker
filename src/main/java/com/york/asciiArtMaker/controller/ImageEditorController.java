@@ -37,4 +37,16 @@ public class ImageEditorController extends AsciiEditorController {
         fineZoomBase = asciiViewportPane.getContentZoom();
         zoomSlider.setValue(0);
     }
+
+    @Override
+    protected void configureAppCharWidth(int newCharWidth) {
+        super.configureAppCharWidth(newCharWidth);
+        asciiViewportPane.updateExistingContent(getAsciiImageFrame());
+    }
+
+    @Override
+    protected void configureAppInvertedShading(boolean newInvertedShading) {
+        super.configureAppInvertedShading(newInvertedShading);
+        asciiViewportPane.unsafeSetContent(getAsciiImageFrame());
+    }
 }
