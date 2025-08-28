@@ -239,7 +239,7 @@
                                                       </graphic>
                                                    </Button>
                                                    <Separator orientation="VERTICAL" prefHeight="200.0" />
-                                                   <CheckBox alignment="CENTER" mnemonicParsing="false" nodeOrientation="RIGHT_TO_LEFT" onAction="#toggleFullScreen" text="Fullscreen:">
+                                                   <CheckBox fx:id="fullScreenCheckBox" alignment="CENTER" mnemonicParsing="false" nodeOrientation="RIGHT_TO_LEFT" onAction="#toggleFullScreen" text="Fullscreen:">
                                                       <padding>
                                                          <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
                                                       </padding>
@@ -277,7 +277,7 @@
                                  <Menu mnemonicParsing="false" text="Live Render Ascii...">
                                     <items>
                                        <MenuItem mnemonicParsing="false" onAction="#liveRenderFromCameraChosen" text="Camera..." />
-                                       <MenuItem mnemonicParsing="false" onAction="#liveRenderFromScreenCaptureChosen" text="Screen Capture..." />
+                                       <MenuItem mnemonicParsing="false" onAction="#liveRenderFromScreenCaptureChosen" text="Screen Capture (WIP)..." />
                                        <MenuItem disable="true" mnemonicParsing="false" text="Paste Link..." />
                                     </items>
                                  </Menu>

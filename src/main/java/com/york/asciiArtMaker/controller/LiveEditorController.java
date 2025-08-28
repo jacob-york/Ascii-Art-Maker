@@ -10,12 +10,14 @@ import com.york.asciiArtMaker.view.FPSTracker;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -48,6 +50,8 @@ public class LiveEditorController extends AsciiEditorController {
         asciiArtBuilder = new AsciiLiveBuilder(liveSource)
                 .setCharWidth(INIT_CHAR_WIDTH)
                 .setInvertedShading(activeColorTheme.invertedShading);
+        fpsTracker.setTextFill(asciiArtBuilder.getInvertedShading() ? Color.WHITE : Color.BLACK);
+
 
         double fps = liveSource.getFPS();
         playLoop = new Timeline(new KeyFrame(Duration.seconds(1.0 / fps), (ActionEvent event) -> {
@@ -77,6 +81,7 @@ public class LiveEditorController extends AsciiEditorController {
     @Override
     protected void configureAppInvertedShading(boolean newInvertedShading) {
         super.configureAppInvertedShading(newInvertedShading);
+        fpsTracker.setTextFill(newInvertedShading ? Color.WHITE : Color.BLACK);
         if (playLoop != null && playLoop.getStatus() != Animation.Status.RUNNING) {
             asciiViewportPane.unsafeSetContent(getAsciiImageFrame());
         }
@@ -93,7 +98,21 @@ public class LiveEditorController extends AsciiEditorController {
     @Override
     public void liveRenderFromCameraChosen() {
         closeSource();
-        setLiveSource(new DefaultCameraAdapter());
+        AsciiArtMaker.tryLaunchView("fxml/webcam_loading_dialog.fxml").ifPresent(loadingDialogController -> {
+            Task<LiveSource> task = new Task<>() {
+                @Override
+                protected LiveSource call() {
+                    return new DefaultCameraAdapter();
+                }
+            };
+
+            task.setOnSucceeded(event -> {
+                ((LoadingDialogController) loadingDialogController).stage.close();
+                setLiveSource(task.getValue());
+            });
+
+            new Thread(task).start();
+        });
     }
 
     @Override

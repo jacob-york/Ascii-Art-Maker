@@ -2,11 +2,9 @@ package com.york.asciiArtMaker;
 
 import com.york.asciiArtMaker.controller.*;
 import com.york.asciiArtMaker.model.FileManager;
-import com.york.asciiArtMaker.model.adapters.ImageSource;
-import com.york.asciiArtMaker.model.adapters.LiveSource;
-import com.york.asciiArtMaker.model.adapters.VideoFileConnectionService;
-import com.york.asciiArtMaker.model.adapters.VideoSource;
+import com.york.asciiArtMaker.model.adapters.*;
 import javafx.application.Application;
+import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
@@ -142,7 +140,7 @@ public final class AsciiArtMaker extends Application {
     }
 
     /**
-     * Tries to launch a view with a given relative project path as a string. If there's an issue, it returns an empty
+     * Tries to load an FXML with a given relative project path as a string. If there's an issue, it returns an empty
      * optional. Otherwise, it returns the FXML's associated Controller object s.t. final changes could be made by the
      * user.
      *
@@ -150,7 +148,7 @@ public final class AsciiArtMaker extends Application {
      * @return an empty optional if there was any issue in loading a resource, a Controller otherwise.
      * If there is any issue in loading a resource, then an alert dialog is shown to the user as a side effect.
      */
-    private static Optional<Object> tryLaunchView(String path) {
+    public static Optional<Object> tryLaunchView(String path) {
         try {
             URL icon = AsciiArtMaker.class.getResource("icons/appIcon.png");
             assert icon != null;
@@ -178,14 +176,42 @@ public final class AsciiArtMaker extends Application {
                 ((ImageEditorController) controller).setImageSource(imageSource));
     }
 
-    public static void launchVideoFileConnectionService(File selectedFile, ReturnLocation<VideoSource> returnLocation) {
+    public static void launchVideoFileConnectionService(File selectedFile, Stage returnStage) {
         tryLaunchView("fxml/progress_dialog.fxml").ifPresent(controller -> {
+            ProgressDialogController pdc = ((ProgressDialogController) controller);
 
-            VideoFileConnectionService vfcs = new VideoFileConnectionService(selectedFile, returnLocation);
-            ProgressDialogController progressDialogController = (ProgressDialogController) controller;
-            progressDialogController.setCancellable(vfcs);
-            vfcs.addProgressMonitor(progressDialogController);
-            new Thread(vfcs).start();
+            VideoFileConnectionTask vfct = new VideoFileConnectionTask(selectedFile);
+            vfct.progressProperty().addListener((obs, oldValue, newValue) -> pdc.setProgress((Double) newValue));
+            vfct.setOnFailed(event -> pdc.stage.close());
+            vfct.setOnSucceeded(event -> {
+                pdc.stage.close();
+                returnStage.close();
+                AsciiArtMaker.launchVideoEditor(vfct.getValue());
+            });
+
+            pdc.setCancellable(vfct);
+
+            new Thread(vfct).start();
+        });
+    }
+
+    public static void launchWebcamConnectionService(Stage returnStage) {
+        AsciiArtMaker.tryLaunchView("fxml/webcam_loading_dialog.fxml").ifPresent(controller -> {
+            LoadingDialogController ldc = ((LoadingDialogController) controller);
+
+            Task<LiveSource> task = new Task<>() {
+                @Override
+                protected LiveSource call() {
+                    return new DefaultCameraAdapter();
+                }
+            };
+            task.setOnSucceeded(event -> {
+                ldc.stage.close();
+                returnStage.close();
+                AsciiArtMaker.launchLiveEditor(task.getValue());
+            });
+
+            new Thread(task).start();
         });
     }
 

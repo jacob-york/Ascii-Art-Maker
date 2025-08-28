@@ -1,10 +1,8 @@
 package com.york.asciiArtMaker.controller;
 
 import com.york.asciiArtMaker.AsciiArtMaker;
-import com.york.asciiArtMaker.model.adapters.ImageFileAdapter;
-import com.york.asciiArtMaker.model.adapters.DefaultCameraAdapter;
-import com.york.asciiArtMaker.model.adapters.ScreenCaptureAdapter;
-import com.york.asciiArtMaker.model.adapters.VideoSource;
+import com.york.asciiArtMaker.model.adapters.*;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.MenuButton;
@@ -13,6 +11,7 @@ import javafx.stage.Stage;
 import java.awt.*;
 import java.io.File;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 
 public class HomeController implements ReturnLocation<VideoSource> {
@@ -41,31 +40,26 @@ public class HomeController implements ReturnLocation<VideoSource> {
         if (maybeFile.isPresent()) {
             File selectedFile = maybeFile.get();
 
-            AsciiArtMaker.launchVideoFileConnectionService(selectedFile, this);
+            AsciiArtMaker.launchVideoFileConnectionService(selectedFile, (Stage) asciiImageMenuButton.getScene().getWindow());
         }
     }
 
     @FXML
     public void liveRenderFromCameraChosen() {
-        ((Stage) asciiImageMenuButton.getScene().getWindow()).close();
-        AsciiArtMaker.launchLiveEditor(new DefaultCameraAdapter());
+        AsciiArtMaker.launchWebcamConnectionService((Stage) asciiImageMenuButton.getScene().getWindow());
     }
 
     @FXML
     public void liveRenderFromScreenCaptureChosen() {
-        Robot robot = null;
-
         try {
-            robot = new Robot();
+            Robot robot = new Robot();
+            ((Stage) asciiImageMenuButton.getScene().getWindow()).close();
+            AsciiArtMaker.launchLiveEditor(new ScreenCaptureAdapter(robot));
+
         } catch (AWTException e) {
             new Alert(Alert.AlertType.ERROR, e.getMessage()).showAndWait();
         } catch (SecurityException e) {
             new Alert(Alert.AlertType.ERROR, "Permission to capture screen was denied by your security manager:\n" + e.getMessage()).showAndWait();
-        }
-
-        if (robot != null) {
-            ((Stage) asciiImageMenuButton.getScene().getWindow()).close();
-            AsciiArtMaker.launchLiveEditor(new ScreenCaptureAdapter(robot));
         }
     }
 

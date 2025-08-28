@@ -7,6 +7,9 @@ import javafx.scene.paint.Color;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
+/*
+    Deprecated; old and bad
+ */
 public class ImageRenderer {
 
     // todo:

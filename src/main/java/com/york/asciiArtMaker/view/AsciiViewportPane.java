@@ -151,9 +151,9 @@ public class AsciiViewportPane extends Pane {
      */
     public boolean updateExistingContent(AsciiImage newContent) {
         if (newContent.charWidth() == art.charWidth()) {
-            unsafeSetContent(newContent);
+            text.setText(newContent.toStr());
+            this.art = newContent;
             return false;
-
         } else {
             text.setText(newContent.toStr());
 

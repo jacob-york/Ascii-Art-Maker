@@ -51,7 +51,7 @@
                            <MenuButton fx:id="liveRenderMenuButton" mnemonicParsing="false" popupSide="RIGHT" text="Live Render">
                               <items>
                                  <MenuItem mnemonicParsing="false" onAction="#liveRenderFromCameraChosen" text="Camera..." />
-                                 <MenuItem mnemonicParsing="false" onAction="#liveRenderFromScreenCaptureChosen" text="Screen Capture..." />
+                                 <MenuItem mnemonicParsing="false" onAction="#liveRenderFromScreenCaptureChosen" text="Screen Capture (WIP)..." />
                                  <MenuItem disable="true" mnemonicParsing="false" text="Paste Link..." />
                               </items>
                               <VBox.margin>

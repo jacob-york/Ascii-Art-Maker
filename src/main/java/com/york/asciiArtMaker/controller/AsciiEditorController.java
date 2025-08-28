@@ -57,6 +57,8 @@ public abstract class AsciiEditorController implements ReturnLocation<VideoSourc
     public ColorPicker textColorPicker;
     @FXML
     public MenuButton colorThemeMenu;
+    @FXML
+    public CheckBox fullScreenCheckBox;
 
     protected AsciiArtBuilder asciiArtBuilder;
     protected AsciiViewportPane asciiViewportPane;
@@ -88,11 +90,20 @@ public abstract class AsciiEditorController implements ReturnLocation<VideoSourc
         });
 
         Scene scene = borderPane.getScene();
-        if (scene != null) {
+
+        if (borderPane.getScene() != null) {
             bindShortcuts(scene);
+            ((Stage) scene.getWindow())
+                    .fullScreenProperty()
+                    .addListener((obs, oldValue, newValue) -> fullScreenCheckBox.setSelected(newValue));
         } else {
             borderPane.sceneProperty().addListener((obs, oldScene, newScene) -> {
-                if (newScene != null) bindShortcuts(newScene);
+                if (newScene != null) {
+                    bindShortcuts(newScene);
+                    ((Stage) newScene.getWindow())
+                            .fullScreenProperty()
+                            .addListener((obs1, oldValue, newValue) -> fullScreenCheckBox.setSelected(newValue));
+                }
             });
         }
 
@@ -120,15 +131,14 @@ public abstract class AsciiEditorController implements ReturnLocation<VideoSourc
         if (maybeFile.isEmpty()) return false;
 
         File selectedFile = maybeFile.get();
-        AsciiArtMaker.launchVideoFileConnectionService(selectedFile, this);
+        AsciiArtMaker.launchVideoFileConnectionService(selectedFile, (Stage) borderPane.getScene().getWindow());
 
         return true;
     }
 
     @FXML
     public void liveRenderFromCameraChosen() {
-        ((Stage) borderPane.getScene().getWindow()).close();
-        AsciiArtMaker.launchLiveEditor(new DefaultCameraAdapter());
+        AsciiArtMaker.launchWebcamConnectionService((Stage) borderPane.getScene().getWindow());
     }
 
     @FXML

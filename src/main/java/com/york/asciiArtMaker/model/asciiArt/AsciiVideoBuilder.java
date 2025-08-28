@@ -1,6 +1,6 @@
 package com.york.asciiArtMaker.model.asciiArt;
 
-import com.york.asciiArtMaker.model.adapters.VideoFileConnectionService;
+import com.york.asciiArtMaker.model.adapters.VideoFileConnectionTask;
 import com.york.asciiArtMaker.model.adapters.VideoSource;
 
 import java.util.Optional;
@@ -176,7 +176,7 @@ public class AsciiVideoBuilder implements AsciiArtBuilder {
      * calls release on this builder's VideoSource. DO NOT CALL until you're done with your builder.
      */
     public void releaseVideoSource() {
-        if (videoSource instanceof VideoFileConnectionService.VideoFileAdapter vfa) {
+        if (videoSource instanceof VideoFileConnectionTask.VideoFileAdapter vfa) {
             vfa.release();
         }
     }
