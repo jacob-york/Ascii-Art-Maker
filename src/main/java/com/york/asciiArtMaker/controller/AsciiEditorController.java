@@ -1,10 +1,8 @@
 package com.york.asciiArtMaker.controller;
 
 import com.york.asciiArtMaker.AsciiArtMaker;
-import com.york.asciiArtMaker.model.adapters.DefaultCameraAdapter;
 import com.york.asciiArtMaker.model.adapters.ImageFileAdapter;
 import com.york.asciiArtMaker.model.adapters.ScreenCaptureAdapter;
-import com.york.asciiArtMaker.model.adapters.VideoSource;
 import com.york.asciiArtMaker.model.asciiArt.AsciiArtBuilder;
 import com.york.asciiArtMaker.model.asciiArt.AsciiImage;
 import com.york.asciiArtMaker.view.AsciiViewportPane;
@@ -25,7 +23,7 @@ import java.awt.*;
 import java.io.File;
 import java.util.Optional;
 
-public abstract class AsciiEditorController implements ReturnLocation<VideoSource> {
+public abstract class AsciiEditorController implements Closable {
 
     public static final double ZOOM_TRANSFORM = 0.25;
     public static final double PANNING_TRANSFORM = 50;
@@ -118,8 +116,9 @@ public abstract class AsciiEditorController implements ReturnLocation<VideoSourc
         Optional<File> maybeFile = AsciiArtMaker.getFileManager().selectImageFile();
         if (maybeFile.isEmpty()) return false;
 
+        close();
+
         File selectedFile = maybeFile.get();
-        ((Stage) borderPane.getScene().getWindow()).close();
         AsciiArtMaker.launchImageEditor(new ImageFileAdapter(selectedFile));
 
         return true;
@@ -131,18 +130,19 @@ public abstract class AsciiEditorController implements ReturnLocation<VideoSourc
         if (maybeFile.isEmpty()) return false;
 
         File selectedFile = maybeFile.get();
-        AsciiArtMaker.launchVideoFileConnectionService(selectedFile, (Stage) borderPane.getScene().getWindow());
+        AsciiArtMaker.launchVideoFileConnectionTask(selectedFile, this);
 
         return true;
     }
 
     @FXML
     public void liveRenderFromCameraChosen() {
-        AsciiArtMaker.launchWebcamConnectionService((Stage) borderPane.getScene().getWindow());
+        AsciiArtMaker.launchWebcamConnectionTask(this);
     }
 
     @FXML
     public void liveRenderFromScreenCaptureChosen() {
+        Stage stage = (Stage) borderPane.getScene().getWindow();
         Robot robot = null;
 
         try {
@@ -154,15 +154,9 @@ public abstract class AsciiEditorController implements ReturnLocation<VideoSourc
         }
 
         if (robot != null) {
-            ((Stage) borderPane.getScene().getWindow()).close();
+            stage.close();
             AsciiArtMaker.launchLiveEditor(new ScreenCaptureAdapter(robot));
         }
-    }
-
-    @Override
-    public void acceptResult(VideoSource result) {
-        ((Stage) borderPane.getScene().getWindow()).close();
-        AsciiArtMaker.launchVideoEditor(result);
     }
 
     @FXML
@@ -177,12 +171,13 @@ public abstract class AsciiEditorController implements ReturnLocation<VideoSourc
 
     @FXML
     public void closeEditorAction() {
-        ((Stage) borderPane.getScene().getWindow()).close();
+        close();
         AsciiArtMaker.launchHome();
     }
 
     @FXML
     public void quitProject() {
+        close();
         System.exit(0);
     }
 
@@ -322,7 +317,7 @@ public abstract class AsciiEditorController implements ReturnLocation<VideoSourc
         scene.getAccelerators().put(kbZoomOut, this::zoomOutAction);
     }
 
-    private void styleView(ColorTheme colorTheme) {
+    protected void styleView(ColorTheme colorTheme) {
         Color bgColor = colorTheme.bgColor;
         asciiViewportPane.setBackgroundColor(bgColor);
         bgColorPicker.setValue(bgColor);
@@ -338,4 +333,9 @@ public abstract class AsciiEditorController implements ReturnLocation<VideoSourc
         colorThemeMenu.setStyle("-fx-background-color: #" + hexCode + ";");
     }
 
+    @Override
+    public void close() {
+        Stage stage = (Stage) borderPane.getScene().getWindow();
+        stage.close();
+    }
 }

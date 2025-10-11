@@ -3,9 +3,9 @@ package com.york.asciiArtMaker.controller;
 import com.york.asciiArtMaker.AsciiArtMaker;
 import com.york.asciiArtMaker.model.adapters.DefaultCameraAdapter;
 import com.york.asciiArtMaker.model.adapters.LiveSource;
-import com.york.asciiArtMaker.model.adapters.VideoSource;
 import com.york.asciiArtMaker.model.asciiArt.AsciiImage;
 import com.york.asciiArtMaker.model.asciiArt.AsciiLiveBuilder;
+import com.york.asciiArtMaker.view.ColorTheme;
 import com.york.asciiArtMaker.view.FPSTracker;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -18,10 +18,15 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 
 public class LiveEditorController extends AsciiEditorController {
+
+    // todo: app sometimes doesn't terminate correctly if you just X out of the LiveEditor window.
+    // todo: while the LiveEditor is running, if you cancel a video file connection task, the LiveEditor runs significantly
+    //  slower. It continues to run slowly until the app terminates.
+    //  I think there's an issue with memory management: The video from the video file connection task doesn't really
+    //  get cleaned up and just sits in limbo on ram, or something like that.
 
     private Timeline playLoop;
     private FPSTracker fpsTracker;
@@ -29,6 +34,7 @@ public class LiveEditorController extends AsciiEditorController {
     public AnchorPane anchorPane;
     @FXML
     public Button togglePlayButton;
+    private boolean userPaused;
 
     private AsciiImage curImage;
 
@@ -39,6 +45,7 @@ public class LiveEditorController extends AsciiEditorController {
         AnchorPane.setTopAnchor(fpsTracker, 105.0);
         AnchorPane.setRightAnchor(fpsTracker, 40.0);
         anchorPane.getChildren().add(fpsTracker);
+        userPaused = false;
     }
 
     @Override
@@ -50,7 +57,7 @@ public class LiveEditorController extends AsciiEditorController {
         asciiArtBuilder = new AsciiLiveBuilder(liveSource)
                 .setCharWidth(INIT_CHAR_WIDTH)
                 .setInvertedShading(activeColorTheme.invertedShading);
-        fpsTracker.setTextFill(asciiArtBuilder.getInvertedShading() ? Color.WHITE : Color.BLACK);
+        fpsTracker.setTextFill(activeColorTheme.invertedShading ? Color.WHITE : Color.BLACK);
 
 
         double fps = liveSource.getFPS();
@@ -81,7 +88,6 @@ public class LiveEditorController extends AsciiEditorController {
     @Override
     protected void configureAppInvertedShading(boolean newInvertedShading) {
         super.configureAppInvertedShading(newInvertedShading);
-        fpsTracker.setTextFill(newInvertedShading ? Color.WHITE : Color.BLACK);
         if (playLoop != null && playLoop.getStatus() != Animation.Status.RUNNING) {
             asciiViewportPane.unsafeSetContent(getAsciiImageFrame());
         }
@@ -89,11 +95,24 @@ public class LiveEditorController extends AsciiEditorController {
 
     @Override
     public boolean newAsciiImageFromFileChosen() {
-        if(super.newAsciiImageFromFileChosen()) {
-            closeSource();
-            return true;
-        } else return false;
+        if (!userPaused) pause();
+
+        boolean fileChosen = super.newAsciiImageFromFileChosen();
+        if (!fileChosen && !userPaused) play();
+
+        return fileChosen;
     }
+
+    @Override
+    public boolean newAsciiVideoFromFileChosen() {
+        if (!userPaused) pause();
+
+        boolean fileChosen = super.newAsciiVideoFromFileChosen();
+        if (!fileChosen && !userPaused) play();
+
+        return fileChosen;
+    }
+
 
     @Override
     public void liveRenderFromCameraChosen() {
@@ -107,33 +126,12 @@ public class LiveEditorController extends AsciiEditorController {
             };
 
             task.setOnSucceeded(event -> {
-                ((LoadingDialogController) loadingDialogController).stage.close();
+                ((WebcamLoadingDialogController) loadingDialogController).stage.close();
                 setLiveSource(task.getValue());
             });
 
             new Thread(task).start();
         });
-    }
-
-    @Override
-    public void acceptResult(VideoSource result) {
-        super.acceptResult(result);
-        closeSource();
-    }
-
-    @Override
-    public void closeEditorAction() {
-        closeSource();
-
-        ((Stage) borderPane.getScene().getWindow()).close();
-        AsciiArtMaker.launchHome();
-    }
-
-    @Override
-    public void quitProject() {
-        closeSource();
-
-        System.exit(0);
     }
 
     private void closeSource() {
@@ -163,8 +161,32 @@ public class LiveEditorController extends AsciiEditorController {
 
     public void togglePlayAction() {
         switch (playLoop.getStatus()) {
-            case PAUSED -> play();
-            case RUNNING -> pause();
+            case PAUSED -> {
+                play();
+                userPaused = false;
+            }
+            case RUNNING -> {
+                pause();
+                userPaused = true;
+            }
         }
+    }
+
+    @Override
+    public void bgColorSelected() {
+        super.bgColorSelected();
+        if (fpsTracker != null) fpsTracker.setTextFill(bgColorPicker.getValue().invert());
+    }
+
+    @Override
+    protected void styleView(ColorTheme colorTheme) {
+        super.styleView(colorTheme);
+        if (fpsTracker != null) fpsTracker.setTextFill(colorTheme.bgColor.invert());
+    }
+
+    @Override
+    public void close() {
+        closeSource();
+        super.close();
     }
 }

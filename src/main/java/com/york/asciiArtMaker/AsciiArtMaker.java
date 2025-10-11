@@ -176,16 +176,16 @@ public final class AsciiArtMaker extends Application {
                 ((ImageEditorController) controller).setImageSource(imageSource));
     }
 
-    public static void launchVideoFileConnectionService(File selectedFile, Stage returnStage) {
+    public static void launchVideoFileConnectionTask(File selectedFile, Closable closable) {
         tryLaunchView("fxml/progress_dialog.fxml").ifPresent(controller -> {
-            ProgressDialogController pdc = ((ProgressDialogController) controller);
+            ProgressDialogController pdc = (ProgressDialogController) controller;
 
             VideoFileConnectionTask vfct = new VideoFileConnectionTask(selectedFile);
             vfct.progressProperty().addListener((obs, oldValue, newValue) -> pdc.setProgress((Double) newValue));
             vfct.setOnFailed(event -> pdc.stage.close());
             vfct.setOnSucceeded(event -> {
                 pdc.stage.close();
-                returnStage.close();
+                closable.close();
                 AsciiArtMaker.launchVideoEditor(vfct.getValue());
             });
 
@@ -195,9 +195,9 @@ public final class AsciiArtMaker extends Application {
         });
     }
 
-    public static void launchWebcamConnectionService(Stage returnStage) {
+    public static void launchWebcamConnectionTask(Closable closable) {
         AsciiArtMaker.tryLaunchView("fxml/webcam_loading_dialog.fxml").ifPresent(controller -> {
-            LoadingDialogController ldc = ((LoadingDialogController) controller);
+            WebcamLoadingDialogController wldc = (WebcamLoadingDialogController) controller;
 
             Task<LiveSource> task = new Task<>() {
                 @Override
@@ -206,8 +206,8 @@ public final class AsciiArtMaker extends Application {
                 }
             };
             task.setOnSucceeded(event -> {
-                ldc.stage.close();
-                returnStage.close();
+                wldc.stage.close();
+                closable.close();
                 AsciiArtMaker.launchLiveEditor(task.getValue());
             });
 
@@ -229,6 +229,5 @@ public final class AsciiArtMaker extends Application {
     public void start(Stage mainStage) {
         launchHome();
     }
-
 
 }

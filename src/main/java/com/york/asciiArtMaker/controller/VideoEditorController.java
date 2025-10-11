@@ -31,11 +31,6 @@ public class VideoEditorController extends AsciiEditorController {
     }
 
     @Override
-    public void acceptResult(VideoSource result) {
-        setVideoSource(result);
-    }
-
-    @Override
     AsciiImage getAsciiImageFrame() {
         return ((AsciiVideoBuilder) asciiArtBuilder).buildFrame(videoPlayer.getCurFrameInd());
     }

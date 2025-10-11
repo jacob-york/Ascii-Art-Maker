@@ -1,7 +1,5 @@
 package com.york.asciiArtMaker.controller;
 
-import com.york.asciiArtMaker.AsciiArtMaker;
-import com.york.asciiArtMaker.model.adapters.VideoSource;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;

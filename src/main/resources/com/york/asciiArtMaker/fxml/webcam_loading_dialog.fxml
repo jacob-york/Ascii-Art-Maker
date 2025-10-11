@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.Scene?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <?import javafx.stage.Stage?>
 
-<Stage fx:id="stage" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.york.asciiArtMaker.controller.LoadingDialogController">
+<Stage fx:id="stage" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.york.asciiArtMaker.controller.WebcamLoadingDialogController">
    <scene>
       <Scene>
          <root>
@@ -17,18 +15,16 @@
                <children>
                   <VBox alignment="CENTER">
                      <children>
-                        <HBox alignment="CENTER">
-                           <children>
-                              <Label fx:id="label" text="Connecting to default webcam">
-                                 <font>
-                                    <Font name="System Italic" size="17.0" />
-                                 </font>
-                                 <HBox.margin>
-                                    <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-                                 </HBox.margin>
-                              </Label>
-                           </children>
-                        </HBox>
+                        <Label fx:id="animationLabel">
+                           <font>
+                              <Font name="System Italic" size="17.0" />
+                           </font>
+                        </Label>
+                        <Label fx:id="label" text="Connecting to default webcam">
+                           <font>
+                              <Font name="System Italic" size="17.0" />
+                           </font>
+                        </Label>
                      </children>
                   </VBox>
                </children>

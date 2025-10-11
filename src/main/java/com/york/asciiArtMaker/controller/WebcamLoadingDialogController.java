@@ -9,20 +9,21 @@ import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-public class LoadingDialogController {
+public class WebcamLoadingDialogController {
 
     @FXML
     public Stage stage;
     @FXML
-    public Label label;
+    public Label animationLabel;
     private Timeline timeline;
     private final double TICKS_PER_SECOND = 3;
 
     @FXML
     public void initialize() {
         timeline = new Timeline(new KeyFrame(Duration.seconds(1.0 / TICKS_PER_SECOND), (ActionEvent event) -> {
-            int numPeriods = label.getText().length() - 7;
-            label.setText((numPeriods == 3) ? "Loading" : (label.getText() + "."));
+            int curNumPeriods = animationLabel.getText().length();
+            int nextNumPeriods = (curNumPeriods + 1) % 4;
+            animationLabel.setText(".".repeat(nextNumPeriods));
         }));
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();

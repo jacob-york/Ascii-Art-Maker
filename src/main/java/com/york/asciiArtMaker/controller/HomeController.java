@@ -2,7 +2,6 @@ package com.york.asciiArtMaker.controller;
 
 import com.york.asciiArtMaker.AsciiArtMaker;
 import com.york.asciiArtMaker.model.adapters.*;
-import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.MenuButton;
@@ -11,10 +10,9 @@ import javafx.stage.Stage;
 import java.awt.*;
 import java.io.File;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 
-public class HomeController implements ReturnLocation<VideoSource> {
+public class HomeController implements Closable {
 
     @FXML
     public MenuButton asciiImageMenuButton;
@@ -27,9 +25,9 @@ public class HomeController implements ReturnLocation<VideoSource> {
     public void asciiImageFromFileChosen() {
         Optional<File> maybeFile = AsciiArtMaker.getFileManager().selectImageFile();
         if (maybeFile.isPresent()) {
-            File selectedFile = maybeFile.get();
+            close();
 
-            ((Stage) asciiImageMenuButton.getScene().getWindow()).close();
+            File selectedFile = maybeFile.get();
             AsciiArtMaker.launchImageEditor(new ImageFileAdapter(selectedFile));
         }
     }
@@ -39,33 +37,36 @@ public class HomeController implements ReturnLocation<VideoSource> {
         Optional<File> maybeFile = AsciiArtMaker.getFileManager().selectVideoFile();
         if (maybeFile.isPresent()) {
             File selectedFile = maybeFile.get();
-
-            AsciiArtMaker.launchVideoFileConnectionService(selectedFile, (Stage) asciiImageMenuButton.getScene().getWindow());
+            AsciiArtMaker.launchVideoFileConnectionTask(selectedFile, this);
         }
     }
 
     @FXML
     public void liveRenderFromCameraChosen() {
-        AsciiArtMaker.launchWebcamConnectionService((Stage) asciiImageMenuButton.getScene().getWindow());
+        AsciiArtMaker.launchWebcamConnectionTask(this);
     }
 
     @FXML
     public void liveRenderFromScreenCaptureChosen() {
-        try {
-            Robot robot = new Robot();
-            ((Stage) asciiImageMenuButton.getScene().getWindow()).close();
-            AsciiArtMaker.launchLiveEditor(new ScreenCaptureAdapter(robot));
+        Robot robot = null;
 
+        try {
+            robot = new Robot();
         } catch (AWTException e) {
             new Alert(Alert.AlertType.ERROR, e.getMessage()).showAndWait();
         } catch (SecurityException e) {
             new Alert(Alert.AlertType.ERROR, "Permission to capture screen was denied by your security manager:\n" + e.getMessage()).showAndWait();
         }
+
+        if (robot != null) {
+            close();
+            AsciiArtMaker.launchLiveEditor(new ScreenCaptureAdapter(robot));
+        }
     }
 
     @Override
-    public void acceptResult(VideoSource result) {
-        ((Stage) asciiImageMenuButton.getScene().getWindow()).close();
-        AsciiArtMaker.launchVideoEditor(result);
+    public void close() {
+        Stage stage = (Stage) asciiImageMenuButton.getScene().getWindow();
+        stage.close();
     }
 }

@@ -1,13 +1,7 @@
 package com.york.asciiArtMaker.model.adapters;
 
-import com.york.asciiArtMaker.AsciiArtMaker;
 import com.york.asciiArtMaker.controller.Cancellable;
-import com.york.asciiArtMaker.controller.LoadingDialogController;
-import com.york.asciiArtMaker.controller.ProgressMonitor;
-import com.york.asciiArtMaker.controller.ReturnLocation;
-import javafx.application.Platform;
 import javafx.concurrent.Task;
-import javafx.stage.Stage;
 import org.opencv.core.Mat;
 import org.opencv.videoio.VideoCapture;
 import org.opencv.videoio.Videoio;
