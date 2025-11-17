@@ -11,10 +11,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+// todo: Videos that are too large eventually produce Stack Overflow errors while their frame data is being processed.
+//  obviously if the video is just too large then there's nothing you can do, but there needs to be an in-app mechanism
+//  that handles this case s.t. it doesn't just error and crash.
+
 public class VideoFileConnectionTask extends Task<VideoSource> implements Cancellable {
 
     /**
      * Nested class with a private constructor, for representing VideoSources created via a VideoFileConnectionTask.
+     * Its constructor is private because a VideoFileConnectionTask is by design the only thing that can instantiate a
+     * VideoFileAdapter.
      */
     public static class VideoFileAdapter implements VideoSource {
 
@@ -143,18 +149,18 @@ public class VideoFileConnectionTask extends Task<VideoSource> implements Cancel
         List<Mat> matrices = new ArrayList<>();
         updateProgress(0, approxFrameCount);
 
-        while (videoCapture.read(frameBuffer)) {
+        while (!isCancelled() && videoCapture.read(frameBuffer)) {
             frameInProgress++;
             matrices.add(frameBuffer.clone());
 
-            if (matrices.size() % FRAME_BUFFER == 0) {
+            if (matrices.size() % FRAME_BUFFER == 0)
                 updateProgress(frameInProgress, approxFrameCount);
-            }
         }
 
         videoCapture.release();
         frameBuffer.release();
 
-        return new VideoFileAdapter(file.getName(), fps, matrices);
+        return isCancelled() ? null : new VideoFileAdapter(file.getName(), fps, matrices);
     }
+
 }

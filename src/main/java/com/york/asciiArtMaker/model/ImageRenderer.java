@@ -7,14 +7,11 @@ import javafx.scene.paint.Color;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-/*
-    Deprecated; old and bad
- */
+
+// todo: this is shit
+
 public class ImageRenderer {
 
-    // todo:
-    //  adjustable resolution
-    //  try and refactor this into a proper builder
     private static double ADJ_CONSTANT = 1.5;
     private double fontPoint;
     private String font;

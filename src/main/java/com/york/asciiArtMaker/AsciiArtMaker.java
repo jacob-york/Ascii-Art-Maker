@@ -31,6 +31,8 @@ import java.util.stream.Collectors;
 
 public final class AsciiArtMaker extends Application {
 
+    // todo: there need to be some kind of tooltips explaining the app's keyboard shortcuts
+
     public static final String TITLE = "Welcome to Ascii Art Maker";
 
     private static FileManager fileManager;

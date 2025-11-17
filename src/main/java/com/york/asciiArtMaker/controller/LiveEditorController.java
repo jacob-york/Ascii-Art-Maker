@@ -22,12 +22,6 @@ import javafx.util.Duration;
 
 public class LiveEditorController extends AsciiEditorController {
 
-    // todo: app sometimes doesn't terminate correctly if you just X out of the LiveEditor window.
-    // todo: while the LiveEditor is running, if you cancel a video file connection task, the LiveEditor runs significantly
-    //  slower. It continues to run slowly until the app terminates.
-    //  I think there's an issue with memory management: The video from the video file connection task doesn't really
-    //  get cleaned up and just sits in limbo on ram, or something like that.
-
     private Timeline playLoop;
     private FPSTracker fpsTracker;
     @FXML

@@ -6,7 +6,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.stage.Stage;
 
-public class ProgressDialogController implements ProgressMonitor {
+public class ProgressDialogController {
 
     @FXML
     public Label label;
@@ -30,8 +30,8 @@ public class ProgressDialogController implements ProgressMonitor {
         cancel();
     }
 
-    public void setCancellable(Cancellable process) {
-        this.cancellable = process;
+    public void setCancellable(Cancellable cancellable) {
+        this.cancellable = cancellable;
     }
 
     public void updateDisplay() {
@@ -39,22 +39,19 @@ public class ProgressDialogController implements ProgressMonitor {
         progressBar.setProgress(progress);
     }
 
-    @Override
     public boolean cancel() {
-        if (cancellable != null) {
+        if (cancellable != null)
             cancellable.cancel();
-        }
+
         stage.close();
         return true;
     }
 
-    @Override
     public void setProgress(double progress) {
         this.progress = progress;
         updateDisplay();
     }
 
-    @Override
     public void finish() {
         stage.close();
     }
